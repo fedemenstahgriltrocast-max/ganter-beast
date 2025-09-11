@@ -74,7 +74,7 @@ html[data-theme="light"] .arrow button{background:#eef1fb;border-color:var(--lin
 .row.between{justify-content:space-between}
 .row.wrap{flex-wrap:wrap;justify-content:space-between}
 .muted{color:var(--muted)} html[data-theme="light"] .muted{color:var(--muted-light)}
-.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:5px 0}
 html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--line-light),transparent)}
 #delTimes{margin-top:10px}
 
@@ -153,9 +153,9 @@ input,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid 
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,.92)}
 html[data-theme="light"] input,html[data-theme="light"] textarea{background:var(--input-light);border-color:var(--line-light);color:var(--ink-light)}
 html[data-theme="light"] input::placeholder,html[data-theme="light"] textarea::placeholder{color:rgba(10,14,26,.6)}
-.items{display:grid;gap:10px;justify-items:center;text-align:center}
-#orderItems{margin-bottom:20px}
-.item-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;justify-items:center;text-align:center}
+.items{display:flex;flex-direction:column;gap:10px}
+#orderItems{margin-bottom:5px}
+.item-row{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%;gap:10px}
 .item-row strong,.item-row span{font-size:calc(1rem + 5px)}
 .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .inline-qty button{all:unset;cursor:pointer;padding:6px 10px;font-weight:800}
