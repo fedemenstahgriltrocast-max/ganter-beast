@@ -103,6 +103,15 @@ html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--
 }
 .score{font-size:28px;font-weight:800}
 .sub{font-size:.85rem;opacity:.8}
+.smiley{font-size:60px;margin-bottom:8px}
+.stars{display:flex;justify-content:center;gap:4px;color:#ffd700;font-size:24px}
+.stars i{cursor:pointer}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:10px}
+.bar-chart .bar{flex:1;background:var(--accent);position:relative;border-radius:4px;height:calc(var(--val)*1%)}
+.bar-chart .bar span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.8rem}
+.line-chart{margin-top:10px}
+.line-chart svg{width:100%;height:120px}
+.line-chart .labels{display:flex;justify-content:space-between;font-size:.8rem;margin-top:4px;width:100%}
 
 .totals{padding:16px}
 .totals .line{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
@@ -190,25 +199,28 @@ html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border
   <div class="kpis">
     <div class="card kpi" id="kpi1">
       <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
-      <div class="semicircle" style="--val:72%">
-        <div class="cover">
-          <div>
-            <div class="score">72</div>
-            <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-          </div>
-        </div>
+      <div id="csSmiley" class="smiley fas fa-meh" aria-hidden="true"></div>
+      <div id="csStars" class="stars">
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
+        <i class="far fa-star"></i>
       </div>
       <div class="muted" style="margin-top:8px" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
     </div>
 
     <div class="card kpi" id="kpi2">
       <h4 data-en="Visits" data-es="Visitas">Visits</h4>
-      <div class="semicircle" style="--val:83%">
-        <div class="cover">
-          <div>
-            <div class="score">83</div>
-            <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-          </div>
+      <div class="bar-chart">
+        <div class="bar" style="--val:30">
+          <span data-en="Today" data-es="Hoy">Today</span>
+        </div>
+        <div class="bar" style="--val:60">
+          <span data-en="3 months ago" data-es="Hace 3 meses">3 months ago</span>
+        </div>
+        <div class="bar" style="--val:90">
+          <span data-en="Last year" data-es="Año pasado">Last year</span>
         </div>
       </div>
       <div class="muted" style="margin-top:8px" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
@@ -216,12 +228,14 @@ html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border
 
     <div class="card kpi" id="kpi3">
       <h4 data-en="Online Sales" data-es="Ventas en línea">Online Sales</h4>
-      <div class="semicircle" style="--val:64%">
-        <div class="cover">
-          <div>
-            <div class="score">64</div>
-            <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-          </div>
+      <div class="line-chart">
+        <svg viewBox="0 0 100 60">
+          <polyline points="0,50 50,30 100,10" fill="none" stroke="var(--accent-2)" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <div class="labels">
+          <span data-en="Today" data-es="Hoy">Today</span>
+          <span data-en="3 months ago" data-es="Hace 3 meses">3 months ago</span>
+          <span data-en="Last year" data-es="Año pasado">Last year</span>
         </div>
       </div>
       <div class="muted" style="margin-top:8px" data-en="Room to grow." data-es="Espacio para crecer.">Room to grow.</div>
@@ -342,6 +356,22 @@ window.addEventListener('securitypolicyviolation', (e) => {
   const detail = `CSP blocked: ${e.blockedURI || 'inline'} on ${e.violatedDirective}`;
   console.warn(code, detail, e);
   alert(`${code}: ${t('A security policy blocked a required resource.','Una política de seguridad bloqueó un recurso necesario.')}\n${t('Directive','Directiva')}: ${e.violatedDirective}\n${t('Blocked','Bloqueado')}: ${e.blockedURI || 'inline'}`);
+});
+</script>
+<script nonce="2726c7f26c">
+document.addEventListener('DOMContentLoaded', () => {
+  const smiley = document.getElementById('csSmiley');
+  const stars = Array.from(document.querySelectorAll('#csStars i'));
+  const faces = ['fa-angry','fa-frown','fa-meh','fa-smile','fa-grin-stars'];
+  function setRating(r){
+    stars.forEach((s,i)=>{
+      s.classList.toggle('fas', i < r);
+      s.classList.toggle('far', i >= r);
+    });
+    smiley.className = 'smiley fas ' + faces[r-1];
+  }
+  stars.forEach((s,i)=> s.addEventListener('click', ()=> setRating(i+1)));
+  setRating(3);
 });
 </script>
 </body>
