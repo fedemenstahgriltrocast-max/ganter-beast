@@ -20,12 +20,12 @@ html[data-theme="light"] body{color:var(--ink-light);background:linear-gradient(
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 
 header{position:relative;display:flex;justify-content:center;align-items:center;margin-bottom:12px;min-height:44px}
-.brand{font-weight:800;letter-spacing:.3px;text-align:center}
-.actions{position:absolute;right:20px;top:20px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.brand{font-weight:800;letter-spacing:.3px;text-align:center;font-size:2rem}
+.actions{position:fixed;right:20px;top:20px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;z-index:1000}
 
 .toggle{
   all:unset;cursor:pointer;background:transparent;border:1px solid var(--line);
-  padding:8px 14px;border-radius:999px;font-size:14px;line-height:1;color:inherit;
+  padding:8px 14px;border-radius:999px;font-size:16px;line-height:1;color:inherit;
 }
 html[data-theme="light"] .toggle{border-color:var(--line-light)}
 .btn{
@@ -47,12 +47,12 @@ html[data-theme="light"] .card{background:var(--card-light);border-color:var(--l
 @media (min-width:1024px){.product{flex-basis:75%;min-width:75%}}
 @media (max-width:900px){.product{flex-basis:calc((100% - 16px)/2)}}
 @media (max-width:560px){.product{flex-basis:100%}}
-.product-image{width:100%;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#ffffff;background:
+.product-image{width:100%;aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#ffffff;background:
   repeating-linear-gradient(135deg,#172043,#172043 12px,#0e132a 12px,#0e132a 24px)}
 html[data-theme="light"] .product-image{color:#2b3766;background:repeating-linear-gradient(135deg,#eef2ff,#eef2ff 12px,#dae2ff 12px,#dae2ff 24px)}
-.product-title{font-weight:700}
-.product-desc{font-size:.92rem;text-align:center}
-.product-price{font-weight:800;color:#a9c6ff}
+.product-title{font-weight:700;font-size:1.4rem}
+.product-desc{font-size:1.1rem;text-align:center}
+.product-price{font-weight:800;color:#a9c6ff;font-size:1.3rem}
 html[data-theme="light"] .product-price{color:#3344aa}
 .qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .qty button{all:unset;cursor:pointer;padding:6px 12px;font-weight:800}
