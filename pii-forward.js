@@ -2,6 +2,18 @@
 
 // Forward sanitized PII to Cloudflare worker when Pay button is clicked
 (function(){
+  // Public key metadata for verifying worker challenge or encryption schemes
+  const KEY_ID = "kid-db403386-b31e-4f58-9693-ef8d8fda3286";
+  const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAER51NxAn+9rneOrpa/dtkeBQRlRMs\n7fXNFqdFHmbknZ+S0x0nEf1xOzwal23wx4GPID93F8ffkedxe9dAHP1btw==\n-----END PUBLIC KEY-----`;
+  const PUBLIC_JWK = {
+    "crv": "P-256",
+    "ext": true,
+    "key_ops": [],
+    "kty": "EC",
+    "x": "R51NxAn-9rneOrpa_dtkeBQRlRMs7fXNFqdFHmbknZ8",
+    "y": "ktMdJxH9cTs8Gpdt8MeBjyA_dxfH35HncXvXQBz9W7c"
+  };
+
   const workerUrl = window.CLOUDFLARE_WORKER_URL;
   if(!workerUrl){
     console.warn("CLOUDFLARE_WORKER_URL not configured");
@@ -28,7 +40,10 @@
       const pii = collectPII();
       const res = await fetch(workerUrl, {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
+        headers: {
+          "Content-Type":"application/json",
+          "X-Key-Id": KEY_ID
+        },
         body: JSON.stringify(pii),
         credentials: "omit"
       });
