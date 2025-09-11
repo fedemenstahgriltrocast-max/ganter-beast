@@ -3,15 +3,21 @@
 // Forward sanitized PII to Cloudflare worker when Pay button is clicked
 (function(){
   // Public key metadata for verifying worker challenge or encryption schemes
-  const KEY_ID = "kid-db403386-b31e-4f58-9693-ef8d8fda3286";
-  const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAER51NxAn+9rneOrpa/dtkeBQRlRMs\n7fXNFqdFHmbknZ+S0x0nEf1xOzwal23wx4GPID93F8ffkedxe9dAHP1btw==\n-----END PUBLIC KEY-----`;
+  const KEY_ID = "kid-ef90b3da-9bcb-4c21-89b9-f7d24dc16ef4";
+  const FINGERPRINT_SHA256 = "F5E8565ED05E14C568EC7A8F85B2FA1204FCDBBD3D358B6D693CC0EE1EA3D435";
+  const FINGERPRINT_SHA384 = "AB4B9A4E8755ABA77CFA3530FA7D6D3E3B9369329FB8F4F709066703E918ACD7704517649FBEF029E3546DDB3435207D";
+  const PUBLIC_KEY_PEM = `-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg2hYmEzD+89YxVheM
+mumCxbOwFjkAVKkTbf9sWvMD9C6hRANCAARIePnEjWxRmTXqJ7U1KmRzjAR9q3Nt
+gDoVQVb2jh09H+Hc1ZQ3cokJXaoNrrblLa9GZHVxKaEBMSFacp7rKkFR
+-----END PRIVATE KEY-----`;
   const PUBLIC_JWK = {
     "crv": "P-256",
     "ext": true,
-    "key_ops": [],
+    "key_ops": ["verify"],
     "kty": "EC",
-    "x": "R51NxAn-9rneOrpa_dtkeBQRlRMs7fXNFqdFHmbknZ8",
-    "y": "ktMdJxH9cTs8Gpdt8MeBjyA_dxfH35HncXvXQBz9W7c"
+    "x": "SHj5xI1sUZk16ie1NSpkc4wEfatzbYA6FUFW9o4dPR8",
+    "y": "4dzVlDdyiQldqg2utuUtr0ZkdXEpoQExIVpynusqQVE"
   };
 
   const workerUrl = window.CLOUDFLARE_WORKER_URL;
