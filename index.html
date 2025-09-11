@@ -154,6 +154,8 @@ html[data-theme="light"] input::placeholder,html[data-theme="light"] textarea::p
 .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .inline-qty button{all:unset;cursor:pointer;padding:6px 10px;font-weight:800}
 .inline-qty span{display:inline-block;min-width:28px;text-align:center}
+.row.order-summary{justify-content:center;gap:20px;font-size:calc(1rem + 5px)}
+.center-text{text-align:center}
 
 /* High-contrast dark */
 html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
@@ -275,8 +277,8 @@ section.instructions .muted{margin-bottom:8px}
       <button class="chip" data-min="90">1 hr 30 min</button>
     </div>
   </div>
+  
 </section>
-
 </div> <!-- FABs --> <div class="fab"> <a id="chatFab" href="https://wa.me/593993516952" target="_blank" rel="noopener noreferrer" data-en="💬 Chat" data-es="💬 Chat">💬 Chat</a> <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button> </div> <!-- ORDER MODAL --> <dialog id="orderDlg"> <div class="modal"> <header> <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div> <button class="close" id="closeDlg" aria-label="Close">×</button> </header> <main> <section> <div id="orderItems" class="items"></div> <div class="hr"></div> <div class="row center"> <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div> <strong id="m_deliveryTime">45 min</strong> </div> <div class="row center"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div> <div class="row center"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div> <div class="row center"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div> <div class="row center"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div> </section>
     <div class="hr"></div>
 
@@ -286,9 +288,8 @@ section.instructions .muted{margin-bottom:8px}
     </section>
 
     <div class="hr"></div>
-
     <section>
-      <div class="muted" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
+      <div class="muted center-text" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
       <div class="fields">
         <input id="firstName" required data-ph-en="Name" data-ph-es="Nombre" placeholder="Name" />
         <input id="lastName" required data-ph-en="Last name" data-ph-es="Apellido" placeholder="Last name" />
