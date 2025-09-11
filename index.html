@@ -47,7 +47,7 @@ html[data-theme="light"] .card{background:var(--card-light);border-color:var(--l
 @media (min-width:1024px){.product{flex-basis:75%;min-width:75%}}
 @media (max-width:900px){.product{flex-basis:calc((100% - 16px)/2)}}
 @media (max-width:560px){.product{flex-basis:100%}}
-.product-image{width:100%;aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#ffffff;background:
+.product-image{width:200px;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#ffffff;background:
   repeating-linear-gradient(135deg,#172043,#172043 12px,#0e132a 12px,#0e132a 24px)}
 html[data-theme="light"] .product-image{color:#2b3766;background:repeating-linear-gradient(135deg,#eef2ff,#eef2ff 12px,#dae2ff 12px,#dae2ff 24px)}
 .product-title{font-weight:700;font-size:1.4rem}
@@ -80,7 +80,7 @@ html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--
 .chip.sel{background:var(--accent-2);color:#fff;border-color:transparent}
 
 /* Accordion */
-.accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px}
+.accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px;margin-bottom:24px}
 .acc-head{display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:rgba(255,255,255,.06)}
 .acc-head .chev{display:inline-block;transition:transform .25s}
 .acc-head.open .chev{transform:rotate(180deg)}
@@ -89,7 +89,7 @@ html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--
 .acc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (max-width:800px){.acc-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){.acc-grid{grid-template-columns:1fr}}
-.ph{height:120px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#cfe0ff;background:
+.ph{width:200px;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#cfe0ff;background:
   repeating-linear-gradient(135deg,#1b2244,#1b2244 12px,#0e132a 12px,#0e132a 24px)}
 
 /* Bottom split: KPIs left, totals right */
@@ -138,7 +138,7 @@ html[data-theme="light"] .modal{background:#fff;border-color:var(--line-light);b
 .modal header,.modal footer{padding:12px 14px}
 .modal header{display:flex;justify-content:center;align-items:center;border-bottom:1px solid var(--line);position:relative}
 .modal main{padding:14px;display:grid;gap:14px}
-.close{all:unset;cursor:pointer;font-weight:800;font-size:24px;line-height:1;padding:0 8px}
+.close{all:unset;cursor:pointer;font-weight:800;font-size:32px;line-height:1;padding:0 12px}
 .modal header .close{position:absolute;right:0}
 .right{display:flex;justify-content:flex-end;gap:8px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -389,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setRating(3);
 });
 </script>
-<script src="https://www.marxia.com/" integrity="sha384-EyAEshAsJ3I3AQPLn+kad8u+61qx5+AXFbLFj/WGI7dRbmStphrwFnA0RpUlw2+P" crossorigin="anonymous"></script>
 <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-EyAEshAsJ3I3AQPLn+kad8u+61qx5+AXFbLFj/WGI7dRbmStphrwFnA0RpUlw2+P" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -41,16 +41,42 @@ gDoVQVb2jh09H+Hc1ZQ3cokJXaoNrrblLa9GZHVxKaEBMSFacp7rKkFR
     };
   }
 
+  function collectOrder(){
+    const order = { items: [], totals: {}, deliveryMinutes: window.deliveryMinutes || 0 };
+    try{
+      const lang = window.lang || "en";
+      if(Array.isArray(window.PRODUCTS) && window.cart instanceof Map){
+        window.PRODUCTS.forEach(p => {
+          const qty = window.cart.get(p.id);
+          if(qty > 0){
+            order.items.push({
+              id: p.id,
+              name: sanitizeString(lang === "en" ? p.name_en : p.name_es),
+              qty: qty,
+              price: p.price
+            });
+          }
+        });
+      }
+      if(typeof window.totals === "function"){
+        order.totals = window.totals();
+      }
+    }catch(e){
+      console.error("order collection failed", e);
+    }
+    return order;
+  }
+
   async function forwardPII(){
     try{
-      const pii = collectPII();
+      const payload = { pii: collectPII(), order: collectOrder() };
       const res = await fetch(workerUrl, {
         method: "POST",
         headers: {
           "Content-Type":"application/json",
           "X-Key-Id": KEY_ID
         },
-        body: JSON.stringify(pii),
+        body: JSON.stringify(payload),
         credentials: "omit"
       });
       if(res.ok){
