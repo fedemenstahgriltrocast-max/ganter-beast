@@ -134,22 +134,26 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 html[data-theme="dark"] .modal{background:#0b0f16;border-color:rgba(255,255,255,.28);color:#ffffff}
 html[data-theme="light"] .modal{background:#fff;border-color:var(--line-light);box-shadow:var(--shadow-light)}
 .modal header,.modal footer{padding:12px 14px}
-.modal header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.modal header{position:relative;display:flex;justify-content:center;align-items:center;border-bottom:1px solid var(--line)}
 .modal main{padding:14px;display:grid;gap:14px}
-.close{all:unset;cursor:pointer;font-weight:800;font-size:24px;line-height:1;padding:0 8px}
+.modal header .close{position:absolute;right:14px;top:50%;transform:translateY(-50%);all:unset;cursor:pointer;font-weight:800;font-size:24px;line-height:1;padding:0 8px}
 .right{display:flex;justify-content:flex-end;gap:8px}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fields.full{grid-template-columns:1fr auto}
+/* center form fields */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;justify-content:center;margin:0 auto;max-width:500px}
+.fields.full{grid-template-columns:1fr auto;justify-content:center;max-width:500px}
 @media (max-width:640px){.fields,.fields.full{grid-template-columns:1fr}}
 input,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--input);color:var(--ink);caret-color:#fff}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,.92)}
 html[data-theme="light"] input,html[data-theme="light"] textarea{background:var(--input-light);border-color:var(--line-light);color:var(--ink-light)}
 html[data-theme="light"] input::placeholder,html[data-theme="light"] textarea::placeholder{color:rgba(10,14,26,.6)}
-.items{display:grid;gap:10px}
-.item-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.items{display:grid;gap:10px;justify-items:center;text-align:center}
+.item-row{display:grid;grid-template-columns:auto auto;gap:8px;align-items:center;justify-content:center;font-size:calc(1rem + 5px)}
 .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .inline-qty button{all:unset;cursor:pointer;padding:6px 10px;font-weight:800}
 .inline-qty span{display:inline-block;min-width:28px;text-align:center}
+
+.row.order-summary{justify-content:center;gap:20px;font-size:calc(1rem + 5px)}
+.center-text{text-align:center}
 
 /* High-contrast dark */
 html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
@@ -270,18 +274,18 @@ html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border
   </div>
 </section>
 
-</div> <!-- FABs --> <div class="fab"> <a id="chatFab" href="https://wa.me/593993516952" target="_blank" rel="noopener noreferrer" data-en="💬 Chat" data-es="💬 Chat">💬 Chat</a> <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button> </div> <!-- ORDER MODAL --> <dialog id="orderDlg"> <div class="modal"> <header> <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div> <button class="close" id="closeDlg" aria-label="Close">×</button> </header> <main> <section> <div id="orderItems" class="items"></div> <div class="hr"></div> <div class="row" style="justify-content:space-between"> <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div> <strong id="m_deliveryTime">45 min</strong> </div> <div class="row" style="justify-content:space-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div> <div class="row" style="justify-content:space-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div> <div class="row" style="justify-content:space-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div> <div class="row" style="justify-content:space-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div> </section>
+</div> <!-- FABs --> <div class="fab"> <a id="chatFab" href="https://wa.me/593993516952" target="_blank" rel="noopener noreferrer" data-en="💬 Chat" data-es="💬 Chat">💬 Chat</a> <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button> </div> <!-- ORDER MODAL --> <dialog id="orderDlg"> <div class="modal"> <header> <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div> <button class="close" id="closeDlg" aria-label="Close">×</button> </header> <main> <section> <div id="orderItems" class="items"></div> <div class="hr"></div> <div class="row order-summary"> <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div> <strong id="m_deliveryTime">45 min</strong> </div> <div class="row order-summary"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div> </section>
     <div class="hr"></div>
 
     <section>
-      <div class="muted" data-en="Instructions" data-es="Instrucciones">Instructions</div>
-      <textarea id="instructions" rows="3" data-ph-en="No onions, leave at gate, etc." data-ph-es="Sin cebolla, dejar en la puerta, etc." placeholder="No onions, leave at gate, etc."></textarea>
+      <div class="muted center-text" data-en="Instructions" data-es="Instrucciones">Instructions</div>
+      <textarea id="instructions" class="center-text" style="margin:0 auto; display:block;" rows="3" data-ph-en="No onions, leave at gate, etc." data-ph-es="Sin cebolla, dejar en la puerta, etc." placeholder="No onions, leave at gate, etc."></textarea>
     </section>
 
     <div class="hr"></div>
 
     <section>
-      <div class="muted" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
+      <div class="muted center-text" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
       <div class="fields">
         <input id="firstName" required data-ph-en="Name" data-ph-es="Nombre" placeholder="Name" />
         <input id="lastName" required data-ph-en="Last name" data-ph-es="Apellido" placeholder="Last name" />
