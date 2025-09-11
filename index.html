@@ -44,12 +44,14 @@ html[data-theme="light"] .track::-webkit-scrollbar-thumb{background:rgba(20,20,3
 .card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.18));border:1px solid var(--line);border-radius:var(--edge);box-shadow:var(--shadow)}
 html[data-theme="light"] .card{background:var(--card-light);border-color:var(--line-light);box-shadow:var(--shadow-light)}
 .product{scroll-snap-align:start;flex:0 0 calc((100% - 32px)/3);min-width:260px;padding:14px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.product .hr{margin-top:auto;margin-bottom:8px}
+.product .qty{margin-top:0}
 @media (min-width:1024px){.product{flex-basis:75%;min-width:75%}}
 @media (max-width:900px){.product{flex-basis:calc((100% - 16px)/2)}}
 @media (max-width:560px){.product{flex-basis:100%}}
-.product-image{width:200px;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#ffffff;background:
-  repeating-linear-gradient(135deg,#172043,#172043 12px,#0e132a 12px,#0e132a 24px)}
-html[data-theme="light"] .product-image{color:#2b3766;background:repeating-linear-gradient(135deg,#eef2ff,#eef2ff 12px,#dae2ff 12px,#dae2ff 24px)}
+.product-image{width:100%;aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#ffffff;overflow:hidden}
+html[data-theme="light"] .product-image{color:#2b3766}
+.product-image img{width:100%;height:100%;object-fit:cover;display:block}
 .product-title{font-weight:700;font-size:1.4rem}
 .product-desc{font-size:1.1rem;text-align:center}
 .product-price{font-weight:800;color:#a9c6ff;font-size:1.3rem}
@@ -63,7 +65,7 @@ html[data-theme="light"] .product-price{color:#3344aa}
 html[data-theme="light"] .arrow button{background:#eef1fb;border-color:var(--line-light);color:#0a0e1a}
 
 .panel{padding:14px;margin-top:10px}
-.panel.deliver{width:75%;margin:0 auto}
+.panel.deliver{width:75%;margin:40px auto 0}
 @media (max-width:900px){.panel.deliver{width:100%}}
 .delivery-text{text-align:center;font-weight:800;font-size:calc(1.4rem + 5px)}
 .row{display:flex;gap:10px;align-items:center}
@@ -151,6 +153,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,.92)}
 html[data-theme="light"] input,html[data-theme="light"] textarea{background:var(--input-light);border-color:var(--line-light);color:var(--ink-light)}
 html[data-theme="light"] input::placeholder,html[data-theme="light"] textarea::placeholder{color:rgba(10,14,26,.6)}
 .items{display:grid;gap:10px;justify-items:center;text-align:center}
+#orderItems{margin-bottom:20px}
 .item-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;justify-items:center;text-align:center}
 .item-row strong,.item-row span{font-size:calc(1rem + 5px)}
 .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
@@ -352,7 +355,56 @@ const ERROR_DEFINITIONS = {
 };
 function handleError(code, context){ const def = ERROR_DEFINITIONS[code]; console.warn('Error context:', code, context, def?.troubleshoot); const msg = def ? t(def.msg_en, def.msg_es) : t('Unexpected error','Error inesperado'); alert(`${code}: ${msg}`); }
 /* ======================== RENDER PRODUCTS ========================= */
-function renderProducts(){ try { track.innerHTML = ''; PRODUCTS.forEach(p=>{ const name = lang==='en' ? p.name_en : p.name_es; const desc = lang==='en' ? p.desc_en : p.desc_es; const el = document.createElement('article'); el.className = 'product card'; el.innerHTML = ` <div class="product-image">Product Image</div> <div class="product-title">${name}</div> <div class="product-desc">${desc}</div> <div class="product-price">${fmt(p.price)}</div> <div class="qty" aria-label="${t('Quantity','Cantidad')} ${name}"> <button type="button" aria-label="${t('Decrease','Disminuir')}">−</button> <input type="text" inputmode="numeric" value="${cart.get(p.id)||0}" aria-label="${t('Quantity','Cantidad')}" /> <button type="button" aria-label="${t('Increase','Aumentar')}">+</button> </div>`; const [minus,input,plus] = el.querySelectorAll('.qty>*'); plus.addEventListener('click', ()=>{ cart.set(p.id,(cart.get(p.id)||0)+1); input.value=cart.get(p.id); recalc(); }); minus.addEventListener('click',()=>{ cart.set(p.id,Math.max(0,(cart.get(p.id)||0)-1)); input.value=cart.get(p.id); recalc(); }); input.addEventListener('input', ()=>{ const raw = input.value.replace(/\D/g,''); const v = Math.max(0, Math.min(999, parseInt(raw) || 0)); if (isNaN(v)) { handleError('MCB-CART-001'); input.value = 0; cart.set(p.id,0); } else { cart.set(p.id,v); input.value=v; } recalc(); }); track.appendChild(el); }); } catch(e) { handleError('MCB-PRD-001', e); } }
+function renderProducts(){
+  try {
+    track.innerHTML = '';
+    PRODUCTS.forEach(p=>{
+      const name = lang==='en' ? p.name_en : p.name_es;
+      const desc = lang==='en' ? p.desc_en : p.desc_es;
+      const el = document.createElement('article');
+      el.className = 'product card';
+      const img = p.img ? `<img src="${p.img}" alt="${name}">` : 'Product Image';
+      el.innerHTML = `
+        <div class="product-image">${img}</div>
+        <div class="product-title">${name}</div>
+        <div class="product-desc">${desc}</div>
+        <div class="product-price">${fmt(p.price)}</div>
+        <div class="hr"></div>
+        <div class="qty" aria-label="${t('Quantity','Cantidad')} ${name}">
+          <button type="button" aria-label="${t('Decrease','Disminuir')}">−</button>
+          <input type="text" inputmode="numeric" value="${cart.get(p.id)||0}" aria-label="${t('Quantity','Cantidad')}" />
+          <button type="button" aria-label="${t('Increase','Aumentar')}">+</button>
+        </div>`;
+      const [minus,input,plus] = el.querySelectorAll('.qty>*');
+      plus.addEventListener('click', ()=>{
+        cart.set(p.id,(cart.get(p.id)||0)+1);
+        input.value=cart.get(p.id);
+        recalc();
+      });
+      minus.addEventListener('click',()=>{
+        cart.set(p.id,Math.max(0,(cart.get(p.id)||0)-1));
+        input.value=cart.get(p.id);
+        recalc();
+      });
+      input.addEventListener('input', ()=>{
+        const raw = input.value.replace(/\D/g,'');
+        const v = Math.max(0, Math.min(999, parseInt(raw) || 0));
+        if (isNaN(v)) {
+          handleError('MCB-CART-001');
+          input.value = 0;
+          cart.set(p.id,0);
+        } else {
+          cart.set(p.id,v);
+          input.value=v;
+        }
+        recalc();
+      });
+      track.appendChild(el);
+    });
+  } catch(e) {
+    handleError('MCB-PRD-001', e);
+  }
+}
 /* ======================== TOTALS + RECALC ========================= */
 function totals(){ try { let sub=0; PRODUCTS.forEach(p=> sub+= p.price*(cart.get(p.id)||0)); const tax=sub*VAT, del=sub>0?DELIVERY_FEE:0, total=sub+tax+del; return {sub,tax,del,total}; } catch(e){ handleError('MCB-CART-002', e); return {sub:0,tax:0,del:0,total:0}; } }
 function recalc(){ const {sub,tax,del,total} = totals(); $('#t_sub').textContent = fmt(sub); $('#t_tax').textContent = fmt(tax); $('#t_del').textContent = fmt(del); $('#t_total').textContent = fmt(total); }
