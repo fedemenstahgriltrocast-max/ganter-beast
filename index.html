@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; script-src 'self' 'nonce-2726c7f26c';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com;" />
   <title>Marxia Cafe y Bocaditos</title>
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -13,14 +13,15 @@
     :root{ --bg:#0e1118; --ink:#ffffff; --muted:#c6cbe3; --card:#161b29; --accent:#6f7dff; --accent-2:#1ea97a; --danger:#ff4d6d; --line:rgba(255,255,255,.18); --chip:#212840; --input:#0c1020; --shadow:0 14px 40px rgba(0,0,0,.35); --edge:16px; --ink-light:#0a0e1a; --muted-light:#4a5670; --card-light:#ffffff; --line-light:rgba(10,14,26,.12); --input-light:#ffffff; --shadow-light:0 12px 28px rgba(0,0,0,.08); }
 html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
 body{background:var(--bg);color:var(--ink);transition:background .45s ease,color .25s ease}
-html[data-theme="light"] body{color:var(--ink-light)}
+html[data-theme="light"] body{color:var(--ink-light);background:linear-gradient(45deg,#ffecd2,#fcb69f,#a1c4fd,#c2e9fb);background-size:400% 400%;animation:lightTheme 15s ease infinite}
+@keyframes lightTheme{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 *,*::before,*::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease}
 
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 
 header{position:relative;display:flex;justify-content:center;align-items:center;margin-bottom:12px;min-height:44px}
 .brand{font-weight:800;letter-spacing:.3px;text-align:center}
-.actions{position:absolute;right:6px;top:6px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.actions{position:absolute;right:20px;top:20px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 
 .toggle{
   all:unset;cursor:pointer;background:transparent;border:1px solid var(--line);
