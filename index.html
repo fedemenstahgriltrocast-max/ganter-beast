@@ -219,7 +219,7 @@ section.instructions .muted{margin-bottom:8px}
     <div class="card kpi" id="kpi1">
       <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
       <div id="csSmiley" class="smiley fas fa-meh" aria-hidden="true"></div>
-      <div id="csStars" class="stars">
+      <div id="csStars" class="stars" style="display:none">
         <i class="far fa-star"></i>
         <i class="far fa-star"></i>
         <i class="far fa-star"></i>
@@ -227,7 +227,7 @@ section.instructions .muted{margin-bottom:8px}
         <i class="far fa-star"></i>
       </div>
       <div class="muted" style="margin-top:8px" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
-      <button id="sentBtn" class="btn" data-en="Rate \u2665" data-es="Calificar \u2665" style="margin-top:8px">Rate \u2665</button>
+      <button id="sentBtn" class="btn" data-en="Rate \u2665" data-es="Calificar \u2665" style="margin-top:18px">Rate \u2665</button>
     </div>
 
     <div class="card kpi" id="kpi2">
@@ -380,35 +380,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const smiley = document.getElementById('csSmiley');
   const stars = Array.from(document.querySelectorAll('#csStars i'));
   const faces = ['fa-angry','fa-frown','fa-meh','fa-smile','fa-grin-stars'];
-  function setRating(r){
+  let currentRating = 0;
+  function paint(r){
     stars.forEach((s,i)=>{
       s.classList.toggle('fas', i < r);
       s.classList.toggle('far', i >= r);
     });
+  }
+  function updateSmiley(r){
     smiley.className = 'smiley fas ' + faces[r-1];
   }
-  stars.forEach((s,i)=> s.addEventListener('click', ()=> setRating(i+1)));
-  const sentBtn = document.getElementById('sentBtn');
-  if(sentBtn){
-    sentBtn.addEventListener('click', async ()=>{
-      const r = Number(prompt(t('Rate your ordering (1-5):','Califica tu pedido (1-5):'),'5')||0);
-      const c = (prompt(t('Any comment (optional, 280 chars max):','Algún comentario (opcional, máximo 280 caracteres):'),'')||'').slice(0,280);
-      const hp = '';
-      if(!Number.isInteger(r) || r<1 || r>5) return alert(t('Please enter 1\u20135.','Por favor ingresa 1\u20135.'));
+  stars.forEach((s,i)=>{
+    s.addEventListener('mouseenter', ()=> paint(i+1));
+    s.addEventListener('mouseleave', ()=> paint(currentRating));
+    s.addEventListener('click', async ()=>{
+      currentRating = i+1;
+      paint(currentRating);
+      updateSmiley(currentRating);
       try{
         const res = await fetch('/sentiment', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ r, c, hp })
+          body: JSON.stringify({ r: currentRating, c:'', hp:'' })
         });
         if(!res.ok) throw new Error('net');
-        alert(t('Thanks! Your feedback was recorded.','\u00a1Gracias! Tu opini\u00f3n fue registrada.'));
-      }catch(e){
-        alert(t('Could not send right now.','No se pudo enviar en este momento.'));
+        alert(t('Thanks! Your feedback was recorded.','¡Gracias! Tu opinión fue registrada.'));
+      } catch(err){
+        alert(t('Error sending feedback. Please try again later.','Error al enviar comentarios. Inténtalo de nuevo más tarde.'));
       }
     });
+  });
+  const sentBtn = document.getElementById('sentBtn');
+  if(sentBtn){
+    sentBtn.addEventListener('click', ()=>{
+      document.getElementById('csStars').style.display = 'flex';
+    });
   }
-  setRating(3);
+  paint(currentRating);
 });
 </script>
 <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-EyAEshAsJ3I3AQPLn+kad8u+61qx5+AXFbLFj/WGI7dRbmStphrwFnA0RpUlw2+P" crossorigin="anonymous"></script>
