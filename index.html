@@ -67,6 +67,7 @@ html[data-theme="light"] .arrow button{background:#eef1fb;border-color:var(--lin
 @media (max-width:900px){.panel.deliver{width:100%}}
 .delivery-text{text-align:center;font-weight:800;font-size:calc(1.4rem + 5px)}
 .row{display:flex;gap:10px;align-items:center}
+.row.center{justify-content:center;text-align:center;gap:20px;font-size:calc(1rem + 5px)}
 .row.wrap{flex-wrap:wrap;justify-content:space-between}
 .muted{color:var(--muted)} html[data-theme="light"] .muted{color:var(--muted-light)}
 .hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
@@ -134,30 +135,34 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 html[data-theme="dark"] .modal{background:#0b0f16;border-color:rgba(255,255,255,.28);color:#ffffff}
 html[data-theme="light"] .modal{background:#fff;border-color:var(--line-light);box-shadow:var(--shadow-light)}
 .modal header,.modal footer{padding:12px 14px}
-.modal header{position:relative;display:flex;justify-content:center;align-items:center;border-bottom:1px solid var(--line)}
+.modal header{display:flex;justify-content:center;align-items:center;border-bottom:1px solid var(--line);position:relative}
 .modal main{padding:14px;display:grid;gap:14px}
-.modal header .close{position:absolute;right:14px;top:50%;transform:translateY(-50%);all:unset;cursor:pointer;font-weight:800;font-size:24px;line-height:1;padding:0 8px}
+.close{all:unset;cursor:pointer;font-weight:800;font-size:24px;line-height:1;padding:0 8px}
+.modal header .close{position:absolute;right:0}
 .right{display:flex;justify-content:flex-end;gap:8px}
-/* center form fields */
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;justify-content:center;margin:0 auto;max-width:500px}
-.fields.full{grid-template-columns:1fr auto;justify-content:center;max-width:500px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;justify-content:center;justify-items:center}
+.fields input{width:100%}
+.fields.full{grid-template-columns:1fr auto}
 @media (max-width:640px){.fields,.fields.full{grid-template-columns:1fr}}
 input,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--input);color:var(--ink);caret-color:#fff}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,.92)}
 html[data-theme="light"] input,html[data-theme="light"] textarea{background:var(--input-light);border-color:var(--line-light);color:var(--ink-light)}
 html[data-theme="light"] input::placeholder,html[data-theme="light"] textarea::placeholder{color:rgba(10,14,26,.6)}
 .items{display:grid;gap:10px;justify-items:center;text-align:center}
-.item-row{display:grid;grid-template-columns:auto auto;gap:8px;align-items:center;justify-content:center;font-size:calc(1rem + 5px)}
+.item-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;justify-items:center;text-align:center}
+.item-row strong,.item-row span{font-size:calc(1rem + 5px)}
 .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .inline-qty button{all:unset;cursor:pointer;padding:6px 10px;font-weight:800}
 .inline-qty span{display:inline-block;min-width:28px;text-align:center}
-
 .row.order-summary{justify-content:center;gap:20px;font-size:calc(1rem + 5px)}
 .center-text{text-align:center}
 
 /* High-contrast dark */
 html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
 html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border-color:rgba(255,255,255,.28)}
+section.instructions{display:flex;flex-direction:column;align-items:center;text-align:center}
+section.instructions .muted{margin-bottom:8px}
+#instructions{width:100%;max-width:400px}
   </style>
 </head>
 <body>
@@ -272,18 +277,17 @@ html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border
       <button class="chip" data-min="90">1 hr 30 min</button>
     </div>
   </div>
+  
 </section>
-
-</div> <!-- FABs --> <div class="fab"> <a id="chatFab" href="https://wa.me/593993516952" target="_blank" rel="noopener noreferrer" data-en="💬 Chat" data-es="💬 Chat">💬 Chat</a> <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button> </div> <!-- ORDER MODAL --> <dialog id="orderDlg"> <div class="modal"> <header> <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div> <button class="close" id="closeDlg" aria-label="Close">×</button> </header> <main> <section> <div id="orderItems" class="items"></div> <div class="hr"></div> <div class="row order-summary"> <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div> <strong id="m_deliveryTime">45 min</strong> </div> <div class="row order-summary"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div> <div class="row order-summary"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div> </section>
+</div> <!-- FABs --> <div class="fab"> <a id="chatFab" href="https://wa.me/593993516952" target="_blank" rel="noopener noreferrer" data-en="💬 Chat" data-es="💬 Chat">💬 Chat</a> <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button> </div> <!-- ORDER MODAL --> <dialog id="orderDlg"> <div class="modal"> <header> <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div> <button class="close" id="closeDlg" aria-label="Close">×</button> </header> <main> <section> <div id="orderItems" class="items"></div> <div class="hr"></div> <div class="row center"> <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div> <strong id="m_deliveryTime">45 min</strong> </div> <div class="row center"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div> <div class="row center"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div> <div class="row center"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div> <div class="row center"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div> </section>
     <div class="hr"></div>
 
-    <section>
-      <div class="muted center-text" data-en="Instructions" data-es="Instrucciones">Instructions</div>
-      <textarea id="instructions" class="center-text" style="margin:0 auto; display:block;" rows="3" data-ph-en="No onions, leave at gate, etc." data-ph-es="Sin cebolla, dejar en la puerta, etc." placeholder="No onions, leave at gate, etc."></textarea>
+    <section class="instructions">
+      <div class="muted" data-en="Instructions" data-es="Instrucciones">Instructions</div>
+      <textarea id="instructions" rows="3" data-ph-en="No onions, leave at gate, etc." data-ph-es="Sin cebolla, dejar en la puerta, etc." placeholder="No onions, leave at gate, etc."></textarea>
     </section>
 
     <div class="hr"></div>
-
     <section>
       <div class="muted center-text" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
       <div class="fields">
