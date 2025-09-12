@@ -107,10 +107,14 @@
     @media (max-width:960px){.kpis{grid-template-columns:1fr}}
     .kpi{padding:16px;text-align:center}
     .kpi h4{margin:6px 0 8px 0}
-    .semicircle{width:100%;aspect-ratio:2/1;border-top-left-radius:2000px;border-top-right-radius:2000px;overflow:hidden;background:conic-gradient(var(--accent-2) var(--val,0%), #394155 var(--val,0%));transform:rotate(180deg)}
-    .semicircle > .cover{position:relative;inset:auto;width:100%;height:100%;display:grid;place-items:center;transform:rotate(180deg)}
-    .score{font-size:28px;font-weight:800}
-    .sub{font-size:.85rem;opacity:.8}
+    .csat{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .csat-face{font-size:32px;margin-bottom:8px}
+    .stars{display:flex;gap:4px;color:gold;margin-bottom:8px}
+    .stars button{all:unset;cursor:pointer;color:inherit}
+    .stars i{font-size:20px}
+    .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
+    .counter div{display:flex;justify-content:space-between}
+    .kpi canvas{width:100%;max-width:220px;height:80px}
 
     .totals{padding:16px}
     .totals .line{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
@@ -170,7 +174,7 @@
 
     <!-- DELIVERY NOTICE + ACCORDION -->
     <section class="panel card">
-      <div class="muted" style="text-align:center;font-weight:700"
+      <div class="muted" style="text-align:center;font-weight:700;font-size:1.25rem"
            data-en="We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio"
            data-es="Entregamos en: Saucés, Alborada, Guayacanes, Tarazana Brisas del Rio">
         We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio
@@ -178,8 +182,9 @@
 
       <div id="zoneAcc" class="accordion">
         <div class="acc-head" role="button" aria-expanded="false">
-          <span data-en="See delivery areas & photos" data-es="Ver zonas de entrega y fotos">See delivery areas & photos</span>
-          <i class="fas fa-angle-double-down"></i>
+          <i class="fas fa-angle-down" aria-hidden="true"></i>
+          <span data-en="Our Menu" data-es="Nuestro Menú">Our Menu</span>
+          <i class="fas fa-angle-down" aria-hidden="true"></i>
         </div>
         <div class="acc-body">
           <div class="acc-inner">
@@ -201,40 +206,39 @@
       <div class="kpis">
         <div class="card kpi" id="kpi1">
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
-          <div class="semicircle" style="--val:72%">
-            <div class="cover">
-              <div>
-                <div class="score">72</div>
-                <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-              </div>
+          <div class="csat">
+            <div class="csat-face"><i class="far fa-smile" aria-hidden="true"></i></div>
+            <div class="stars" id="csatStars" aria-label="Rating">
+              <button type="button" aria-label="1 star" data-val="1"><i class="far fa-star"></i></button>
+              <button type="button" aria-label="2 stars" data-val="2"><i class="far fa-star"></i></button>
+              <button type="button" aria-label="3 stars" data-val="3"><i class="far fa-star"></i></button>
+              <button type="button" aria-label="4 stars" data-val="4"><i class="far fa-star"></i></button>
+              <button type="button" aria-label="5 stars" data-val="5"><i class="far fa-star"></i></button>
             </div>
+            <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+            <div class="muted" style="margin-top:8px" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
           </div>
-          <div class="muted" style="margin-top:8px" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
         </div>
 
         <div class="card kpi" id="kpi2">
           <h4 data-en="Visits" data-es="Visitas">Visits</h4>
-          <div class="semicircle" style="--val:83%">
-            <div class="cover">
-              <div>
-                <div class="score">83</div>
-                <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-              </div>
-            </div>
+          <div class="counter">
+            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="visitsToday">0</span></div>
+            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="visitsMonth">0</span></div>
+            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="visitsYear">0</span></div>
           </div>
+          <canvas id="visitsChart" width="180" height="80" aria-hidden="true"></canvas>
           <div class="muted" style="margin-top:8px" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
         </div>
 
         <div class="card kpi" id="kpi3">
           <h4 data-en="Online Sales" data-es="Ventas en línea">Online Sales</h4>
-          <div class="semicircle" style="--val:64%">
-            <div class="cover">
-              <div>
-                <div class="score">64</div>
-                <div class="sub" data-en="OUT OF 100" data-es="DE 100">OUT OF 100</div>
-              </div>
-            </div>
+          <div class="counter">
+            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="salesToday">0</span></div>
+            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="salesMonth">0</span></div>
+            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="salesYear">0</span></div>
           </div>
+          <canvas id="salesChart" width="180" height="80" aria-hidden="true"></canvas>
           <div class="muted" style="margin-top:8px" data-en="Room to grow." data-es="Espacio para crecer.">Room to grow.</div>
         </div>
       </div>
@@ -452,8 +456,65 @@
       span.textContent=cart.get(id)||0; recalc(); renderModal();
     }
 
+    /* CSAT rating */
+    function initCsat(){
+      let rating=0;
+      const stars=document.querySelectorAll('#csatStars button');
+      stars.forEach(btn=>btn.addEventListener('click',()=>{
+        rating=+btn.dataset.val;
+        stars.forEach(s=>{
+          const icon=s.querySelector('i');
+          if(+s.dataset.val<=rating){ icon.classList.remove('far'); icon.classList.add('fas'); }
+          else{ icon.classList.remove('fas'); icon.classList.add('far'); }
+        });
+      }));
+      $('#rateBtn').addEventListener('click',()=>{
+        alert(t('Thanks for rating!','Gracias por calificar!'));
+      });
+    }
+
+    /* Simple charts */
+    function drawBarChart(id,data){
+      const c=document.getElementById(id); if(!c) return;
+      const ctx=c.getContext('2d'); const w=c.width,h=c.height;
+      const max=Math.max(...data); const barW=w/data.length-10;
+      const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      data.forEach((v,i)=>{
+        const x=i*(barW+10)+5; const bh=(v/max)*h;
+        ctx.fillStyle=color; ctx.fillRect(x,h-bh,barW,bh);
+      });
+    }
+
+    function drawLineChart(id,data){
+      const c=document.getElementById(id); if(!c) return;
+      const ctx=c.getContext('2d'); const w=c.width,h=c.height;
+      const max=Math.max(...data); const step=w/(data.length-1);
+      const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+      data.forEach((v,i)=>{
+        const x=i*step; const y=h-(v/max)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke(); ctx.fillStyle=color;
+      data.forEach((v,i)=>{
+        const x=i*step; const y=h-(v/max)*h; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+      });
+    }
+
     /* INIT */
     renderProducts(); recalc(); syncLang(); syncTheme();
+    initCsat();
+    const visitCounts={today:25,month:600,year:7200};
+    $('#visitsToday').textContent=visitCounts.today;
+    $('#visitsMonth').textContent=visitCounts.month;
+    $('#visitsYear').textContent=visitCounts.year;
+    drawBarChart('visitsChart',[visitCounts.today,visitCounts.month,visitCounts.year]);
+
+    const salesCounts={today:12,month:320,year:2800};
+    $('#salesToday').textContent=salesCounts.today;
+    $('#salesMonth').textContent=salesCounts.month;
+    $('#salesYear').textContent=salesCounts.year;
+    drawLineChart('salesChart',[salesCounts.today,salesCounts.month,salesCounts.year]);
+
     $('#prev').addEventListener('click',()=>scrollByCards(-1));
     $('#next').addEventListener('click',()=>scrollByCards(1));
     $('#langBtn').addEventListener('click',()=>{lang=(lang==='en'?'es':'en');localStorage.setItem('lang',lang);syncLang();});
