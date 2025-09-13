@@ -92,6 +92,8 @@
     .accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px}
     .acc-head{display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:rgba(255,255,255,.06)}
     .acc-head i{transition:transform .25s}
+    .menu-title{font-weight:800;font-size:1.5rem;color:#fff}
+    html[data-theme="light"] .menu-title{color:#000}
     .acc-head.open i{transform:rotate(180deg)}
     .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
     .acc-inner{padding:12px}
@@ -109,9 +111,10 @@
     .kpi h4{margin:6px 0 8px 0}
     .csat{display:flex;flex-direction:column;align-items:center;gap:8px}
     .csat-face{font-size:32px;margin-bottom:8px}
-    .stars{display:flex;gap:4px;color:gold;margin-bottom:8px}
-    .stars button{all:unset;cursor:pointer;color:inherit}
-    .stars i{font-size:20px}
+    .stars{display:flex;gap:4px;margin-bottom:8px}
+    .stars button{all:unset;cursor:pointer}
+    .stars i{font-size:20px;color:var(--muted)}
+    .csat-footer{display:flex;flex-direction:column;align-items:center;margin-top:12px}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
     .kpi canvas{width:100%;max-width:220px;height:80px}
@@ -183,7 +186,7 @@
       <div id="zoneAcc" class="accordion">
         <div class="acc-head" role="button" aria-expanded="false">
           <i class="fas fa-angle-down" aria-hidden="true"></i>
-          <span data-en="Our Menu" data-es="Nuestro Menú">Our Menu</span>
+          <span class="menu-title" data-en="Our Menu" data-es="Nuestro Menú">Our Menu</span>
           <i class="fas fa-angle-down" aria-hidden="true"></i>
         </div>
         <div class="acc-body">
@@ -207,7 +210,7 @@
         <div class="card kpi" id="kpi1">
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
-            <div class="csat-face"><i class="far fa-smile" aria-hidden="true"></i></div>
+            <div class="csat-face"><i class="fas fa-meh" aria-hidden="true"></i></div>
             <div class="stars" id="csatStars" aria-label="Rating">
               <button type="button" aria-label="1 star" data-val="1"><i class="far fa-star"></i></button>
               <button type="button" aria-label="2 stars" data-val="2"><i class="far fa-star"></i></button>
@@ -215,8 +218,10 @@
               <button type="button" aria-label="4 stars" data-val="4"><i class="far fa-star"></i></button>
               <button type="button" aria-label="5 stars" data-val="5"><i class="far fa-star"></i></button>
             </div>
-            <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
-            <div class="muted" style="margin-top:8px" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
+            <div class="csat-footer">
+              <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+              <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
+            </div>
           </div>
         </div>
 
@@ -460,17 +465,38 @@
     function initCsat(){
       let rating=0;
       const stars=document.querySelectorAll('#csatStars button');
-      stars.forEach(btn=>btn.addEventListener('click',()=>{
-        rating=+btn.dataset.val;
+      const face=document.querySelector('.csat-face i');
+      const moods=['fa-frown','fa-frown-open','fa-meh','fa-smile','fa-grin-stars'];
+
+      const paint=val=>{
         stars.forEach(s=>{
           const icon=s.querySelector('i');
-          if(+s.dataset.val<=rating){ icon.classList.remove('far'); icon.classList.add('fas'); }
-          else{ icon.classList.remove('fas'); icon.classList.add('far'); }
+          if(+s.dataset.val<=val){
+            icon.classList.remove('far'); icon.classList.add('fas');
+            icon.style.color='#ffd700';
+          }else{
+            icon.classList.remove('fas'); icon.classList.add('far');
+            icon.style.color='';
+          }
         });
-      }));
+        const moodIdx=val?val-1:2;
+        face.className=`fas ${moods[moodIdx]}`;
+      };
+
+      stars.forEach(btn=>{
+        const val=+btn.dataset.val;
+        btn.addEventListener('mouseenter',()=>paint(val));
+        btn.addEventListener('focus',()=>paint(val));
+        btn.addEventListener('mouseleave',()=>paint(rating));
+        btn.addEventListener('blur',()=>paint(rating));
+        btn.addEventListener('click',()=>{rating=val;paint(rating);});
+      });
+
       $('#rateBtn').addEventListener('click',()=>{
         alert(t('Thanks for rating!','Gracias por calificar!'));
       });
+
+      paint(0);
     }
 
     /* Simple charts */
