@@ -557,23 +557,29 @@
     $('#cancelBtn').addEventListener('click',()=>$('#orderDlg').close());
 
     // GPS
-    $('#locBtn').addEventListener('click',async ()=>{
-      if(!navigator.geolocation){ alert(t('Geolocation not supported','Geolocalización no soportada')); return; }
-      if(navigator.permissions){
-        try{
-          const p=await navigator.permissions.query({name:'geolocation'});
-          if(p.state==='denied'){
-            alert(t('Location permission denied. Enable it in your device settings.','Permiso de ubicación denegado. Actívelo en la configuración de su dispositivo.'));
-            return;
-          }
-        }catch{}
-      }
-      navigator.geolocation.getCurrentPosition(pos=>{
-        gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude;
-        $('#gpsNote').textContent=`GPS: ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
-      },err=>{
-        if(err.code===err.PERMISSION_DENIED){
-          alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
+  $('#locBtn').addEventListener('click',async ()=>{
+    if(!navigator.geolocation){ alert(t('Geolocation not supported','Geolocalización no soportada')); return; }
+    let proceed=true;
+    if(navigator.permissions){
+      try{
+        const p=await navigator.permissions.query({name:'geolocation'});
+        if(p.state==='denied'){
+          alert(t('Location permission denied. Enable it in your device settings.','Permiso de ubicación denegado. Actívelo en la configuración de su dispositivo.'));
+          proceed=false;
+        }else if(p.state==='prompt'){
+          alert(t('Please allow location access when prompted.','Permita el acceso a la ubicación cuando se le solicite.'));
+        }
+      }catch{}
+    }else{
+      alert(t('Please allow location access when prompted.','Permita el acceso a la ubicación cuando se le solicite.'));
+    }
+    if(!proceed) return;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude;
+      $('#gpsNote').textContent=`GPS: ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
+    },err=>{
+      if(err.code===err.PERMISSION_DENIED){
+        alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
         }else{
           alert(t('Could not get location','No se pudo obtener la ubicación'));
         }
