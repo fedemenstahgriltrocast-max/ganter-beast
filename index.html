@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com;" />
   <title>Marxia Cafe y Bocaditos</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-dQzHJ6yxu48UUfGzSy0RKZ77N8BINU3CFAaj6MqFmoVoeAQMtk0iQF0EYh3YOE6TP0TOZcdLXx+HhrmBy06OA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Removed external Font Awesome dependency; using Unicode icons instead for broader compatibility -->
   <style nonce="2726c7f26c">
     :root{
       --bg:#0e1118; --ink:#ffffff; --muted:#c6cbe3; --card:#161b29;
@@ -91,10 +91,10 @@
     /* Accordion under notice */
     .accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px}
     .acc-head{display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:rgba(255,255,255,.06)}
-    .acc-head i{transition:transform .25s}
+    .acc-head .acc-icon{transition:transform .25s}
     .menu-title{font-weight:800;font-size:1.5rem;color:#fff}
     html[data-theme="light"] .menu-title{color:#000}
-    .acc-head.open i{transform:rotate(180deg)}
+    .acc-head.open .acc-icon{transform:rotate(180deg)}
     .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
     .acc-inner{padding:12px}
     .acc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -112,8 +112,7 @@
     .csat{display:flex;flex-direction:column;align-items:center;gap:8px}
     .csat-face{font-size:32px;margin-bottom:8px}
     .stars{display:flex;gap:4px;margin-bottom:8px}
-    .stars button{all:unset;cursor:pointer}
-    .stars i{font-size:20px;color:var(--muted)}
+    .stars button{all:unset;cursor:pointer;font-size:20px;color:var(--muted)}
     .csat-footer{display:flex;flex-direction:column;align-items:center;margin-top:12px}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
@@ -187,9 +186,9 @@
 
       <div id="zoneAcc" class="accordion">
         <div class="acc-head" role="button" aria-expanded="false">
-          <i class="fas fa-angle-down" aria-hidden="true"></i>
+          <span class="acc-icon" aria-hidden="true">▾</span>
           <span class="menu-title" data-en="Our Menu" data-es="Nuestro Menú">Our Menu</span>
-          <i class="fas fa-angle-down" aria-hidden="true"></i>
+          <span class="acc-icon" aria-hidden="true">▾</span>
         </div>
         <div class="acc-body">
           <div class="acc-inner">
@@ -212,13 +211,13 @@
         <div class="card kpi" id="kpi1">
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
-            <div class="csat-face"><i class="fas fa-meh" aria-hidden="true"></i></div>
+            <div class="csat-face" role="img" aria-live="polite">😐</div>
             <div class="stars" id="csatStars" aria-label="Rating">
-              <button type="button" aria-label="1 star" data-val="1"><i class="far fa-star"></i></button>
-              <button type="button" aria-label="2 stars" data-val="2"><i class="far fa-star"></i></button>
-              <button type="button" aria-label="3 stars" data-val="3"><i class="far fa-star"></i></button>
-              <button type="button" aria-label="4 stars" data-val="4"><i class="far fa-star"></i></button>
-              <button type="button" aria-label="5 stars" data-val="5"><i class="far fa-star"></i></button>
+              <button type="button" aria-label="1 star" data-val="1">☆</button>
+              <button type="button" aria-label="2 stars" data-val="2">☆</button>
+              <button type="button" aria-label="3 stars" data-val="3">☆</button>
+              <button type="button" aria-label="4 stars" data-val="4">☆</button>
+              <button type="button" aria-label="5 stars" data-val="5">☆</button>
             </div>
             <div class="csat-footer">
               <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
@@ -467,26 +466,20 @@
     function initCsat(){
       let rating=0;
       const stars=document.querySelectorAll('#csatStars button');
-      const face=document.querySelector('.csat-face i');
-      const moods=['fa-frown','fa-frown-open','fa-meh','fa-smile','fa-grin-stars'];
+      const face=document.querySelector('.csat-face');
+      const moods=['😞','🙁','😐','😄','🤩'];
 
       const paint=val=>{
-        stars.forEach(s=>{
-          const icon=s.querySelector('i');
-          if(+s.dataset.val<=val){
-            icon.classList.remove('far'); icon.classList.add('fas');
-            icon.style.color='#ffd700';
-          }else{
-            icon.classList.remove('fas'); icon.classList.add('far');
-            icon.style.color='';
-          }
+        stars.forEach((s,i)=>{
+          s.textContent=i<val?'★':'☆';
+          s.style.color=i<val?'#ffd700':'var(--muted)';
         });
         const moodIdx=val?val-1:2;
-        face.className=`fas ${moods[moodIdx]}`;
+        face.textContent=moods[moodIdx];
       };
 
-      stars.forEach(btn=>{
-        const val=+btn.dataset.val;
+      stars.forEach((btn,i)=>{
+        const val=i+1;
         btn.addEventListener('mouseenter',()=>paint(val));
         btn.addEventListener('focus',()=>paint(val));
         btn.addEventListener('mouseleave',()=>paint(rating));
