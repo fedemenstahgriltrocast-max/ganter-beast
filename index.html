@@ -560,12 +560,27 @@
     $('#cancelBtn').addEventListener('click',()=>$('#orderDlg').close());
 
     // GPS
-    $('#locBtn').addEventListener('click',()=>{
+    $('#locBtn').addEventListener('click',async ()=>{
       if(!navigator.geolocation){ alert(t('Geolocation not supported','Geolocalización no soportada')); return; }
+      if(navigator.permissions){
+        try{
+          const p=await navigator.permissions.query({name:'geolocation'});
+          if(p.state==='denied'){
+            alert(t('Location permission denied. Enable it in your device settings.','Permiso de ubicación denegado. Actívelo en la configuración de su dispositivo.'));
+            return;
+          }
+        }catch{}
+      }
       navigator.geolocation.getCurrentPosition(pos=>{
         gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude;
         $('#gpsNote').textContent=`GPS: ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
-      },()=>alert(t('Could not get location','No se pudo obtener la ubicación')),{enableHighAccuracy:true,timeout:8000});
+      },err=>{
+        if(err.code===err.PERMISSION_DENIED){
+          alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
+        }else{
+          alert(t('Could not get location','No se pudo obtener la ubicación'));
+        }
+      },{enableHighAccuracy:true,timeout:8000});
     });
 
     // Submit to backend + WhatsApp
