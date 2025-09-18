@@ -40,6 +40,7 @@
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
 
     header{position:relative;display:flex;justify-content:center;align-items:center;margin-bottom:12px;min-height:44px}
+    header .brand{font-weight:800;letter-spacing:.3px;text-align:center;font-size:36px;line-height:1.1}
     .brand{font-weight:800;letter-spacing:.3px;text-align:center}
     .actions{
       position:fixed;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;z-index:1000;
@@ -56,6 +57,24 @@
       font-size:14px;font-weight:700;box-shadow:var(--shadow);line-height:1;
     }
     .btn.alt{background:var(--accent-2)}
+
+    .chip{
+      all:unset;cursor:pointer;padding:8px 16px;border-radius:999px;
+      background:var(--chip);color:inherit;border:1px solid var(--line);
+      font-weight:600;letter-spacing:.2px;text-align:center;min-width:64px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .chip.sel{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+    html[data-theme="light"] .chip{background:#eef1fb;border-color:var(--line-light)}
+    html[data-theme="light"] .chip.sel{background:var(--accent);color:#fff}
+
+    .chips{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .chips .chip{width:100%}
+
+    .click-highlight{
+      background:var(--accent) !important;color:#fff !important;
+      box-shadow:0 0 0 3px rgba(111,125,255,.65),0 0 0 8px rgba(111,125,255,.25) !important;
+    }
 
     /* Carousel */
     .carousel{position:relative;margin-top:50px;margin-bottom:var(--section-gap)}
@@ -89,8 +108,6 @@
     html[data-theme="light"] .muted{color:var(--muted-light)}
     .hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
     html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--line-light),transparent)}
-    #delTimes{margin-top:10px}
-
     /* Accordion under notice */
     .accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px}
     .acc-head{display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:rgba(255,255,255,.06)}
@@ -261,13 +278,16 @@
         <div class="line"><span class="muted" data-en="Total" data-es="Total">Total</span><strong id="t_total">$0.00</strong></div>
 
         <div class="hr"></div>
-        <div class="row" style="justify-content:flex-end">
+        <div class="row" style="justify-content:flex-start">
           <button id="clearBtn" class="toggle" data-en="Clear Cart" data-es="Vaciar Carrito">Clear Cart</button>
         </div>
 
         <div class="hr"></div>
-        <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
-        <div class="chips" id="delTimes" style="margin-top:10px">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
+          <strong id="t_deliveryTime" aria-live="polite">45 min</strong>
+        </div>
+        <div class="chips" id="delTimes">
           <button class="chip sel" data-min="45">45 min</button>
           <button class="chip" data-min="60">1 hr</button>
           <button class="chip" data-min="90">1 hr 30 min</button>
@@ -374,6 +394,18 @@
     const track = $('#track');
     const t = (en,es)=> lang==='en'?en:es;
     const fmt = n => '$'+n.toFixed(2);
+    const highlightTimers = new WeakMap();
+    function formatDeliveryTime(mins){
+      if(mins===45) return t('45 min','45 min');
+      if(mins===60) return t('1 hr','1 hr');
+      if(mins===90) return t('1 hr 30 min','1 hr 30 min');
+      return t(`${mins} min`,`${mins} min`);
+    }
+    function updateDeliveryTimeDisplays(){
+      const display=formatDeliveryTime(deliveryMinutes);
+      const summary=$('#t_deliveryTime'); if(summary) summary.textContent=display;
+      const modalDisplay=$('#m_deliveryTime'); if(modalDisplay) modalDisplay.textContent=display;
+    }
     function setPh(el){ const ph = el.getAttribute(lang==='en'?'data-ph-en':'data-ph-es'); if(ph!==null) el.setAttribute('placeholder', ph); }
 
     function renderProducts(){
@@ -417,6 +449,7 @@
       document.querySelectorAll('[data-ph-en],[data-ph-es]').forEach(setPh);
       $('#langBtn').textContent = lang==='en' ? 'ES' : 'EN';
       renderProducts(); recalc();
+      updateDeliveryTimeDisplays();
       $('#m_deliveryTime').previousElementSibling.textContent = t('Delivery Time','Tiempo de entrega');
     }
     function syncTheme(){
@@ -453,7 +486,7 @@
       });
       box.addEventListener('click', modalQtyHandler, {once:true});
       const {sub,tax,del,total}=totals();
-      $('#m_deliveryTime').textContent=(deliveryMinutes===45)?t('45 min','45 min'):(deliveryMinutes===60)?t('1 hr','1 hr'):t('1 hr 30 min','1 hr 30 min');
+      updateDeliveryTimeDisplays();
       $('#m_sub').textContent=fmt(sub); $('#m_tax').textContent=fmt(tax);
       $('#m_del').textContent=fmt(del); $('#m_total').textContent=fmt(total);
     }
@@ -549,6 +582,7 @@
       if(!e.target.classList.contains('chip')) return;
       [...document.querySelectorAll('#delTimes .chip')].forEach(c=>c.classList.remove('sel'));
       e.target.classList.add('sel'); deliveryMinutes=+e.target.dataset.min;
+      updateDeliveryTimeDisplays();
     });
 
     const openPay=()=>{ renderModal(); $('#orderDlg').showModal(); };
@@ -604,10 +638,11 @@
       const items=PRODUCTS.map(p=>({id:p.id,name:(lang==='en'?p.name_en:p.name_es),desc:(lang==='en'?p.desc_en:p.desc_es),qty:(cart.get(p.id)||0),unit:p.price})).filter(i=>i.qty>0);
       if(!items.length){ alert(t('Your cart is empty.','Su carrito está vacío.')); return; }
       const {sub,tax,del,total}=totals();
+      const deliveryDisplay=formatDeliveryTime(deliveryMinutes);
       const payload={
         lang,timestamp:new Date().toISOString(),business:BUSINESS,
         customer:{firstName,lastName,idNumber,phone,email,address,gps,city:""},
-        delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:(deliveryMinutes===45)?t('45 min','45 min'):(deliveryMinutes===60)?t('1 hr','1 hr'):t('1 hr 30 min','1 hr 30 min')},
+        delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
         cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
       };
       try{
@@ -620,10 +655,22 @@
 
       const maps=(gps.lat&&gps.lng)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
       const lines=items.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.qty*i.unit)}`).join("\n");
-      const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${payload.delivery.display}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
+      const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
       $('#orderDlg').close();
       alert(t('Order sent. We also opened WhatsApp with the details.','Pedido enviado. También abrimos WhatsApp con los detalles.'));
+    });
+
+    document.addEventListener('click',e=>{
+      const interactive=e.target.closest('button, a');
+      if(!interactive) return;
+      interactive.classList.add('click-highlight');
+      if(highlightTimers.has(interactive)) clearTimeout(highlightTimers.get(interactive));
+      const timer=setTimeout(()=>{
+        interactive.classList.remove('click-highlight');
+        highlightTimers.delete(interactive);
+      },3000);
+      highlightTimers.set(interactive,timer);
     });
 
     // Keyboard arrows for carousel
