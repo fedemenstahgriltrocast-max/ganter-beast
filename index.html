@@ -62,11 +62,13 @@
       all:unset;cursor:pointer;padding:8px 16px;border-radius:999px;
       background:var(--chip);color:inherit;border:1px solid var(--line);
       font-weight:600;letter-spacing:.2px;text-align:center;min-width:64px;
+      display:flex;align-items:center;justify-content:center;
     }
     .chip.sel{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     html[data-theme="light"] .chip{background:#eef1fb;border-color:var(--line-light)}
     html[data-theme="light"] .chip.sel{background:var(--accent);color:#fff}
-
+    .chips{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .chips .chip{width:100%}
     .click-highlight{
       background:var(--accent) !important;color:#fff !important;
       box-shadow:0 0 0 3px rgba(111,125,255,.65),0 0 0 8px rgba(111,125,255,.25) !important;
@@ -104,8 +106,6 @@
     html[data-theme="light"] .muted{color:var(--muted-light)}
     .hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
     html[data-theme="light"] .hr{background:linear-gradient(90deg,transparent,var(--line-light),transparent)}
-    #delTimes{margin-top:10px}
-
     /* Accordion under notice */
     .accordion{overflow:hidden;border-radius:12px;border:1px solid var(--line);margin-top:8px}
     .acc-head{display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:rgba(255,255,255,.06)}
@@ -173,7 +173,6 @@
     .inline-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
     .inline-qty button{all:unset;cursor:pointer;padding:6px 10px;font-weight:800}
     .inline-qty span{display:inline-block;min-width:28px;text-align:center}
-
     html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
     html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border-color:rgba(255,255,255,.28)}
   </style>
@@ -276,7 +275,7 @@
         <div class="line"><span class="muted" data-en="Total" data-es="Total">Total</span><strong id="t_total">$0.00</strong></div>
 
         <div class="hr"></div>
-        <div class="row" style="justify-content:flex-end">
+        <div class="row" style="justify-content:flex-start">
           <button id="clearBtn" class="toggle" data-en="Clear Cart" data-es="Vaciar Carrito">Clear Cart</button>
         </div>
 
@@ -285,7 +284,7 @@
           <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
           <strong id="t_deliveryTime" aria-live="polite">45 min</strong>
         </div>
-        <div class="chips" id="delTimes" style="margin-top:10px">
+        <div class="chips" id="delTimes">
           <button class="chip sel" data-min="45">45 min</button>
           <button class="chip" data-min="60">1 hr</button>
           <button class="chip" data-min="90">1 hr 30 min</button>
@@ -329,7 +328,6 @@
         </section>
 
         <div class="hr"></div>
-
         <section>
           <div class="muted" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
           <div class="fields">
@@ -361,7 +359,7 @@
     /* CONFIG */
     const CLOUDFLARE_WORKER_URL = ""; // optional
     const APPS_SCRIPT_URL = "";       // optional
-    const WHATSAPP_NUMBER = "593993516952";
+    const WHATSAPP_NUMBER = "593958741463";
     const BUSINESS = {
       name: "Marxia Cafe y Bocaditos",
       address: "Av. Principal y Calle A",
@@ -643,14 +641,16 @@
         delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
         cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
       };
+      
       try{
         if(CLOUDFLARE_WORKER_URL){
           await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,apps_script_url:APPS_SCRIPT_URL})});
         }else if(APPS_SCRIPT_URL){
           await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
         }
-      }catch(e){ console.warn("Backend request failed:",e); }
-
+      }
+      
+      catch(e){ console.warn("Backend request failed:",e); }
       const maps=(gps.lat&&gps.lng)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
       const lines=items.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.qty*i.unit)}`).join("\n");
       const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
