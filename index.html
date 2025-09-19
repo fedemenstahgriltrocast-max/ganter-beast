@@ -67,12 +67,29 @@
     .chip.sel{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     html[data-theme="light"] .chip{background:#eef1fb;border-color:var(--line-light)}
     html[data-theme="light"] .chip.sel{background:var(--accent);color:#fff}
-    .chips{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-    .chips .chip{width:100%}
+    .chips{display:flex;flex-direction:column;gap:10px;margin-top:10px;align-items:center}
+    .chips .chip{width:140px;max-width:100%;padding:8px 0;min-height:36px}
     .click-highlight{
       background:var(--accent) !important;color:#fff !important;
       box-shadow:0 0 0 3px rgba(111,125,255,.65),0 0 0 8px rgba(111,125,255,.25) !important;
     }
+
+    #clearBtn{
+      font-size:12px;font-weight:700;padding:14px 28px;border-radius:999px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);
+      color:inherit;box-shadow:var(--shadow);
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    }
+    #clearBtn:hover{background:rgba(255,255,255,.14)}
+    html[data-theme="light"] #clearBtn{
+      background:rgba(10,14,26,.06);
+      border-color:rgba(10,14,26,.18);
+      color:var(--ink-light);
+      box-shadow:var(--shadow-light);
+    }
+    html[data-theme="light"] #clearBtn:hover{background:rgba(10,14,26,.12)}
+
+    .delivery-label{font-size:12px;font-weight:700;letter-spacing:.15px}
 
     /* Carousel */
     .carousel{position:relative;margin-top:50px;margin-bottom:var(--section-gap)}
@@ -275,13 +292,13 @@
         <div class="line"><span class="muted" data-en="Total" data-es="Total">Total</span><strong id="t_total">$0.00</strong></div>
 
         <div class="hr"></div>
-        <div class="row" style="justify-content:flex-start">
+        <div class="row" style="justify-content:center">
           <button id="clearBtn" class="toggle" data-en="Clear Cart" data-es="Vaciar Carrito">Clear Cart</button>
         </div>
 
         <div class="hr"></div>
         <div class="row" style="justify-content:space-between;align-items:center">
-          <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
+          <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
           <strong id="t_deliveryTime" aria-live="polite">45 min</strong>
         </div>
         <div class="chips" id="delTimes">
@@ -311,7 +328,7 @@
           <div id="orderItems" class="items"></div>
           <div class="hr"></div>
           <div class="row" style="justify-content:space-between">
-            <div class="muted" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
+            <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
             <strong id="m_deliveryTime">45 min</strong>
           </div>
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div>
