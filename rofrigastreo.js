@@ -91,5 +91,11 @@ Q+ituK2zUqToU1nuEocfWv4jcQW9St1RO7mIQY5G7n/reYSRHP9Jnm1XOg==
     }
   }
 
-  document.getElementById("confirmBtn")?.addEventListener("click", forwardPII);
+  const confirmBtn = document.getElementById("confirmBtn");
+  if(confirmBtn){
+    confirmBtn.addEventListener("click", ()=>{
+      if(!window.locationConfirmed) return;
+      forwardPII();
+    });
+  }
 })();
