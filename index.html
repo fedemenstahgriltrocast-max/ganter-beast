@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com; frame-src https://www.google.com https://maps.google.com;" />
   <title>Marxia Cafe y Bocaditos</title>
   <!-- Removed external Font Awesome dependency; using Unicode icons instead for broader compatibility -->
   <style nonce="2726c7f26c">
@@ -171,7 +171,8 @@
     .modal header,.modal footer{padding:12px 14px}
     .modal header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
     .modal main{padding:14px;display:grid;gap:14px;overflow-y:auto;flex:1}
-    .modal footer{display:flex;justify-content:flex-end;gap:10px}
+    .modal footer{display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+    .footer-actions{display:flex;gap:10px;justify-content:flex-end;width:100%}
     #orderItems{max-height:200px;overflow-y:auto}
     @media(max-width:640px){dialog{width:100vw;height:100vh;border-radius:0}}
     .close{all:unset;cursor:pointer;font-weight:800}
@@ -192,6 +193,17 @@
     .inline-qty span{display:inline-block;min-width:28px;text-align:center}
     html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
     html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border-color:rgba(255,255,255,.28)}
+    #gpsNote{min-height:1.2em;margin-top:6px}
+    #gpsNote.alert{color:var(--danger)}
+    .disclaimer{font-size:.9rem;color:var(--danger);text-align:right;width:100%}
+    .disclaimer[hidden]{display:none}
+    .location-modal main{padding:14px;display:grid;gap:14px;overflow-y:auto;max-height:70vh}
+    .location-modal header{border-bottom:1px solid var(--line)}
+    .location-modal footer{width:100%}
+    .map-frame{width:100%;height:260px;border:0;border-radius:12px;background:#0b0f16}
+    html[data-theme="light"] .map-frame{background:#eef1fb}
+    .map-status{font-size:.92rem;color:var(--muted);min-height:1.2em}
+    .map-status.alert{color:var(--danger)}
   </style>
 </head>
 <body>
@@ -362,12 +374,37 @@
             <input id="address" required style="min-width:0" data-ph-en="Address" data-ph-es="Dirección" placeholder="Address" />
             <button id="locBtn" class="toggle" data-en="Use my location" data-es="Usar mi ubicación">Use my location</button>
           </div>
-          <div id="gpsNote" class="muted" style="font-size:.9rem"></div>
+          <div id="gpsNote" class="muted" aria-live="polite"></div>
         </section>
       </main>
       <footer>
-        <button class="toggle" id="cancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
-        <button class="btn alt" id="confirmBtn" data-en="Pay" data-es="Pagar">Pay</button>
+        <div class="footer-actions">
+          <button class="toggle" id="cancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
+          <button class="btn alt" id="confirmBtn" data-en="Confirm Transaction" data-es="Confirmar transacción">Confirm Transaction</button>
+        </div>
+        <div id="confirmDisclaimer" class="disclaimer" hidden aria-live="assertive"></div>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="mapDlg">
+    <div class="modal location-modal">
+      <header>
+        <div class="brand" data-en="Confirm Delivery Location" data-es="Confirmar ubicación de entrega">Confirm Delivery Location</div>
+        <button class="close" id="closeMap" aria-label="Close">×</button>
+      </header>
+      <main>
+        <p class="muted" data-en="You must confirm your \"Order Delivery Location\" before we can send your order." data-es="Debe confirmar su \"Ubicación de Entrega\" antes de enviar su pedido.">You must confirm your "Order Delivery Location" before we can send your order.</p>
+        <div>
+          <iframe id="mapFrame" class="map-frame" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div id="mapStatus" class="map-status" aria-live="polite"></div>
+      </main>
+      <footer>
+        <div class="footer-actions">
+          <button class="toggle" id="mapCancel" data-en="Cancel" data-es="Cancelar">Cancel</button>
+          <button class="btn alt" id="mapConfirm" data-en="Confirm Location" data-es="Confirmar ubicación">Confirm Location</button>
+        </div>
       </footer>
     </div>
   </dialog>
@@ -400,7 +437,10 @@
     let theme = localStorage.getItem('theme') || 'dark';
     const cart = new Map();
     let deliveryMinutes = 45;
-    let gps = { lat:null, lng:null };
+    const gps = { lat:null, lng:null, confirmedAt:null };
+    let locationStatus = 'idle';
+    let locationConfirmed = false;
+    window.locationConfirmed = false;
 
     /* HELPERS */
     const $ = s => document.querySelector(s);
@@ -420,6 +460,146 @@
       const modalDisplay=$('#m_deliveryTime'); if(modalDisplay) modalDisplay.textContent=display;
     }
     function setPh(el){ const ph = el.getAttribute(lang==='en'?'data-ph-en':'data-ph-es'); if(ph!==null) el.setAttribute('placeholder', ph); }
+
+    const mapDlg = $('#mapDlg');
+    const mapFrame = $('#mapFrame');
+    const mapStatusEl = $('#mapStatus');
+    const confirmDisclaimer = $('#confirmDisclaimer');
+
+    function setLocationConfirmed(val){
+      locationConfirmed = !!val;
+      window.locationConfirmed = locationConfirmed;
+    }
+    function formatTimestamp(ts){
+      if(!ts) return '';
+      const locale = lang==='en' ? 'en-US' : 'es-EC';
+      try{
+        return new Date(ts).toLocaleString(locale,{hour12:false});
+      }catch{
+        return ts;
+      }
+    }
+    function formatCoords(){
+      if(typeof gps.lat !== 'number' || typeof gps.lng !== 'number') return '';
+      return `${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
+    }
+    function updateLocationNote(){
+      const note=$('#gpsNote'); if(!note) return;
+      let message='';
+      switch(locationStatus){
+        case 'pending':
+          message=t('Requesting your location...','Solicitando su ubicación...');
+          break;
+        case 'acquired':{
+          const coords=formatCoords();
+          message=coords
+            ? t(`Location detected (${coords}). Confirm to continue.`,`Ubicación detectada (${coords}). Confirme para continuar.`)
+            : t('Location detected. Confirm to continue.','Ubicación detectada. Confirme para continuar.');
+          break;
+        }
+        case 'confirmed':{
+          const when=formatTimestamp(gps.confirmedAt);
+          message=when
+            ? t(`Delivery location confirmed on ${when}.`,`Ubicación de entrega confirmada el ${when}.`)
+            : t('Delivery location confirmed.','Ubicación de entrega confirmada.');
+          break;
+        }
+        case 'error':
+          message=t('We could not access your location. Enable GPS or update permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o actualice los permisos e intente nuevamente.');
+          break;
+        default:
+          message=t('Location required for delivery.','Se requiere la ubicación para la entrega.');
+      }
+      note.textContent=message;
+      note.classList.toggle('alert', locationStatus==='error');
+    }
+    function showDisclaimer(){
+      if(!confirmDisclaimer) return;
+      confirmDisclaimer.hidden=false;
+      confirmDisclaimer.textContent=t('You must confirm your "Order Delivery Location".','Debe confirmar su "Ubicación de Entrega".');
+    }
+    function hideDisclaimer(){
+      if(!confirmDisclaimer) return;
+      confirmDisclaimer.hidden=true;
+      confirmDisclaimer.textContent='';
+    }
+    function setMapStatus(message,isAlert=false){
+      if(!mapStatusEl) return;
+      mapStatusEl.textContent=message;
+      mapStatusEl.classList.toggle('alert',!!isAlert);
+    }
+    function updateMapView(){
+      if(!mapDlg) return;
+      if(gps.lat!=null && gps.lng!=null){
+        const coords=`${gps.lat},${gps.lng}`;
+        const url=`https://www.google.com/maps?q=${coords}&z=17&output=embed`;
+        if(mapFrame && mapFrame.src!==url){
+          mapFrame.src=url;
+        }
+        setMapStatus(t('Drag and zoom if needed, then confirm your delivery spot.','Arrastre y ajuste si es necesario, luego confirme su punto de entrega.'),false);
+      }else{
+        if(mapFrame){
+          mapFrame.removeAttribute('src');
+        }
+        setMapStatus(t('We are waiting for your GPS location. Allow access on your device.','Estamos esperando su ubicación GPS. Permita el acceso en su dispositivo.'),true);
+      }
+    }
+
+    let locationRequestPromise=null;
+    async function requestLocation(auto=false){
+      if(!navigator.geolocation){
+        locationStatus='error';
+        updateLocationNote();
+        if(!auto){
+          alert(t('Geolocation not supported','Geolocalización no soportada'));
+        }
+        return false;
+      }
+      if(locationRequestPromise) return locationRequestPromise;
+      locationStatus='pending';
+      updateLocationNote();
+      if(mapDlg && mapDlg.open){
+        setMapStatus(t('Requesting your location...','Solicitando su ubicación...'),false);
+      }
+      locationRequestPromise=new Promise(resolve=>{
+        const onSuccess=pos=>{
+          locationRequestPromise=null;
+          gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude; gps.confirmedAt=null;
+          setLocationConfirmed(false);
+          locationStatus='acquired';
+          updateLocationNote();
+          updateMapView();
+          resolve(true);
+        };
+        const onError=err=>{
+          locationRequestPromise=null;
+          gps.lat=null; gps.lng=null; gps.confirmedAt=null;
+          setLocationConfirmed(false);
+          locationStatus='error';
+          updateLocationNote();
+          updateMapView();
+          if(err && err.code===1){
+            alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
+          }else if(!auto){
+            alert(t('Could not get location','No se pudo obtener la ubicación'));
+          }
+          resolve(false);
+        };
+        const trigger=()=>navigator.geolocation.getCurrentPosition(onSuccess,onError,{enableHighAccuracy:true,timeout:10000});
+        if(navigator.permissions){
+          navigator.permissions.query({name:'geolocation'}).then(p=>{
+            if(p.state==='denied'){
+              onError({code:1});
+            }else{
+              trigger();
+            }
+          }).catch(()=>trigger());
+        }else{
+          trigger();
+        }
+      });
+      return locationRequestPromise;
+    }
 
     function renderProducts(){
       track.innerHTML='';
@@ -464,6 +644,9 @@
       renderProducts(); recalc();
       updateDeliveryTimeDisplays();
       $('#m_deliveryTime').previousElementSibling.textContent = t('Delivery Time','Tiempo de entrega');
+      if(confirmDisclaimer && !confirmDisclaimer.hidden) showDisclaimer();
+      updateLocationNote();
+      if(mapDlg && mapDlg.open) updateMapView();
     }
     function syncTheme(){
       document.documentElement.setAttribute('data-theme', theme);
@@ -598,43 +781,83 @@
       updateDeliveryTimeDisplays();
     });
 
-    const openPay=()=>{ renderModal(); $('#orderDlg').showModal(); };
+    const openPay=()=>{
+      renderModal();
+      hideDisclaimer();
+      setLocationConfirmed(false);
+      gps.confirmedAt=null;
+      locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
+      updateLocationNote();
+      $('#orderDlg').showModal();
+      requestLocation(true);
+    };
     $('#fabPay').addEventListener('click',openPay);
     $('#closeDlg').addEventListener('click',()=>$('#orderDlg').close());
     $('#cancelBtn').addEventListener('click',()=>$('#orderDlg').close());
+    $('#orderDlg').addEventListener('close',()=>{
+      hideDisclaimer();
+      if(mapDlg && mapDlg.open) mapDlg.close();
+      setTimeout(()=>{
+        setLocationConfirmed(false);
+        gps.confirmedAt=null;
+        locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
+        updateLocationNote();
+      },120);
+    });
+
+    if(mapDlg){
+      const closeMap=()=>{ mapDlg.close(); };
+      $('#closeMap')?.addEventListener('click',closeMap);
+      $('#mapCancel')?.addEventListener('click',closeMap);
+      mapDlg.addEventListener('cancel',e=>{ e.preventDefault(); mapDlg.close(); });
+      mapDlg.addEventListener('close',()=>{
+        if(mapFrame) mapFrame.removeAttribute('src');
+        setMapStatus('',false);
+        $('#confirmBtn')?.focus();
+      });
+      $('#mapConfirm')?.addEventListener('click',async ()=>{
+        if(gps.lat==null || gps.lng==null){
+          setMapStatus(t('We still do not have your coordinates. Please allow GPS access and try again.','Aún no tenemos sus coordenadas. Permita el acceso al GPS e intente nuevamente.'),true);
+          await requestLocation(false);
+          updateMapView();
+          return;
+        }
+        gps.confirmedAt=new Date().toISOString();
+        locationStatus='confirmed';
+        setLocationConfirmed(true);
+        hideDisclaimer();
+        updateLocationNote();
+        setMapStatus(t('Delivery location confirmed.','Ubicación de entrega confirmada.'),false);
+        mapDlg.close();
+        setTimeout(()=>{ $('#confirmBtn').click(); },50);
+      });
+    }
 
     // GPS
-  $('#locBtn').addEventListener('click',async ()=>{
-    if(!navigator.geolocation){ alert(t('Geolocation not supported','Geolocalización no soportada')); return; }
-    let proceed=true;
-    if(navigator.permissions){
-      try{
-        const p=await navigator.permissions.query({name:'geolocation'});
-        if(p.state==='denied'){
-          alert(t('Location permission denied. Enable it in your device settings.','Permiso de ubicación denegado. Actívelo en la configuración de su dispositivo.'));
-          proceed=false;
-        }else if(p.state==='prompt'){
-          alert(t('Please allow location access when prompted.','Permita el acceso a la ubicación cuando se le solicite.'));
-        }
-      }catch{}
-    }else{
-      alert(t('Please allow location access when prompted.','Permita el acceso a la ubicación cuando se le solicite.'));
-    }
-    if(!proceed) return;
-    navigator.geolocation.getCurrentPosition(pos=>{
-      gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude;
-      $('#gpsNote').textContent=`GPS: ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
-    },err=>{
-      if(err.code===err.PERMISSION_DENIED){
-        alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
-        }else{
-          alert(t('Could not get location','No se pudo obtener la ubicación'));
-        }
-      },{enableHighAccuracy:true,timeout:8000});
+    $('#locBtn').addEventListener('click',async ()=>{
+      await requestLocation(false);
     });
 
     // Submit to backend + WhatsApp
-    $('#confirmBtn').addEventListener('click', async ()=>{
+    $('#confirmBtn').addEventListener('click', async e=>{
+      if(!locationConfirmed){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showDisclaimer();
+        const ready = (gps.lat!=null && gps.lng!=null) ? true : await requestLocation(false);
+        if(!ready){
+          updateMapView();
+          return;
+        }
+        updateMapView();
+        if(mapDlg && typeof mapDlg.showModal==='function'){
+          mapDlg.showModal();
+        }
+        return;
+      }
+
+      hideDisclaimer();
+
       const firstName=$('#firstName').value.trim();
       const lastName=$('#lastName').value.trim();
       const idNumber=$('#idNumber').value.trim();
@@ -652,13 +875,14 @@
       if(!items.length){ alert(t('Your cart is empty.','Su carrito está vacío.')); return; }
       const {sub,tax,del,total}=totals();
       const deliveryDisplay=formatDeliveryTime(deliveryMinutes);
+      const gpsData={lat:gps.lat,lng:gps.lng,confirmedAt:gps.confirmedAt};
       const payload={
         lang,timestamp:new Date().toISOString(),business:BUSINESS,
-        customer:{firstName,lastName,idNumber,phone,email,address,gps,city:""},
+        customer:{firstName,lastName,idNumber,phone,email,address,gps:gpsData,locationConfirmed,city:""},
         delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
         cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
       };
-      
+
       try{
         if(CLOUDFLARE_WORKER_URL){
           await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,apps_script_url:APPS_SCRIPT_URL})});
@@ -668,9 +892,12 @@
       }
       
       catch(e){ console.warn("Backend request failed:",e); }
-      const maps=(gps.lat&&gps.lng)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
+      const maps=(gps.lat!=null&&gps.lng!=null)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
+      const confirmationLine = locationConfirmed && gps.confirmedAt
+        ? `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`
+        : t('Location confirmation pending','Confirmación de ubicación pendiente');
       const lines=items.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.qty*i.unit)}`).join("\n");
-      const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
+      const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n${confirmationLine}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
       $('#orderDlg').close();
       alert(t('Order sent. We also opened WhatsApp with the details.','Pedido enviado. También abrimos WhatsApp con los detalles.'));
