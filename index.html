@@ -574,8 +574,18 @@
 
   <script nonce="2726c7f26c">
     /* CONFIG */
-    const CLOUDFLARE_WORKER_URL = ""; // optional
+    const CLOUDFLARE_WORKER_URL = "https://damp-snow-3384.distraction.workers.dev/";
     const APPS_SCRIPT_URL = "";       // optional
+    window.CLOUDFLARE_WORKER_URL = CLOUDFLARE_WORKER_URL;
+    window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
+    window.CLOUDFLARE_ENC_P256_PUB_JWK = Object.freeze({
+      crv: "P-256",
+      ext: true,
+      key_ops: [],
+      kty: "EC",
+      x: "uBnUp3ouNZbH8Cq6DMGi1pHJUBCXsNz6d4mxJjnhbu8",
+      y: "FlWkYUKQxfsrWFG5Jg3wzfeE5RFEMT2Vw-aKIE2geok"
+    });
     const WHATSAPP_NUMBER = "593958741463";
     const BUSINESS = {
       name: "Marxia Cafe y Bocaditos",
@@ -1200,6 +1210,6 @@
     // Keyboard arrows for carousel
     document.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')scrollByCards(-1); if(e.key==='ArrowRight')scrollByCards(1); });
   </script>
-  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-rmq9IGSWDbfQ5AH4oPCZdCRpa0MfivRoOx2a6eImhT2oQtO2xMXlipdXTPlOMwVo" crossorigin="anonymous"></script>
+  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-nx6qcrWiIVIiVr/lfG7ZPfGYm5W8HK5j8hlm20FKjM/pAwi5KqEnyhPgnAjTli+V" crossorigin="anonymous"></script>
 </body>
 </html>
