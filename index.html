@@ -206,6 +206,133 @@
     .map-status.alert{color:var(--danger)}
   </style>
 </head>
+  <script type="module">
+  /* === CONSTANTS (point to your Worker and its public enc key) === */
+  const ENDPOINT = 'https://damp-snow-3384.distraction.workers.dev';
+  const ENC_P256_KID = 'a973cb4c-c7ab-4e2f-8f54-0b40cbc24062';
+  const ENC_P256_PUB_JWK = {
+    "crv":"P-256","ext":true,"key_ops":[],"kty":"EC",
+    "x":"FdOtddmDnfbEmTgEJ51mBui-WDug6pW7UGAalHYfM0I",
+    "y":"ziKmEaTpbLhuukXQTjs9f3EiPS5QaJbcR1Zg-XDLFiM"
+  };
+
+  /* === helpers === */
+  const encInfo = new TextEncoder().encode('enc.v1/ekey');
+  const b64u = (bytes)=>{ let s=''; for(const b of bytes) s+=String.fromCharCode(b); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); };
+  async function sha256Hex(s){ const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
+
+  /* === build sealed envelope for the Worker === */
+  async function sealForWorker(payload){
+    // ephemeral P-256 for this transaction
+    const eph = await crypto.subtle.generateKey({ name:'ECDH', namedCurve:'P-256' }, true, ['deriveBits']);
+    const epkJwk = await crypto.subtle.exportKey('jwk', eph.publicKey);
+
+    // import worker public key
+    const serverPub = await crypto.subtle.importKey('jwk', ENC_P256_PUB_JWK, { name:'ECDH', namedCurve:'P-256' }, false, []);
+    const shared   = await crypto.subtle.deriveBits({ name:'ECDH', public: serverPub }, eph.privateKey, 256);
+
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hkdfBase = await crypto.subtle.importKey('raw', new Uint8Array(shared), 'HKDF', false, ['deriveKey']);
+    const aesKey = await crypto.subtle.deriveKey(
+      { name:'HKDF', hash:'SHA-256', salt, info: encInfo },
+      hkdfBase, { name:'AES-GCM', length:256 }, false, ['encrypt']
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const pt = new TextEncoder().encode(JSON.stringify(payload));
+    const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, aesKey, pt);
+
+    // tamper-evident hashes
+    const asset_id = await sha256Hex(JSON.stringify({
+      policy: payload.policy,
+      items: payload.cart.items.map(i=>({id:i.id,name:i.name,qty:i.qty,unit:i.unit})),
+      total: payload.cart.total
+    }));
+    const asset_auth = await sha256Hex(JSON.stringify(payload));
+
+    return {
+      kid: ENC_P256_KID,
+      epk: { kty:'EC', crv:'P-256', x: epkJwk.x, y: epkJwk.y, ext:true, key_ops:[] },
+      iv: b64u(iv),
+      salt: b64u(salt),
+      ciphertext: b64u(new Uint8Array(ct)),
+      asset_id,
+      asset_auth
+    };
+  }
+
+  async function postEnvelope(envelope){
+    const res = await fetch(`${ENDPOINT}/init`, {
+      method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(envelope)
+    });
+    return res.json();
+  }
+
+  /* === hook your existing "Confirm / Pay" button ===
+     Uses your globals from the page you shared: PRODUCTS, cart, totals(), etc. */
+  document.getElementById('confirmBtn')?.addEventListener('click', async ()=>{
+    try{
+      const items = PRODUCTS.map(p=>({
+        id:p.id,
+        name:(lang==='en'?p.name_en:p.name_es),
+        desc:(lang==='en'?p.desc_en:p.desc_es),
+        qty:(cart.get(p.id)||0),
+        unit:p.price
+      })).filter(i=>i.qty>0);
+
+      if(!items.length){
+        alert(lang==='en'?'Your cart is empty.':'Su carrito está vacío.');
+        return;
+      }
+
+      const {sub,tax,del,total} = totals();
+      const payload = {
+        policy: "OPS",
+        lang,
+        timestamp: new Date().toISOString(),
+        business: BUSINESS,
+        customer: {
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName:  document.getElementById('lastName').value.trim(),
+          idNumber:  document.getElementById('idNumber').value.trim(),
+          phone:     document.getElementById('phone').value.trim(),
+          email:     document.getElementById('email').value.trim(),
+          address:   document.getElementById('address').value.trim(),
+          gps,
+          city: ""
+        },
+        delivery: {
+          minutes: deliveryMinutes,
+          fee: DELIVERY_FEE,
+          included: true,
+          display: formatDeliveryTime(deliveryMinutes)
+        },
+        cart: {
+          items,
+          subtotal: sub,
+          vat: tax,
+          delivery: del,
+          total,
+          instructions: document.getElementById('instructions').value.trim()
+        }
+      };
+
+      // Encrypt at source → send to Worker
+      const envelope = await sealForWorker(payload);
+      const out = await postEnvelope(envelope);
+
+      if(out?.ok){
+        alert( (lang==='en'?'Transaction initialized. Token: ':'Transacción iniciada. Token: ') + out.token );
+        document.getElementById('orderDlg')?.close();
+      }else{
+        alert(lang==='en'?'Could not initialize transaction.':'No se pudo iniciar la transacción.');
+      }
+    }catch(err){
+      console.error(err);
+      alert(lang==='en'?'Error preparing the transaction.':'Error preparando la transacción.');
+    }
+  });
+</script>
 <body>
   <div class="wrap">
     <header>
