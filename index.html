@@ -550,6 +550,25 @@
     </div>
   </dialog>
 
+  <dialog id="locAuthDlg">
+    <div class="modal location-modal">
+      <header>
+        <div class="brand" data-en="Authorize Delivery Location" data-es="Autorizar ubicación de entrega">Authorize Delivery Location</div>
+        <button class="close" id="closeLocAuth" aria-label="Close">×</button>
+      </header>
+      <main>
+        <p class="muted" data-en="To protect your order we only request your delivery location once you choose to pay. Authorize access and we will open Google Maps so you can verify or adjust the pin." data-es="Para proteger su pedido solo solicitamos su ubicación de entrega cuando decide pagar. Autorice el acceso y abriremos Google Maps para que verifique o ajuste el punto.">To protect your order we only request your delivery location once you choose to pay. Authorize access and we will open Google Maps so you can verify or adjust the pin.</p>
+        <div id="locAuthStatus" class="map-status" aria-live="polite"></div>
+      </main>
+      <footer>
+        <div class="footer-actions">
+          <button class="toggle" id="locAuthCancel" data-en="Not now" data-es="Ahora no">Not now</button>
+          <button class="btn alt" id="authorizeLocationBtn" data-en="Authorize location" data-es="Autorizar ubicación">Authorize location</button>
+        </div>
+      </footer>
+    </div>
+  </dialog>
+
   <dialog id="mapDlg">
     <div class="modal location-modal">
       <header>
@@ -634,20 +653,133 @@
     }
     function setPh(el){ const ph = el.getAttribute(lang==='en'?'data-ph-en':'data-ph-es'); if(ph!==null) el.setAttribute('placeholder', ph); }
 
+    const orderDlg = $('#orderDlg');
     const mapDlg = $('#mapDlg');
     const mapFrame = $('#mapFrame');
     const mapStatusEl = $('#mapStatus');
+    const locAuthDlg = $('#locAuthDlg');
+    const locAuthStatusEl = $('#locAuthStatus');
+    const authorizeLocationBtn = $('#authorizeLocationBtn');
+    const locAuthCancelBtn = $('#locAuthCancel');
+    const closeLocAuthBtn = $('#closeLocAuth');
     const confirmDisclaimer = $('#confirmDisclaimer');
     const locationSummaryEl = $('#locationSummary');
     const locationDetailsEl = $('#locationDetails');
     const locationReviewEl = $('#locationReview');
     const openMapBtn = $('#openMapBtn');
     const clearReviewBtn = $('#clearReviewBtn');
+    const confirmBtnEl = $('#confirmBtn');
+
+    let locAuthStatusKey = 'idle';
+    let autoOpenMapAfterAuth = true;
+
+    function renderLocAuthStatus(){
+      if(!locAuthStatusEl) return;
+      let message='';
+      let alert=false;
+      switch(locAuthStatusKey){
+        case 'requesting':
+          message=t('Requesting secure GPS access…','Solicitando acceso seguro al GPS…');
+          break;
+        case 'error':
+          message=t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.');
+          alert=true;
+          break;
+        case 'success':
+          message=t('Location detected. Opening the map so you can verify or update the pin.','Ubicación detectada. Abrimos el mapa para que verifique o actualice el punto.');
+          break;
+        case 'ready':
+          message=t('We already have a saved location. Review or update it on the next step.','Ya tenemos una ubicación guardada. Revísela o actualícela en el siguiente paso.');
+          break;
+        default:
+          message='';
+      }
+      locAuthStatusEl.textContent=message;
+      locAuthStatusEl.classList.toggle('alert',alert);
+    }
+    function resetLocAuthStatus(){
+      if(locationStatus==='error'){
+        locAuthStatusKey='error';
+      }else if(gps.lat!=null && gps.lng!=null){
+        locAuthStatusKey='ready';
+      }else{
+        locAuthStatusKey='idle';
+      }
+      renderLocAuthStatus();
+    }
 
     function setLocationConfirmed(val){
       locationConfirmed = !!val;
       window.locationConfirmed = locationConfirmed;
       updateLocationNote();
+    }
+    function openMapForConfirmation(){
+      if(mapDlg && typeof mapDlg.showModal==='function'){
+        updateMapView();
+        if(!mapDlg.open){
+          mapDlg.showModal();
+        }
+      }else if(gps.lat!=null && gps.lng!=null){
+        window.open(`https://maps.google.com/?q=${gps.lat},${gps.lng}`,'_blank');
+        alert(t('The map opened in a new tab so you can verify your delivery pin.','El mapa se abrió en una nueva pestaña para que verifique su punto de entrega.'));
+      }else{
+        alert(t('We still need your coordinates before the map can load.','Aún necesitamos sus coordenadas antes de cargar el mapa.'));
+      }
+    }
+    function showLocationAuthorization(shouldOpenMap=true){
+      autoOpenMapAfterAuth = shouldOpenMap !== false;
+      if(locAuthDlg && typeof locAuthDlg.showModal==='function'){
+        resetLocAuthStatus();
+        locAuthDlg.showModal();
+      }else{
+        handleAuthorizeLocation();
+      }
+    }
+    async function handleAuthorizeLocation(){
+      if(gps.lat!=null && gps.lng!=null){
+        if(locAuthDlg && locAuthDlg.open) locAuthDlg.close();
+        if(autoOpenMapAfterAuth) openMapForConfirmation();
+        return;
+      }
+      locAuthStatusKey='requesting';
+      renderLocAuthStatus();
+      if(authorizeLocationBtn){
+        authorizeLocationBtn.disabled=true;
+        authorizeLocationBtn.setAttribute('aria-busy','true');
+      }
+      let ok=false;
+      try{
+        ok=await requestLocation(false);
+      }finally{
+        if(authorizeLocationBtn){
+          authorizeLocationBtn.disabled=false;
+          authorizeLocationBtn.removeAttribute('aria-busy');
+        }
+      }
+      if(ok){
+        locAuthStatusKey='success';
+        renderLocAuthStatus();
+        if(locAuthDlg && locAuthDlg.open) locAuthDlg.close();
+        if(autoOpenMapAfterAuth) openMapForConfirmation();
+      }else{
+        locAuthStatusKey='error';
+        renderLocAuthStatus();
+        if(mapDlg && mapDlg.open){
+          setMapStatus(t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),true);
+        }
+      }
+    }
+    async function ensurePaymentConfirmed(payload){
+      if(typeof window.requestPaymentConfirmation==='function'){
+        try{
+          const result=await window.requestPaymentConfirmation(payload);
+          return result===true;
+        }catch(err){
+          console.error('Payment confirmation callback failed',err);
+          return false;
+        }
+      }
+      return confirm(t('Has the payment been confirmed successfully?','¿Se confirmó el pago correctamente?'));
     }
     function formatTimestamp(ts){
       if(!ts) return '';
@@ -672,7 +804,7 @@
         summaryAlert:false,
         review:t('Delivery location pending confirmation.','Ubicación de entrega pendiente de confirmación.'),
         state:locationStatus||'idle',
-        mapLabel:t('Open map','Abrir mapa')
+        mapLabel:t('Authorize location','Autorizar ubicación')
       };
       switch(locationStatus){
         case 'pending':
@@ -720,13 +852,13 @@
         case 'error':
           return {
             ...base,
-            note:t('We could not access your location. Enable GPS or update permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o actualice los permisos e intente nuevamente.'),
+            note:t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),
             noteAlert:true,
-            summary:t('We could not access your location. Enable GPS or permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o los permisos y vuelva a intentarlo.'),
+            summary:t('Delivery location unavailable. Enable GPS or adjust permissions, then authorize again.','Ubicación de entrega no disponible. Active el GPS o ajuste los permisos y vuelva a autorizar.'),
             summaryAlert:true,
-            review:t('❌ Location access denied. Enable permissions and try again.','❌ Acceso a la ubicación denegado. Habilite los permisos e inténtelo nuevamente.'),
+            review:t('❌ Delivery location unavailable. Enable GPS or adjust permissions, then try again.','❌ Ubicación de entrega no disponible. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),
             state:'error',
-            mapLabel:t('Retry map','Reintentar mapa')
+            mapLabel:t('Authorize location','Autorizar ubicación')
           };
         default:
           return base;
@@ -786,7 +918,11 @@
         if(mapFrame){
           mapFrame.removeAttribute('src');
         }
-        setMapStatus(t('We are waiting for your GPS location. Allow access on your device.','Estamos esperando su ubicación GPS. Permita el acceso en su dispositivo.'),true);
+        if(locationStatus==='error'){
+          setMapStatus(t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),true);
+        }else{
+          setMapStatus(t('We are waiting for your GPS location. Allow access on your device.','Estamos esperando su ubicación GPS. Permita el acceso en su dispositivo.'),true);
+        }
       }
     }
 
@@ -867,6 +1003,7 @@
       updateMapView();
       if(mapStatusEl){ setMapStatus('',false); }
       if(mapDlg && mapDlg.open){ mapDlg.close(); }
+      if(locAuthDlg && locAuthDlg.open){ locAuthDlg.close(); }
       if(closeDialog){
         $('#orderDlg')?.close();
       }
@@ -917,6 +1054,7 @@
       $('#m_deliveryTime').previousElementSibling.textContent = t('Delivery Time','Tiempo de entrega');
       if(confirmDisclaimer && !confirmDisclaimer.hidden) showDisclaimer();
       updateLocationNote();
+      renderLocAuthStatus();
       if(mapDlg && mapDlg.open) updateMapView();
     }
     function syncTheme(){
@@ -1060,20 +1198,21 @@
       gps.confirmedAt=null;
       locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
       updateLocationNote();
-      $('#orderDlg').showModal();
-      requestLocation(true);
+      orderDlg?.showModal();
+      showLocationAuthorization(true);
     };
     $('#fabPay').addEventListener('click',openPay);
-    $('#closeDlg').addEventListener('click',()=>$('#orderDlg').close());
-    $('#cancelBtn').addEventListener('click',()=>$('#orderDlg').close());
+    $('#closeDlg').addEventListener('click',()=>orderDlg?.close());
+    $('#cancelBtn').addEventListener('click',()=>orderDlg?.close());
     clearReviewBtn?.addEventListener('click',()=>{
       const confirmReset=confirm(t('Do you want to clear this order review?','¿Desea limpiar esta revisión del pedido?'));
       if(!confirmReset) return;
       resetOrderReview(true);
     });
-    $('#orderDlg').addEventListener('close',()=>{
+    orderDlg?.addEventListener('close',()=>{
       hideDisclaimer();
       if(mapDlg && mapDlg.open) mapDlg.close();
+      if(locAuthDlg && locAuthDlg.open) locAuthDlg.close();
       setTimeout(()=>{
         setLocationConfirmed(false);
         gps.confirmedAt=null;
@@ -1090,7 +1229,9 @@
       mapDlg.addEventListener('close',()=>{
         if(mapFrame) mapFrame.removeAttribute('src');
         setMapStatus('',false);
-        $('#confirmBtn')?.focus();
+        if(confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
+        }
       });
       $('#mapConfirm')?.addEventListener('click',async ()=>{
         if(gps.lat==null || gps.lng==null){
@@ -1105,29 +1246,45 @@
         hideDisclaimer();
         setMapStatus(t('Delivery location confirmed.','Ubicación de entrega confirmada.'),false);
         mapDlg.close();
-        setTimeout(()=>{ $('#confirmBtn')?.focus(); },120);
+        if(confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
+        }
       });
     }
 
-    openMapBtn?.addEventListener('click',async ()=>{
-      if(mapDlg && typeof mapDlg.showModal==='function'){
-        updateMapView();
-        mapDlg.showModal();
-        if(gps.lat==null || gps.lng==null){
-          await requestLocation(false);
-          updateMapView();
+    if(locAuthDlg){
+      const closeLocAuth=()=>{ locAuthDlg.close(); };
+      closeLocAuthBtn?.addEventListener('click',closeLocAuth);
+      locAuthCancelBtn?.addEventListener('click',closeLocAuth);
+      authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
+      locAuthDlg.addEventListener('cancel',e=>{ e.preventDefault(); locAuthDlg.close(); });
+      locAuthDlg.addEventListener('close',()=>{
+        locAuthStatusKey='idle';
+        renderLocAuthStatus();
+        if(authorizeLocationBtn){
+          authorizeLocationBtn.disabled=false;
+          authorizeLocationBtn.removeAttribute('aria-busy');
         }
-      }else{
-        const ok=await requestLocation(false);
-        if(ok){
-          alert(t('Location detected. Map preview is not supported on this device.','Ubicación detectada. La vista previa del mapa no es compatible en este dispositivo.'));
+        if(orderDlg && orderDlg.open && confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
         }
+      });
+    }else{
+      authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
+    }
+
+    openMapBtn?.addEventListener('click',()=>{
+      if(locationStatus==='pending') return;
+      if(gps.lat==null || gps.lng==null || locationStatus==='error' || locationStatus==='idle'){
+        showLocationAuthorization(true);
+        return;
       }
+      openMapForConfirmation();
     });
 
     // GPS
-    $('#locBtn').addEventListener('click',async ()=>{
-      await requestLocation(false);
+    $('#locBtn').addEventListener('click',()=>{
+      showLocationAuthorization(true);
     });
 
     // Submit to backend + WhatsApp
@@ -1136,14 +1293,10 @@
         e.preventDefault();
         e.stopImmediatePropagation();
         showDisclaimer();
-        const ready = (gps.lat!=null && gps.lng!=null) ? true : await requestLocation(false);
-        if(!ready){
-          updateMapView();
-          return;
-        }
-        updateMapView();
-        if(mapDlg && typeof mapDlg.showModal==='function'){
-          mapDlg.showModal();
+        if(gps.lat==null || gps.lng==null || locationStatus==='error'){
+          showLocationAuthorization(true);
+        }else{
+          openMapForConfirmation();
         }
         return;
       }
@@ -1174,6 +1327,12 @@
         delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
         cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
       };
+
+      const paymentConfirmed = await ensurePaymentConfirmed(payload);
+      if(!paymentConfirmed){
+        alert(t('We will wait for the payment confirmation before sending the order.','Esperaremos la confirmación del pago antes de enviar el pedido.'));
+        return;
+      }
 
       try{
         if(CLOUDFLARE_WORKER_URL){
