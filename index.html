@@ -89,6 +89,33 @@
     }
     html[data-theme="light"] #clearBtn:hover{background:rgba(10,14,26,.12)}
 
+    .location-summary{
+      margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:8px;
+    }
+    .location-summary.alert{border-color:rgba(255,77,109,.65);box-shadow:0 0 0 1px rgba(255,77,109,.18)}
+    .location-summary[data-state="confirmed"]{border-color:rgba(30,169,122,.65);box-shadow:0 0 0 1px rgba(30,169,122,.2)}
+    .location-summary h4{margin:0;font-size:.95rem}
+    .location-summary p{margin:0;font-size:.9rem;line-height:1.4}
+    .summary-actions{display:flex;flex-wrap:wrap;gap:8px}
+    html[data-theme="light"] .location-summary{
+      background:rgba(10,14,26,.06);
+      border-color:var(--line-light);
+      box-shadow:var(--shadow-light);
+    }
+    html[data-theme="light"] .location-summary.alert{border-color:rgba(255,77,109,.55)}
+    html[data-theme="light"] .location-summary[data-state="confirmed"]{border-color:rgba(30,169,122,.55)}
+
+    .location-review{
+      margin-top:10px;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);
+      font-size:.9rem;line-height:1.4;min-height:38px;display:flex;align-items:center;
+    }
+    .location-review[data-state="confirmed"]{border-style:solid;border-color:rgba(30,169,122,.55)}
+    .location-review[data-state="error"]{border-color:rgba(255,77,109,.65);color:var(--danger)}
+    html[data-theme="light"] .location-review{border-color:var(--line-light);background:rgba(10,14,26,.04)}
+    html[data-theme="light"] .location-review[data-state="confirmed"]{border-color:rgba(30,169,122,.55)}
+    html[data-theme="light"] .location-review[data-state="error"]{border-color:rgba(255,77,109,.55);color:var(--danger)}
+
     .delivery-label{font-size:12px;font-weight:700;letter-spacing:.15px}
 
     /* Carousel */
@@ -474,6 +501,7 @@
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div>
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div>
+          <div id="locationReview" class="location-review" aria-live="polite" data-state="idle" data-en="Delivery location pending confirmation." data-es="Ubicación de entrega pendiente de confirmación.">Delivery location pending confirmation.</div>
         </section>
 
         <div class="hr"></div>
@@ -502,11 +530,19 @@
             <button id="locBtn" class="toggle" data-en="Use my location" data-es="Usar mi ubicación">Use my location</button>
           </div>
           <div id="gpsNote" class="muted" aria-live="polite"></div>
+          <div id="locationSummary" class="location-summary" data-state="idle" aria-live="polite">
+            <h4 data-en="Delivery location" data-es="Ubicación de entrega">Delivery location</h4>
+            <p id="locationDetails" data-en="Provide your delivery location to continue." data-es="Proporcione su ubicación de entrega para continuar.">Provide your delivery location to continue.</p>
+            <div class="summary-actions">
+              <button type="button" id="openMapBtn" class="toggle" data-en="Open map" data-es="Abrir mapa">Open map</button>
+            </div>
+          </div>
         </section>
       </main>
       <footer>
         <div class="footer-actions">
           <button class="toggle" id="cancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
+          <button class="toggle" id="clearReviewBtn" data-en="Clear order" data-es="Limpiar pedido">Clear order</button>
           <button class="btn alt" id="confirmBtn" data-en="Confirm Transaction" data-es="Confirmar transacción">Confirm Transaction</button>
         </div>
         <div id="confirmDisclaimer" class="disclaimer" hidden aria-live="assertive"></div>
@@ -592,10 +628,16 @@
     const mapFrame = $('#mapFrame');
     const mapStatusEl = $('#mapStatus');
     const confirmDisclaimer = $('#confirmDisclaimer');
+    const locationSummaryEl = $('#locationSummary');
+    const locationDetailsEl = $('#locationDetails');
+    const locationReviewEl = $('#locationReview');
+    const openMapBtn = $('#openMapBtn');
+    const clearReviewBtn = $('#clearReviewBtn');
 
     function setLocationConfirmed(val){
       locationConfirmed = !!val;
       window.locationConfirmed = locationConfirmed;
+      updateLocationNote();
     }
     function formatTimestamp(ts){
       if(!ts) return '';
@@ -610,35 +652,101 @@
       if(typeof gps.lat !== 'number' || typeof gps.lng !== 'number') return '';
       return `${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
     }
-    function updateLocationNote(){
-      const note=$('#gpsNote'); if(!note) return;
-      let message='';
+    function buildLocationMessages(){
+      const coords=formatCoords();
+      const when=formatTimestamp(gps.confirmedAt);
+      const base={
+        note:t('Location required for delivery.','Se requiere la ubicación para la entrega.'),
+        noteAlert:false,
+        summary:t('Provide your delivery location to continue.','Proporcione su ubicación de entrega para continuar.'),
+        summaryAlert:false,
+        review:t('Delivery location pending confirmation.','Ubicación de entrega pendiente de confirmación.'),
+        state:locationStatus||'idle',
+        mapLabel:t('Open map','Abrir mapa')
+      };
       switch(locationStatus){
         case 'pending':
-          message=t('Requesting your location...','Solicitando su ubicación...');
-          break;
-        case 'acquired':{
-          const coords=formatCoords();
-          message=coords
-            ? t(`Location detected (${coords}). Confirm to continue.`,`Ubicación detectada (${coords}). Confirme para continuar.`)
-            : t('Location detected. Confirm to continue.','Ubicación detectada. Confirme para continuar.');
-          break;
-        }
+          return {
+            ...base,
+            note:t('Requesting your location...','Solicitando su ubicación...'),
+            summary:t('Requesting your location. Allow GPS access and wait a moment.','Solicitando su ubicación. Permita el acceso al GPS y espere un momento.'),
+            review:t('Requesting GPS coordinates…','Solicitando coordenadas GPS…'),
+            state:'pending',
+            mapLabel:t('Opening map…','Abriendo mapa…')
+          };
+        case 'acquired':
+          return {
+            ...base,
+            note:coords
+              ? t(`Location detected (${coords}). Confirm to continue.`,`Ubicación detectada (${coords}). Confirme para continuar.`)
+              : t('Location detected. Confirm to continue.','Ubicación detectada. Confirme para continuar.'),
+            summary:coords
+              ? t(`Location detected (${coords}). Open the map to confirm your delivery spot.`,`Ubicación detectada (${coords}). Abra el mapa para confirmar su punto de entrega.`)
+              : t('Location detected. Open the map to confirm your delivery spot.','Ubicación detectada. Abra el mapa para confirmar su punto de entrega.'),
+            review:coords
+              ? t(`⚠️ Confirm location on the map (${coords}).`,`⚠️ Confirme la ubicación en el mapa (${coords}).`)
+              : t('⚠️ Confirm the detected location on the map.','⚠️ Confirme la ubicación detectada en el mapa.'),
+            state:'acquired',
+            mapLabel:t('Confirm on map','Confirmar en el mapa')
+          };
         case 'confirmed':{
-          const when=formatTimestamp(gps.confirmedAt);
-          message=when
-            ? t(`Delivery location confirmed on ${when}.`,`Ubicación de entrega confirmada el ${when}.`)
+          const coordLine=coords
+            ? t(`Confirmed coordinates: ${coords}.`,`Coordenadas confirmadas: ${coords}.`)
             : t('Delivery location confirmed.','Ubicación de entrega confirmada.');
-          break;
+          const whenLine=when
+            ? t(`Confirmed on ${when}.`,`Confirmado el ${when}.`)
+            : '';
+          return {
+            ...base,
+            note:when
+              ? t(`Delivery location confirmed on ${when}.`,`Ubicación de entrega confirmada el ${when}.`)
+              : t('Delivery location confirmed.','Ubicación de entrega confirmada.'),
+            summary:whenLine?`${coordLine} ${whenLine}`:coordLine,
+            review:whenLine?`${coordLine} ${whenLine}`:coordLine,
+            state:'confirmed',
+            mapLabel:t('View / edit map','Ver / editar mapa')
+          };
         }
         case 'error':
-          message=t('We could not access your location. Enable GPS or update permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o actualice los permisos e intente nuevamente.');
-          break;
+          return {
+            ...base,
+            note:t('We could not access your location. Enable GPS or update permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o actualice los permisos e intente nuevamente.'),
+            noteAlert:true,
+            summary:t('We could not access your location. Enable GPS or permissions and try again.','No pudimos acceder a su ubicación. Active el GPS o los permisos y vuelva a intentarlo.'),
+            summaryAlert:true,
+            review:t('❌ Location access denied. Enable permissions and try again.','❌ Acceso a la ubicación denegado. Habilite los permisos e inténtelo nuevamente.'),
+            state:'error',
+            mapLabel:t('Retry map','Reintentar mapa')
+          };
         default:
-          message=t('Location required for delivery.','Se requiere la ubicación para la entrega.');
+          return base;
       }
-      note.textContent=message;
-      note.classList.toggle('alert', locationStatus==='error');
+    }
+
+    function updateLocationNote(){
+      const note=$('#gpsNote');
+      const {note:noteMsg,noteAlert,summary,summaryAlert,review,state,mapLabel}=buildLocationMessages();
+      if(note){
+        note.textContent=noteMsg;
+        note.classList.toggle('alert',!!noteAlert);
+      }
+      if(locationSummaryEl){
+        locationSummaryEl.dataset.state=state;
+        locationSummaryEl.classList.toggle('alert',!!summaryAlert);
+      }
+      if(locationDetailsEl){
+        locationDetailsEl.textContent=summary;
+      }
+      if(locationReviewEl){
+        locationReviewEl.textContent=review;
+        locationReviewEl.dataset.state=state;
+      }
+      if(openMapBtn){
+        const disabled=state==='pending';
+        openMapBtn.disabled=disabled;
+        openMapBtn.setAttribute('aria-disabled',disabled?'true':'false');
+        openMapBtn.textContent=mapLabel;
+      }
     }
     function showDisclaimer(){
       if(!confirmDisclaimer) return;
@@ -728,6 +836,32 @@
       return locationRequestPromise;
     }
 
+    function resetOrderReview(closeDialog=true){
+      cart.clear();
+      renderProducts();
+      renderModal();
+      recalc();
+      ['instructions','firstName','lastName','idNumber','phone','email','address'].forEach(id=>{
+        const field=$('#'+id);
+        if(field){ field.value=''; }
+      });
+      deliveryMinutes=45;
+      document.querySelectorAll('#delTimes .chip').forEach((chip,idx)=>{
+        chip.classList.toggle('sel',idx===0);
+      });
+      updateDeliveryTimeDisplays();
+      gps.lat=null; gps.lng=null; gps.confirmedAt=null;
+      locationStatus='idle';
+      hideDisclaimer();
+      setLocationConfirmed(false);
+      updateMapView();
+      if(mapStatusEl){ setMapStatus('',false); }
+      if(mapDlg && mapDlg.open){ mapDlg.close(); }
+      if(closeDialog){
+        $('#orderDlg')?.close();
+      }
+    }
+
     function renderProducts(){
       track.innerHTML='';
       PRODUCTS.forEach(p=>{
@@ -812,6 +946,7 @@
       updateDeliveryTimeDisplays();
       $('#m_sub').textContent=fmt(sub); $('#m_tax').textContent=fmt(tax);
       $('#m_del').textContent=fmt(del); $('#m_total').textContent=fmt(total);
+      updateLocationNote();
     }
     function modalQtyHandler(e){
       const box=e.target.closest('.inline-qty'); if(!box) return;
@@ -921,6 +1056,11 @@
     $('#fabPay').addEventListener('click',openPay);
     $('#closeDlg').addEventListener('click',()=>$('#orderDlg').close());
     $('#cancelBtn').addEventListener('click',()=>$('#orderDlg').close());
+    clearReviewBtn?.addEventListener('click',()=>{
+      const confirmReset=confirm(t('Do you want to clear this order review?','¿Desea limpiar esta revisión del pedido?'));
+      if(!confirmReset) return;
+      resetOrderReview(true);
+    });
     $('#orderDlg').addEventListener('close',()=>{
       hideDisclaimer();
       if(mapDlg && mapDlg.open) mapDlg.close();
@@ -953,12 +1093,27 @@
         locationStatus='confirmed';
         setLocationConfirmed(true);
         hideDisclaimer();
-        updateLocationNote();
         setMapStatus(t('Delivery location confirmed.','Ubicación de entrega confirmada.'),false);
         mapDlg.close();
-        setTimeout(()=>{ $('#confirmBtn').click(); },50);
+        setTimeout(()=>{ $('#confirmBtn')?.focus(); },120);
       });
     }
+
+    openMapBtn?.addEventListener('click',async ()=>{
+      if(mapDlg && typeof mapDlg.showModal==='function'){
+        updateMapView();
+        mapDlg.showModal();
+        if(gps.lat==null || gps.lng==null){
+          await requestLocation(false);
+          updateMapView();
+        }
+      }else{
+        const ok=await requestLocation(false);
+        if(ok){
+          alert(t('Location detected. Map preview is not supported on this device.','Ubicación detectada. La vista previa del mapa no es compatible en este dispositivo.'));
+        }
+      }
+    });
 
     // GPS
     $('#locBtn').addEventListener('click',async ()=>{
@@ -1019,7 +1174,7 @@
       }
       
       catch(e){ console.warn("Backend request failed:",e); }
-      const maps=(gps.lat!=null&&gps.lng!=null)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
+      const maps=(locationConfirmed && gps.lat!=null && gps.lng!=null)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
       const confirmationLine = locationConfirmed && gps.confirmedAt
         ? `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`
         : t('Location confirmation pending','Confirmación de ubicación pendiente');
