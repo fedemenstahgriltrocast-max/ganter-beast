@@ -3,21 +3,37 @@
 // Forward sanitized PII to Cloudflare worker when Pay button is clicked
 (function(){
   // Public key metadata for verifying worker challenge or encryption schemes
-  const KEY_ID = "kid-94805fe6-4500-4d5c-8272-e9d38be05123";
-  const FINGERPRINT_SHA256 = "6BA0CAB3E2EBE4CB4D2B23397FC40E4622484C79CC9C74110EC2460F54EFB779";
-  const FINGERPRINT_SHA384 = "886D32528D1A05DAE20CD795E6D0CE99D2B763FC707A33419B22DEFDC46336EA0E9849A41DCB45BC07227565AACBC18C";
+  const KEY_ID = "757cf8b7-4c54-460d-8d09-764ec7cf4db0";
+  const FINGERPRINT_SHA256 = "A1BD26C67961EDEA2013A004B15DDD09C71F749DC0963EE58C89F83304BE30DD";
+  const FINGERPRINT_SHA384 = "A7E52D931BB443A7934E84628C0903FCD711012575E6A71AFD5258722342D36EE5B18B5EF299C4913188F355363C7E06";
   const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEmYzFeqcbdqBg1vzYkIOPNBRlfRm/
-Q+ituK2zUqToU1nuEocfWv4jcQW9St1RO7mIQY5G7n/reYSRHP9Jnm1XOg==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsIAklhmstrGxFPATsdYtnO/NN4Jr
+VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
 -----END PUBLIC KEY-----`;
-  const PUBLIC_JWK = {
+  const PUBLIC_JWK = Object.freeze({
     "crv": "P-256",
     "ext": true,
     "key_ops": ["verify"],
     "kty": "EC",
-    "x": "mYzFeqcbdqBg1vzYkIOPNBRlfRm_Q-ituK2zUqToU1k",
-    "y": "7hKHH1r-I3EFvUrdUTu5iEGORu5_63mEkRz_SZ5tVzo"
-  };
+    "x": "sIAklhmstrGxFPATsdYtnO_NN4JrVY2N64EbwRd0c8o",
+    "y": "8EZw19KwtQVEWd3fMv-QdV6VEZnYoAx4JnqtL0O8qTM"
+  });
+  const ENCRYPTION_JWK = Object.freeze({
+    "crv": "P-256",
+    "ext": true,
+    "key_ops": [],
+    "kty": "EC",
+    "x": "uBnUp3ouNZbH8Cq6DMGi1pHJUBCXsNz6d4mxJjnhbu8",
+    "y": "FlWkYUKQxfsrWFG5Jg3wzfeE5RFEMT2Vw-aKIE2geok"
+  });
+  window.CLOUDFLARE_SIGNING_METADATA = Object.freeze({
+    keyId: KEY_ID,
+    fingerprintSha256: FINGERPRINT_SHA256,
+    fingerprintSha384: FINGERPRINT_SHA384,
+    pem: PUBLIC_KEY_PEM,
+    jwk: PUBLIC_JWK
+  });
+  window.CLOUDFLARE_ENCRYPTION_JWK = ENCRYPTION_JWK;
 
   const workerUrl = window.CLOUDFLARE_WORKER_URL;
   if(!workerUrl){
@@ -73,7 +89,8 @@ Q+ituK2zUqToU1nuEocfWv4jcQW9St1RO7mIQY5G7n/reYSRHP9Jnm1XOg==
         method: "POST",
         headers: {
           "Content-Type":"application/json",
-          "X-Key-Id": KEY_ID
+          "X-Key-Id": KEY_ID,
+          "X-Key-Fingerprint-SHA256": FINGERPRINT_SHA256
         },
         body: JSON.stringify(payload),
         credentials: "omit"
