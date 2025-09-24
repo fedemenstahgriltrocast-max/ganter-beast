@@ -158,7 +158,11 @@
     .csat-face{font-size:32px;margin-bottom:8px}
     .stars{display:flex;gap:4px;margin-bottom:8px}
     .stars button{all:unset;cursor:pointer;font-size:20px;color:var(--muted)}
-    .csat-footer{display:flex;flex-direction:column;align-items:center;margin-top:12px}
+    .csat-footer{display:flex;flex-direction:column;align-items:center;margin-top:12px;gap:10px}
+    .csat-counts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%}
+    .csat-count{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:.85rem;font-weight:600;color:inherit}
+    .csat-count .count{font-variant-numeric:tabular-nums;font-weight:700}
+    html[data-theme="light"] .csat-count{background:#eef1fb;border-color:var(--line-light);color:var(--ink-light)}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
     .kpi canvas{width:100%;max-width:220px;height:80px}
@@ -413,6 +417,28 @@
             <div class="csat-footer">
               <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
               <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
+              <div class="csat-counts" id="csatCounts" aria-live="polite">
+                <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
+                  <span aria-hidden="true">😞</span>
+                  <span class="count">0</span>
+                </div>
+                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
+                  <span aria-hidden="true">🙁</span>
+                  <span class="count">0</span>
+                </div>
+                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
+                  <span aria-hidden="true">😐</span>
+                  <span class="count">0</span>
+                </div>
+                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
+                  <span aria-hidden="true">😄</span>
+                  <span class="count">0</span>
+                </div>
+                <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
+                  <span aria-hidden="true">🤩</span>
+                  <span class="count">0</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1142,6 +1168,7 @@
       updateLocationReview();
       renderLocAuthStatus();
       if(mapDlg && mapDlg.open) updateMapView();
+      if(typeof window.updateCsatCountsUI==='function') window.updateCsatCountsUI();
     }
     function syncTheme(){
       document.documentElement.setAttribute('data-theme', theme);
@@ -1197,6 +1224,38 @@
       const stars=document.querySelectorAll('#csatStars button');
       const face=document.querySelector('.csat-face');
       const moods=['😞','🙁','😐','😄','🤩'];
+      const countWrap=document.getElementById('csatCounts');
+      const countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
+      let counts=[0,0,0,0,0];
+
+      if(countNodes.length===counts.length){
+        try{
+          const saved=JSON.parse(localStorage.getItem('csatCounts')||'[]');
+          if(Array.isArray(saved)){
+            counts=counts.map((n,i)=>{
+              const v=Number(saved[i]);
+              return Number.isFinite(v)&&v>=0?Math.floor(v):0;
+            });
+          }
+        }catch(err){
+          console.warn('Unable to read CSAT counts from storage.',err);
+        }
+      }
+
+      const updateCountsUI=()=>{
+        if(!countNodes.length) return;
+        countNodes.forEach((node,idx)=>{
+          const val=counts[idx]||0;
+          const span=node.querySelector('.count');
+          if(span) span.textContent=val;
+          const label=lang==='en'?(node.dataset.labelEn||''):(node.dataset.labelEs||node.dataset.labelEn||'');
+          const text=label?`${label}: ${val}`:`${val} ${t('ratings','calificaciones')}`;
+          node.setAttribute('aria-label',text);
+          node.setAttribute('title',text);
+        });
+      };
+
+      window.updateCsatCountsUI=updateCountsUI;
 
       const paint=val=>{
         stars.forEach((s,i)=>{
@@ -1217,10 +1276,19 @@
       });
 
       $('#rateBtn').addEventListener('click',()=>{
+        if(!rating){
+          alert(t('Please select a rating first.','Por favor selecciona una calificación.'));
+          return;
+        }
+        counts[rating-1]=(counts[rating-1]||0)+1;
+        try{ localStorage.setItem('csatCounts', JSON.stringify(counts)); }
+        catch(err){ console.warn('Unable to persist CSAT counts.',err); }
+        updateCountsUI();
         alert(t('Thanks for rating!','Gracias por calificar!'));
       });
 
       paint(0);
+      updateCountsUI();
     }
 
     /* Simple charts */
