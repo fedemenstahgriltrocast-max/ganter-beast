@@ -1241,6 +1241,9 @@
 
     function initCsat(){
       let rating=0;
+      const STORAGE_KEY='csatCounts';
+      const PENDING_KEY='csatPending';
+      const MAX_PENDING=25;
       const stars=document.querySelectorAll('#csatStars button');
       const face=document.querySelector('.csat-face');
       const moods=['😞','🙁','😐','😄','🤩'];
@@ -1248,19 +1251,40 @@
       const countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
       let counts=[0,0,0,0,0];
 
-      if(countNodes.length===counts.length){
+      const safeParse=(key,fallback)=>{
         try{
-          const saved=JSON.parse(localStorage.getItem('csatCounts')||'[]');
-          if(Array.isArray(saved)){
-            counts=counts.map((n,i)=>{
-              const v=Number(saved[i]);
-              return Number.isFinite(v)&&v>=0?Math.floor(v):0;
-            });
-          }
+          const raw=localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed=JSON.parse(raw);
+          return parsed??fallback;
         }catch(err){
-          console.warn('Unable to read CSAT counts from storage.',err);
+          console.warn(`Unable to read ${key} from storage.`,err);
+          return fallback;
+        }
+      };
+
+      if(countNodes.length===counts.length){
+        const saved=safeParse(STORAGE_KEY,[]);
+        if(Array.isArray(saved)){
+          counts=counts.map((n,i)=>{
+            const v=Number(saved[i]);
+            return Number.isFinite(v)&&v>=0?Math.floor(v):0;
+          });
         }
       }
+
+      let pending=safeParse(PENDING_KEY,[]);
+      if(!Array.isArray(pending)) pending=[];
+
+      const persistCounts=()=>{
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(counts));}
+        catch(err){console.warn('Unable to persist CSAT counts.',err);}
+      };
+
+      const persistPending=()=>{
+        try{localStorage.setItem(PENDING_KEY,JSON.stringify(pending));}
+        catch(err){console.warn('Unable to persist pending CSAT votes.',err);}
+      };
 
       const updateCountsUI=()=>{
         if(!countNodes.length) return;
@@ -1277,6 +1301,13 @@
 
       window.updateCsatCountsUI=updateCountsUI;
 
+      const updateCounts=(val)=>{
+        if(val<1||val>counts.length) return;
+        counts[val-1]=(counts[val-1]||0)+1;
+        updateCountsUI();
+        persistCounts();
+      };
+
       const paint=val=>{
         stars.forEach((s,i)=>{
           s.textContent=i<val?'★':'☆';
@@ -1285,6 +1316,70 @@
         const moodIdx=val?val-1:2;
         face.textContent=moods[moodIdx];
       };
+
+      const sendToWorker=async(entry)=>{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),6000);
+        try{
+          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body:JSON.stringify(entry),
+            mode:'cors',
+            credentials:'omit',
+            signal:controller.signal
+          });
+          const data=await res.json().catch(()=>({}));
+          if(!res.ok||!data.ok){
+            const error=new Error(data.error||`csat_http_${res.status}`);
+            error.code='server';
+            error.status=res.status;
+            throw error;
+          }
+          return data;
+        }finally{
+          clearTimeout(timer);
+        }
+      };
+
+      const classifyNetworkError=err=>{
+        if(!err) return false;
+        if(err.name==='AbortError') return true;
+        if(err.code==='server') return false;
+        const msg=(err.message||'').toLowerCase();
+        return msg.includes('failed to fetch')||msg.includes('network');
+      };
+
+      const queuePending=entry=>{
+        pending.push(entry);
+        if(pending.length>MAX_PENDING) pending=pending.slice(-MAX_PENDING);
+        persistPending();
+      };
+
+      const flushPending=async()=>{
+        if(!pending.length) return;
+        const queue=[...pending];
+        pending=[];
+        persistPending();
+        let latestStats=null;
+        for(const entry of queue){
+          try{
+            const data=await sendToWorker(entry);
+            updateCounts(entry.rating);
+            if(data&&data.stats) latestStats=data.stats;
+          }catch(err){
+            if(classifyNetworkError(err)){
+              pending.push(entry);
+            }else{
+              console.warn('Dropping CSAT vote due to non-retriable error.',err);
+            }
+          }
+        }
+        if(pending.length) persistPending();
+        if(latestStats) showCsatStats(latestStats);
+      };
+
+      updateCountsUI();
 
       stars.forEach((btn,i)=>{
         const val=i+1;
@@ -1300,19 +1395,22 @@
           alert(t('Please select a rating first.','Seleccione una calificación.'));
           return;
         }
+        const payload={rating,lang,ts:Date.now()};
         try{
-          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
-            method:'POST',
-            headers:{'content-type':'application/json'},
-            body:JSON.stringify({rating,lang})
-          });
-          const data=await res.json();
-          if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
-          showCsatStats(data.stats);
+          const data=await sendToWorker(payload);
+          updateCounts(rating);
+          if(data&&data.stats) showCsatStats(data.stats);
           alert(t('Thanks for rating!','¡Gracias por calificar!'));
+          await flushPending();
         }catch(err){
-          console.error(err);
-          alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+          console.error('CSAT submission failed',err);
+          if(classifyNetworkError(err)){
+            queuePending(payload);
+            alert(t('We saved your rating and will retry as soon as we reconnect.',
+              'Guardamos tu calificación y la enviaremos cuando recuperemos la conexión.'));
+          }else{
+            alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+          }
         }
       });
 
@@ -1327,6 +1425,9 @@
           console.warn('CSAT stats unavailable',err);
         }
       })();
+
+      flushPending();
+      window.addEventListener('online',flushPending,{once:false});
     }
 
     /* Simple charts */
