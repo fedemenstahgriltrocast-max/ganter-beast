@@ -675,6 +675,25 @@
     /* CONFIG */
     const CLOUDFLARE_WORKER_URL = "https://damp-snow-3384.distraction.workers.dev/";
     const WORKER_CSAT_URL = 'https://orange-base-dcdc.distraction.workers.dev';
+    const WORKER_CSAT_ENDPOINTS = (()=>{
+      const normalize=url=>{
+        if(!url) return '';
+        return url.replace(/\s+/g,'').replace(/\/+$/,'');
+      };
+      const add=(set,val)=>{const norm=normalize(val); if(norm) set.add(norm);};
+      const endpoints=new Set();
+      try{
+        const parsed=new URL(WORKER_CSAT_URL);
+        const origin=parsed.origin;
+        const base=`${origin}${parsed.pathname}`;
+        add(endpoints,base);
+        add(endpoints,`${origin}/csat`);
+        add(endpoints,origin);
+      }catch{
+        add(endpoints,WORKER_CSAT_URL);
+      }
+      return Array.from(endpoints);
+    })();
     const APPS_SCRIPT_URL = "";       // optional
     window.CLOUDFLARE_WORKER_URL = CLOUDFLARE_WORKER_URL;
     window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
@@ -1298,17 +1317,25 @@
       const trendCanvas=document.getElementById('csatTrend');
       let counts=[0,0,0,0,0];
 
-      if(countNodes.length===counts.length){
+      const safeParse=(key,fallback)=>{
         try{
-          const saved=JSON.parse(localStorage.getItem('csatCounts')||'[]');
-          if(Array.isArray(saved)){
-            counts=counts.map((n,i)=>{
-              const v=Number(saved[i]);
-              return Number.isFinite(v)&&v>=0?Math.floor(v):0;
-            });
-          }
+          const raw=localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed=JSON.parse(raw);
+          return parsed??fallback;
         }catch(err){
-          console.warn('Unable to read CSAT counts from storage.',err);
+          console.warn(`Unable to read ${key} from storage.`,err);
+          return fallback;
+        }
+      };
+
+      if(countNodes.length===counts.length){
+        const saved=safeParse(STORAGE_KEY,[]);
+        if(Array.isArray(saved)){
+          counts=counts.map((n,i)=>{
+            const v=Number(saved[i]);
+            return Number.isFinite(v)&&v>=0?Math.floor(v):0;
+          });
         }
       }
 
@@ -1390,6 +1417,13 @@
       window.updateCsatCountsUI=updateCountsUI;
       window.renderCsatTrend=renderTrend;
 
+      const updateCounts=(val)=>{
+        if(val<1||val>counts.length) return;
+        counts[val-1]=(counts[val-1]||0)+1;
+        updateCountsUI();
+        persistCounts();
+      };
+
       const paint=val=>{
         stars.forEach(btn=>{
           const btnVal=Number(btn.dataset.val)||0;
@@ -1400,6 +1434,132 @@
         const moodIdx=val?Math.min(Math.max(val-1,0),moods.length-1):2;
         face.textContent=moods[moodIdx];
       };
+
+      const CSAT_ENDPOINT_PREF_KEY='csatEndpointPref';
+      let preferredEndpoint=null;
+      try{
+        const stored=localStorage.getItem(CSAT_ENDPOINT_PREF_KEY);
+        if(stored&&WORKER_CSAT_ENDPOINTS.includes(stored)){
+          preferredEndpoint=stored;
+        }
+      }catch(err){
+        console.warn('Unable to read CSAT endpoint preference.',err);
+      }
+
+      const rememberEndpoint=url=>{
+        if(!url) return;
+        preferredEndpoint=url;
+        try{localStorage.setItem(CSAT_ENDPOINT_PREF_KEY,url);}catch(err){
+          console.warn('Unable to persist CSAT endpoint preference.',err);
+        }
+      };
+
+      const orderedEndpoints=()=>{
+        if(!WORKER_CSAT_ENDPOINTS.length) return [];
+        const list=[...WORKER_CSAT_ENDPOINTS];
+        if(preferredEndpoint){
+          const idx=list.indexOf(preferredEndpoint);
+          if(idx>0){
+            list.splice(idx,1);
+            list.unshift(preferredEndpoint);
+          }else if(idx===-1){
+            list.unshift(preferredEndpoint);
+          }
+        }
+        return list;
+      };
+
+      const attemptWorkerRequest=async(endpoint,options={})=>{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),options.timeout||6000);
+        try{
+          const res=await fetch(endpoint,{
+            mode:'cors',
+            credentials:'omit',
+            ...options,
+            signal:controller.signal
+          });
+          let data=null;
+          try{data=await res.json();}
+          catch{data=null;}
+          if(!res.ok || !data || data.ok!==true){
+            const error=new Error(data&&data.error?data.error:`csat_http_${res.status}`);
+            error.code='server';
+            error.status=res.status;
+            error.endpoint=endpoint;
+            throw error;
+          }
+          rememberEndpoint(endpoint);
+          return data||{};
+        }finally{
+          clearTimeout(timer);
+        }
+      };
+
+      const sendToWorker=async(entry)=>{
+        const endpoints=orderedEndpoints();
+        if(!endpoints.length) throw new Error('csat_endpoint_missing');
+        let lastErr=null;
+        for(const endpoint of endpoints){
+          try{
+            return await attemptWorkerRequest(endpoint,{
+              method:'POST',
+              headers:{'content-type':'application/json'},
+              body:JSON.stringify(entry)
+            });
+          }catch(err){
+            if(err.name==='AbortError'){
+              err=new Error('csat_timeout');
+              err.code='timeout';
+            }
+            err.endpoint=err.endpoint||endpoint;
+            lastErr=err;
+            if(classifyNetworkError(err)) break;
+            continue;
+          }
+        }
+        throw lastErr||new Error('csat_unreachable');
+      };
+
+      const classifyNetworkError=err=>{
+        if(!err) return false;
+        if(err.name==='AbortError') return true;
+        if(err.code==='timeout') return true;
+        if(err.code==='server') return false;
+        const msg=(err.message||'').toLowerCase();
+        return msg.includes('failed to fetch')||msg.includes('network');
+      };
+
+      const queuePending=entry=>{
+        pending.push(entry);
+        if(pending.length>MAX_PENDING) pending=pending.slice(-MAX_PENDING);
+        persistPending();
+      };
+
+      const flushPending=async()=>{
+        if(!pending.length) return;
+        const queue=[...pending];
+        pending=[];
+        persistPending();
+        let latestStats=null;
+        for(const entry of queue){
+          try{
+            const data=await sendToWorker(entry);
+            updateCounts(entry.rating);
+            if(data&&data.stats) latestStats=data.stats;
+          }catch(err){
+            if(classifyNetworkError(err)){
+              pending.push(entry);
+            }else{
+              console.warn('Dropping CSAT vote due to non-retriable error.',err);
+            }
+          }
+        }
+        if(pending.length) persistPending();
+        if(latestStats) showCsatStats(latestStats);
+      };
+
+      updateCountsUI();
 
       stars.forEach((btn,i)=>{
         const val=Number(btn.dataset.val)||i+1;
@@ -1415,6 +1575,7 @@
           alert(t('Please select a rating first.','Seleccione una calificación.'));
           return;
         }
+        const payload={rating,lang,ts:Date.now()};
         try{
           const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
             method:'POST',
@@ -1430,9 +1591,16 @@
           updateCountsUI();
           showCsatStats(data.stats);
           alert(t('Thanks for rating!','¡Gracias por calificar!'));
+          await flushPending();
         }catch(err){
-          console.error(err);
-          alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+          console.error('CSAT submission failed',err);
+          if(classifyNetworkError(err)){
+            queuePending(payload);
+            alert(t('We saved your rating and will retry as soon as we reconnect.',
+              'Guardamos tu calificación y la enviaremos cuando recuperemos la conexión.'));
+          }else{
+            alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+          }
         }
       });
 
@@ -1441,14 +1609,29 @@
       window.addEventListener('resize',renderTrend);
 
       (async()=>{
-        try{
-          const r=await fetch(`${WORKER_CSAT_URL}/csat`);
-          const d=await r.json();
-          if(d && d.ok) showCsatStats(d.stats);
-        }catch(err){
-          console.warn('CSAT stats unavailable',err);
+        const endpoints=orderedEndpoints();
+        for(const endpoint of endpoints){
+          try{
+            const data=await attemptWorkerRequest(endpoint,{method:'GET'});
+            if(data && data.ok){
+              showCsatStats(data.stats);
+              return;
+            }
+          }catch(err){
+            if(err.name==='AbortError'){
+              err.code='timeout';
+            }
+            if(classifyNetworkError(err)){
+              console.warn('CSAT stats unavailable (network)',err);
+              break;
+            }
+            continue;
+          }
         }
       })();
+
+      flushPending();
+      window.addEventListener('online',flushPending,{once:false});
     }
 
     /* Simple charts */
