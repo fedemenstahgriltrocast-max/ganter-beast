@@ -156,16 +156,21 @@
     .kpi h4{margin:6px 0 8px 0}
     .csat{display:grid;grid-template-columns:minmax(160px,220px) minmax(220px,1fr) auto;align-items:flex-start;gap:18px;width:100%}
     @media (max-width:900px){.csat{grid-template-columns:1fr;}}
-    .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
+    .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
+    .csat-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.16em;color:var(--muted)}
+    .csat-hero-summary{display:flex;align-items:center;gap:16px}
     .csat-face{font-size:44px;margin:0}
-    .csat-hero-details{display:flex;flex-direction:column;gap:10px;align-items:flex-start;width:100%}
+    .csat-meta{display:flex;flex-direction:column;gap:10px;align-items:flex-start;color:var(--muted)}
+    .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
+    .csat-average span{font-variant-numeric:tabular-nums}
+    .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
+    .csat-votes span{font-variant-numeric:tabular-nums}
     .csat-rate-stars{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:8px 12px;border-radius:16px;border:1px solid var(--line)}
     .csat-star-btn{all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--muted);background:var(--chip);border:1px solid var(--line);transition:transform .2s ease,box-shadow .25s ease,background .25s ease,color .25s ease;opacity:.7}
     .csat-star-btn:hover,.csat-star-btn:focus-visible{transform:translateY(-2px);background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow);opacity:1}
-    .csat-meta{font-size:.85rem;display:flex;align-items:center;gap:6px;color:var(--muted)}
-    .csat-meta span{font-variant-numeric:tabular-nums}
-    .csat-body{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:16px;width:100%;align-items:start}
+    .csat-body{display:grid;grid-template-columns:minmax(260px,1fr) minmax(140px,1fr);gap:16px;width:100%;align-items:start}
+    .csat-baseline{display:grid;gap:16px;align-content:start}
     .csat-counts{display:flex;flex-direction:column;gap:10px;width:100%}
     .csat-count{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--chip);border:1px solid var(--line);font-size:.95rem;font-weight:600;color:inherit;transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease}
     .csat-count .sentiment{display:flex;align-items:center;gap:10px;font-weight:700}
@@ -177,15 +182,18 @@
     .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:0;gap:10px;width:100%}
     .csat-footer .muted{text-align:left;max-width:260px}
     @media (max-width:900px){
-      .csat-hero,.csat-footer{align-items:center;text-align:center}
-      .csat-hero-details,.csat-footer{width:100%;align-items:center}
+      .csat-hero{align-items:center;text-align:center}
+      .csat-hero-summary{flex-direction:column}
+      .csat-meta{align-items:center;text-align:center}
       .csat-rate-stars{justify-content:center}
-      .csat-meta{justify-content:center}
       .csat-body{grid-template-columns:1fr;justify-items:center}
+      .csat-baseline{width:100%}
       .csat-counts{width:100%}
       .csat-trend{width:100%;align-items:center}
       .csat-trend canvas{width:180px}
     }
+    html[data-theme="light"] .csat-meta{color:var(--muted-light)}
+    html[data-theme="light"] .csat-average{color:var(--ink-light)}
     html[data-theme="light"] .csat-rate-stars{background:linear-gradient(135deg,rgba(10,14,26,.04),rgba(10,14,26,.02));border-color:var(--line-light)}
     html[data-theme="light"] .csat-star-btn{background:#eef1fb;border-color:var(--line-light);color:var(--muted-light)}
     html[data-theme="light"] .csat-star-btn.active,html[data-theme="light"] .csat-star-btn:hover,html[data-theme="light"] .csat-star-btn:focus-visible{background:var(--accent);color:#fff}
@@ -438,8 +446,26 @@
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
             <div class="csat-hero">
-              <div class="csat-face" role="img" aria-live="polite">😐</div>
-              <div class="csat-hero-details">
+              <span class="csat-label" data-en="Previous sentiment rate" data-es="Índice de sentimiento previo">Previous sentiment rate</span>
+              <div class="csat-hero-summary">
+                <div class="csat-face" role="img" aria-live="polite">😐</div>
+                <div class="csat-meta" aria-live="polite">
+                  <div class="csat-average">
+                    <span id="csatAverageValue">0.00</span><span>/5</span>
+                  </div>
+                  <div class="csat-votes">
+                    <span id="csatTotalVotes">0</span>
+                    <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
+                  </div>
+                </div>
+              </div>
+              <div class="csat-footer">
+                <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+                <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
+              </div>
+            </div>
+            <div class="csat-body">
+              <div class="csat-baseline">
                 <div class="csat-rate-stars" role="group" aria-label="Rate customer satisfaction">
                   <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">★</button>
                   <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">★</button>
@@ -447,39 +473,27 @@
                   <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
                   <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
                 </div>
-                <div class="csat-meta" aria-live="polite">
-                  <span id="csatAverageValue">0.00</span><span>/5</span>
-                  <span>•</span>
-                  <span id="csatTotalVotes">0</span>
-                  <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
-                </div>
-                <div class="csat-footer">
-                  <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
-                  <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
-                </div>
-              </div>
-            </div>
-            <div class="csat-body">
-              <div class="csat-counts" id="csatCounts" aria-live="polite">
-                <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
-                  <span class="sentiment"><span aria-hidden="true">🤩</span><span data-en="Delighted" data-es="Encantado">Delighted</span></span>
-                  <span class="count">000 000</span>
-                </div>
-                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
-                  <span class="sentiment"><span aria-hidden="true">😄</span><span data-en="Happy" data-es="Contento">Happy</span></span>
-                  <span class="count">000 000</span>
-                </div>
-                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                  <span class="sentiment"><span aria-hidden="true">😐</span><span data-en="Neutral" data-es="Neutral">Neutral</span></span>
-                  <span class="count">000 000</span>
-                </div>
-                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
-                  <span class="sentiment"><span aria-hidden="true">🙁</span><span data-en="Unhappy" data-es="Insatisfecho">Unhappy</span></span>
-                  <span class="count">000 000</span>
-                </div>
-                <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
-                  <span class="sentiment"><span aria-hidden="true">😞</span><span data-en="Very unhappy" data-es="Muy insatisfecho">Very unhappy</span></span>
-                  <span class="count">000 000</span>
+                <div class="csat-counts" id="csatCounts" aria-live="polite">
+                  <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
+                    <span class="sentiment"><span aria-hidden="true">🤩</span><span data-en="Delighted" data-es="Encantado">Delighted</span></span>
+                    <span class="count">000 000</span>
+                  </div>
+                  <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
+                    <span class="sentiment"><span aria-hidden="true">😄</span><span data-en="Happy" data-es="Contento">Happy</span></span>
+                    <span class="count">000 000</span>
+                  </div>
+                  <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
+                    <span class="sentiment"><span aria-hidden="true">😐</span><span data-en="Neutral" data-es="Neutral">Neutral</span></span>
+                    <span class="count">000 000</span>
+                  </div>
+                  <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
+                    <span class="sentiment"><span aria-hidden="true">🙁</span><span data-en="Unhappy" data-es="Insatisfecho">Unhappy</span></span>
+                    <span class="count">000 000</span>
+                  </div>
+                  <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
+                    <span class="sentiment"><span aria-hidden="true">😞</span><span data-en="Very unhappy" data-es="Muy insatisfecho">Very unhappy</span></span>
+                    <span class="count">000 000</span>
+                  </div>
                 </div>
               </div>
               <div class="csat-trend">
