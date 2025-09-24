@@ -158,6 +158,7 @@
     @media (max-width:900px){.csat{grid-template-columns:1fr;}}
     .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
     .csat-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.16em;color:var(--muted)}
+    .sentiment-score{color:var(--danger);font-weight:800;margin-left:8px;min-width:12px;display:inline-flex;align-items:center;justify-content:center}
     .csat-hero-summary{display:flex;align-items:center;gap:16px}
     .csat-face{font-size:44px;margin:0}
     .csat-meta{display:flex;flex-direction:column;gap:10px;align-items:flex-start;color:var(--muted)}
@@ -475,19 +476,19 @@
                 </div>
                 <div class="csat-counts" id="csatCounts" aria-live="polite">
                   <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
-                    <span class="sentiment"><span aria-hidden="true">🤩</span><span data-en="Delighted" data-es="Encantado">Delighted</span></span>
+                    <span class="sentiment"><span aria-hidden="true">🤩</span><span class="sentiment-score" data-en="1" data-es="1">1</span></span>
                     <span class="count">000 000</span>
                   </div>
                   <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
-                    <span class="sentiment"><span aria-hidden="true">😄</span><span data-en="Happy" data-es="Contento">Happy</span></span>
+                    <span class="sentiment"><span aria-hidden="true">😄</span><span class="sentiment-score" data-en="1" data-es="1">1</span></span>
                     <span class="count">000 000</span>
                   </div>
                   <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                    <span class="sentiment"><span aria-hidden="true">😐</span><span data-en="Neutral" data-es="Neutral">Neutral</span></span>
+                    <span class="sentiment"><span aria-hidden="true">😐</span><span class="sentiment-score" data-en="1" data-es="1">1</span></span>
                     <span class="count">000 000</span>
                   </div>
                   <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
-                    <span class="sentiment"><span aria-hidden="true">🙁</span><span data-en="Unhappy" data-es="Insatisfecho">Unhappy</span></span>
+                    <span class="sentiment"><span aria-hidden="true">🙁</span><span class="sentiment-score" data-en="1" data-es="1">1</span></span>
                     <span class="count">000 000</span>
                   </div>
                   <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
