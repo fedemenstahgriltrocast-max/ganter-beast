@@ -89,23 +89,6 @@
     }
     html[data-theme="light"] #clearBtn:hover{background:rgba(10,14,26,.12)}
 
-    .location-summary{
-      margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);
-      background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:8px;
-    }
-    .location-summary.alert{border-color:rgba(255,77,109,.65);box-shadow:0 0 0 1px rgba(255,77,109,.18)}
-    .location-summary[data-state="confirmed"]{border-color:rgba(30,169,122,.65);box-shadow:0 0 0 1px rgba(30,169,122,.2)}
-    .location-summary h4{margin:0;font-size:.95rem}
-    .location-summary p{margin:0;font-size:.9rem;line-height:1.4}
-    .summary-actions{display:flex;flex-wrap:wrap;gap:8px}
-    html[data-theme="light"] .location-summary{
-      background:rgba(10,14,26,.06);
-      border-color:var(--line-light);
-      box-shadow:var(--shadow-light);
-    }
-    html[data-theme="light"] .location-summary.alert{border-color:rgba(255,77,109,.55)}
-    html[data-theme="light"] .location-summary[data-state="confirmed"]{border-color:rgba(30,169,122,.55)}
-
     .location-review{
       margin-top:10px;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);
       font-size:.9rem;line-height:1.4;min-height:38px;display:flex;align-items:center;
@@ -220,13 +203,20 @@
     .inline-qty span{display:inline-block;min-width:28px;text-align:center}
     html[data-theme="dark"] .muted, html[data-theme="dark"] .panel *{color:#fff}
     html[data-theme="dark"] input,html[data-theme="dark"] textarea{color:#fff;border-color:rgba(255,255,255,.28)}
-    #gpsNote{min-height:1.2em;margin-top:6px}
-    #gpsNote.alert{color:var(--danger)}
+    .location-hint{margin:6px 0 0 0;font-size:.9rem;line-height:1.45}
     .disclaimer{font-size:.9rem;color:var(--danger);text-align:right;width:100%}
     .disclaimer[hidden]{display:none}
     .location-modal main{padding:14px;display:grid;gap:14px;overflow-y:auto;max-height:70vh}
     .location-modal header{border-bottom:1px solid var(--line)}
     .location-modal footer{width:100%}
+    .map-toggle{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+    .map-toggle .chip{min-width:0;padding:8px 14px}
+    .map-links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+    .map-links .toggle{font-size:12px;padding:8px 14px}
+    .map-links .toggle.active{border-color:var(--accent);color:var(--accent)}
+    html[data-theme="light"] .map-links .toggle.active{border-color:var(--accent);color:var(--accent)}
+    .map-links .toggle.disabled{opacity:.5;pointer-events:none;cursor:default}
+    .map-frame-wrap{width:100%}
     .map-frame{width:100%;height:260px;border:0;border-radius:12px;background:#0b0f16}
     html[data-theme="light"] .map-frame{background:#eef1fb}
     .map-status{font-size:.92rem;color:var(--muted);min-height:1.2em}
@@ -501,7 +491,7 @@
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div>
           <div class="row" style="justify-content:space-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div>
-          <div id="locationReview" class="location-review" aria-live="polite" data-state="idle" data-en="Delivery location pending confirmation." data-es="Ubicación de entrega pendiente de confirmación.">Delivery location pending confirmation.</div>
+          <div id="locationReview" class="location-review" aria-live="polite" data-state="idle" data-en="We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”" data-es="Le pediremos autorizar y confirmar su ubicación de entrega después de presionar “Confirmar transacción”.">We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”</div>
         </section>
 
         <div class="hr"></div>
@@ -525,18 +515,10 @@
           <div class="fields" style="grid-template-columns:1fr;">
             <input id="email" required type="email" data-ph-en="Email" data-ph-es="Correo electrónico" placeholder="Email" />
           </div>
-          <div class="fields full">
+          <div class="fields" style="grid-template-columns:1fr;">
             <input id="address" required style="min-width:0" data-ph-en="Address" data-ph-es="Dirección" placeholder="Address" />
-            <button id="locBtn" class="toggle" data-en="Use my location" data-es="Usar mi ubicación">Use my location</button>
           </div>
-          <div id="gpsNote" class="muted" aria-live="polite"></div>
-          <div id="locationSummary" class="location-summary" data-state="idle" aria-live="polite">
-            <h4 data-en="Delivery location" data-es="Ubicación de entrega">Delivery location</h4>
-            <p id="locationDetails" data-en="Provide your delivery location to continue." data-es="Proporcione su ubicación de entrega para continuar.">Provide your delivery location to continue.</p>
-            <div class="summary-actions">
-              <button type="button" id="openMapBtn" class="toggle" data-en="Open map" data-es="Abrir mapa">Open map</button>
-            </div>
-          </div>
+          <p class="muted location-hint" data-en="After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps." data-es="Después de revisar su pedido, haga clic en “Confirmar transacción” y le guiaremos para autorizar y confirmar su ubicación de entrega en Google Maps.">After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps.</p>
         </section>
       </main>
       <footer>
@@ -577,7 +559,31 @@
       </header>
       <main>
         <p class="muted" data-en="You must confirm your \"Order Delivery Location\" before we can send your order." data-es="Debe confirmar su \"Ubicación de Entrega\" antes de enviar su pedido.">You must confirm your "Order Delivery Location" before we can send your order.</p>
-        <div>
+        <div class="map-toggle" role="tablist">
+          <button type="button" class="chip sel" data-map-tab="desktop" aria-pressed="true" data-en="PC / Laptop map" data-es="Mapa PC / Laptop">PC / Laptop map</button>
+          <button type="button" class="chip" data-map-tab="mobile" aria-pressed="false" data-en="Mobile / Tablet map" data-es="Mapa móvil / Tablet">Mobile / Tablet map</button>
+        </div>
+        <div class="map-links">
+          <a
+            class="toggle disabled"
+            data-map-link="desktop"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-disabled="true"
+            data-en="Open desktop map in Google Maps"
+            data-es="Abrir mapa de escritorio en Google Maps"
+          >Open desktop map in Google Maps</a>
+          <a
+            class="toggle disabled"
+            data-map-link="mobile"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-disabled="true"
+            data-en="Open mobile/tablet map in Google Maps"
+            data-es="Abrir mapa móvil/tablet en Google Maps"
+          >Open mobile/tablet map in Google Maps</a>
+        </div>
+        <div class="map-frame-wrap">
           <iframe id="mapFrame" class="map-frame" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
         <div id="mapStatus" class="map-status" aria-live="polite"></div>
@@ -640,6 +646,50 @@
     const t = (en,es)=> lang==='en'?en:es;
     const fmt = n => '$'+n.toFixed(2);
     const highlightTimers = new WeakMap();
+    const MAP_EMBED_TEMPLATES={
+      desktop:coords=>`https://www.google.com/maps?q=${coords}&z=17&output=embed`,
+      mobile:coords=>`https://maps.google.com/maps?q=${coords}&z=17&output=embed`
+    };
+    const MAP_SHARE_TEMPLATES={
+      desktop:coords=>`https://www.google.com/maps/@${coords},17z`,
+      mobile:coords=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`
+    };
+    function isMobileOrTablet(){
+      try{
+        if(navigator.userAgentData && typeof navigator.userAgentData.mobile==='boolean'){
+          return navigator.userAgentData.mobile;
+        }
+      }catch{}
+      const ua=(navigator.userAgent||'').toLowerCase();
+      if(/mobi|android|iphone|ipad|tablet/.test(ua)) return true;
+      return (('ontouchstart' in window)||(navigator.maxTouchPoints||0)>1) && window.innerWidth<1024;
+    }
+    function detectDefaultMapMode(){
+      return isMobileOrTablet()?'mobile':'desktop';
+    }
+    function coordsForMaps(){
+      if(typeof gps.lat==='number' && typeof gps.lng==='number'){
+        return `${gps.lat},${gps.lng}`;
+      }
+      return '';
+    }
+    function buildMapEmbedUrl(mode){
+      const coords=coordsForMaps();
+      if(!coords) return '';
+      const template=MAP_EMBED_TEMPLATES[mode]||MAP_EMBED_TEMPLATES.desktop;
+      return template(coords);
+    }
+    function buildMapShareUrl(mode){
+      const coords=coordsForMaps();
+      if(!coords) return '';
+      const template=MAP_SHARE_TEMPLATES[mode]||MAP_SHARE_TEMPLATES.desktop;
+      return template(coords);
+    }
+    function mapModeLabel(mode){
+      return mode==='mobile'
+        ? t('Mobile / Tablet map','Mapa móvil / Tablet')
+        : t('PC / Laptop map','Mapa PC / Laptop');
+    }
     function formatDeliveryTime(mins){
       if(mins===45) return t('45 min','45 min');
       if(mins===60) return t('1 hr','1 hr');
@@ -663,15 +713,51 @@
     const locAuthCancelBtn = $('#locAuthCancel');
     const closeLocAuthBtn = $('#closeLocAuth');
     const confirmDisclaimer = $('#confirmDisclaimer');
-    const locationSummaryEl = $('#locationSummary');
-    const locationDetailsEl = $('#locationDetails');
     const locationReviewEl = $('#locationReview');
-    const openMapBtn = $('#openMapBtn');
     const clearReviewBtn = $('#clearReviewBtn');
     const confirmBtnEl = $('#confirmBtn');
+    const mapModeButtons = document.querySelectorAll('[data-map-tab]');
+    const mapShareLinks = document.querySelectorAll('[data-map-link]');
 
     let locAuthStatusKey = 'idle';
     let autoOpenMapAfterAuth = true;
+    let mapMode = detectDefaultMapMode();
+
+    function highlightMapTabs(){
+      mapModeButtons.forEach(btn=>{
+        const selected = btn.dataset.mapTab===mapMode;
+        btn.classList.toggle('sel',selected);
+        btn.setAttribute('aria-pressed',selected?'true':'false');
+      });
+    }
+    function updateMapLinks(){
+      const coordsReady = typeof gps.lat==='number' && typeof gps.lng==='number';
+      mapShareLinks.forEach(link=>{
+        const mode = link.dataset.mapLink;
+        const active = mode===mapMode;
+        link.dataset.active=active?'true':'false';
+        link.classList.toggle('active',active);
+        if(coordsReady){
+          const url=buildMapShareUrl(mode);
+          if(url){
+            link.href=url;
+          }
+          link.classList.remove('disabled');
+          link.removeAttribute('aria-disabled');
+        }else{
+          link.removeAttribute('href');
+          link.classList.add('disabled');
+          link.setAttribute('aria-disabled','true');
+        }
+      });
+    }
+    function setMapMode(mode){
+      if(!mode || !(mode in MAP_EMBED_TEMPLATES)) return;
+      mapMode = mode;
+      highlightMapTabs();
+      updateMapView();
+      updateMapLinks();
+    }
 
     function renderLocAuthStatus(){
       if(!locAuthStatusEl) return;
@@ -709,9 +795,13 @@
     }
 
     function setLocationConfirmed(val){
+      const prev = locationConfirmed;
       locationConfirmed = !!val;
       window.locationConfirmed = locationConfirmed;
-      updateLocationNote();
+      updateLocationReview();
+      if(locationConfirmed && !prev){
+        document.dispatchEvent(new CustomEvent('delivery-location-confirmed'));
+      }
     }
     function openMapForConfirmation(){
       if(mapDlg && typeof mapDlg.showModal==='function'){
@@ -720,7 +810,10 @@
           mapDlg.showModal();
         }
       }else if(gps.lat!=null && gps.lng!=null){
-        window.open(`https://maps.google.com/?q=${gps.lat},${gps.lng}`,'_blank');
+        const shareUrl=buildMapShareUrl(mapMode)||buildMapShareUrl('desktop')||buildMapShareUrl('mobile');
+        if(shareUrl){
+          window.open(shareUrl,'_blank');
+        }
         alert(t('The map opened in a new tab so you can verify your delivery pin.','El mapa se abrió en una nueva pestaña para que verifique su punto de entrega.'));
       }else{
         alert(t('We still need your coordinates before the map can load.','Aún necesitamos sus coordenadas antes de cargar el mapa.'));
@@ -769,6 +862,30 @@
         }
       }
     }
+    async function ensureDeliveryLocationConfirmation(){
+      if(locationConfirmed){
+        return true;
+      }
+      return new Promise(resolve=>{
+        let settled=false;
+        const finish=result=>{
+          if(settled) return;
+          settled=true;
+          document.removeEventListener('delivery-location-confirmed', onConfirmed);
+          if(mapDlg) mapDlg.removeEventListener('close', onClosed);
+          if(locAuthDlg) locAuthDlg.removeEventListener('close', onClosed);
+          resolve(result);
+        };
+        const onConfirmed=()=>finish(true);
+        const onClosed=()=>{
+          finish(locationConfirmed);
+        };
+        document.addEventListener('delivery-location-confirmed', onConfirmed);
+        if(mapDlg) mapDlg.addEventListener('close', onClosed);
+        if(locAuthDlg) locAuthDlg.addEventListener('close', onClosed);
+        showLocationAuthorization(true);
+      });
+    }
     async function ensurePaymentConfirmed(payload){
       if(typeof window.requestPaymentConfirmation==='function'){
         try{
@@ -794,42 +911,21 @@
       if(typeof gps.lat !== 'number' || typeof gps.lng !== 'number') return '';
       return `${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
     }
-    function buildLocationMessages(){
+    function buildLocationReview(){
       const coords=formatCoords();
       const when=formatTimestamp(gps.confirmedAt);
-      const base={
-        note:t('Location required for delivery.','Se requiere la ubicación para la entrega.'),
-        noteAlert:false,
-        summary:t('Provide your delivery location to continue.','Proporcione su ubicación de entrega para continuar.'),
-        summaryAlert:false,
-        review:t('Delivery location pending confirmation.','Ubicación de entrega pendiente de confirmación.'),
-        state:locationStatus||'idle',
-        mapLabel:t('Authorize location','Autorizar ubicación')
-      };
       switch(locationStatus){
         case 'pending':
           return {
-            ...base,
-            note:t('Requesting your location...','Solicitando su ubicación...'),
-            summary:t('Requesting your location. Allow GPS access and wait a moment.','Solicitando su ubicación. Permita el acceso al GPS y espere un momento.'),
-            review:t('Requesting GPS coordinates…','Solicitando coordenadas GPS…'),
-            state:'pending',
-            mapLabel:t('Opening map…','Abriendo mapa…')
+            review:t('Requesting your delivery location… please allow secure access.','Solicitando su ubicación de entrega… permita el acceso seguro.'),
+            state:'pending'
           };
         case 'acquired':
           return {
-            ...base,
-            note:coords
-              ? t(`Location detected (${coords}). Confirm to continue.`,`Ubicación detectada (${coords}). Confirme para continuar.`)
-              : t('Location detected. Confirm to continue.','Ubicación detectada. Confirme para continuar.'),
-            summary:coords
-              ? t(`Location detected (${coords}). Open the map to confirm your delivery spot.`,`Ubicación detectada (${coords}). Abra el mapa para confirmar su punto de entrega.`)
-              : t('Location detected. Open the map to confirm your delivery spot.','Ubicación detectada. Abra el mapa para confirmar su punto de entrega.'),
             review:coords
-              ? t(`⚠️ Confirm location on the map (${coords}).`,`⚠️ Confirme la ubicación en el mapa (${coords}).`)
-              : t('⚠️ Confirm the detected location on the map.','⚠️ Confirme la ubicación detectada en el mapa.'),
-            state:'acquired',
-            mapLabel:t('Confirm on map','Confirmar en el mapa')
+              ? t(`Location detected (${coords}). Confirm the map to continue.`,`Ubicación detectada (${coords}). Confirme el mapa para continuar.`)
+              : t('Location detected. Confirm the map to continue.','Ubicación detectada. Confirme el mapa para continuar.'),
+            state:'acquired'
           };
         case 'confirmed':{
           const coordLine=coords
@@ -839,66 +935,49 @@
             ? t(`Confirmed on ${when}.`,`Confirmado el ${when}.`)
             : '';
           return {
-            ...base,
-            note:when
-              ? t(`Delivery location confirmed on ${when}.`,`Ubicación de entrega confirmada el ${when}.`)
-              : t('Delivery location confirmed.','Ubicación de entrega confirmada.'),
-            summary:whenLine?`${coordLine} ${whenLine}`:coordLine,
             review:whenLine?`${coordLine} ${whenLine}`:coordLine,
-            state:'confirmed',
-            mapLabel:t('View / edit map','Ver / editar mapa')
+            state:'confirmed'
           };
         }
         case 'error':
           return {
-            ...base,
-            note:t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),
-            noteAlert:true,
-            summary:t('Delivery location unavailable. Enable GPS or adjust permissions, then authorize again.','Ubicación de entrega no disponible. Active el GPS o ajuste los permisos y vuelva a autorizar.'),
-            summaryAlert:true,
-            review:t('❌ Delivery location unavailable. Enable GPS or adjust permissions, then try again.','❌ Ubicación de entrega no disponible. Active el GPS o ajuste los permisos y vuelva a intentarlo.'),
-            state:'error',
-            mapLabel:t('Authorize location','Autorizar ubicación')
+            review:t('We could not confirm your delivery location. Allow GPS access when prompted and try again.','No pudimos confirmar su ubicación de entrega. Permita el acceso GPS cuando se le solicite e inténtelo de nuevo.'),
+            state:'error'
           };
         default:
-          return base;
+          return {
+            review:t('We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”','Le pediremos autorizar y confirmar su ubicación de entrega después de presionar “Confirmar transacción”.'),
+            state:'idle'
+          };
       }
     }
 
-    function updateLocationNote(){
-      const note=$('#gpsNote');
-      const {note:noteMsg,noteAlert,summary,summaryAlert,review,state,mapLabel}=buildLocationMessages();
-      if(note){
-        note.textContent=noteMsg;
-        note.classList.toggle('alert',!!noteAlert);
-      }
-      if(locationSummaryEl){
-        locationSummaryEl.dataset.state=state;
-        locationSummaryEl.classList.toggle('alert',!!summaryAlert);
-      }
-      if(locationDetailsEl){
-        locationDetailsEl.textContent=summary;
-      }
-      if(locationReviewEl){
-        locationReviewEl.textContent=review;
-        locationReviewEl.dataset.state=state;
-      }
-      if(openMapBtn){
-        const disabled=state==='pending';
-        openMapBtn.disabled=disabled;
-        openMapBtn.setAttribute('aria-disabled',disabled?'true':'false');
-        openMapBtn.textContent=mapLabel;
+    function updateLocationReview(){
+      if(!locationReviewEl) return;
+      const {review,state}=buildLocationReview();
+      locationReviewEl.textContent=review;
+      locationReviewEl.dataset.state=state;
+    }
+    function disclaimerMessage(key='default'){
+      switch(key){
+        case 'location':
+          return t('Authorize and confirm your delivery location to continue.','Autorice y confirme su ubicación de entrega para continuar.');
+        default:
+          return t('You must confirm your "Order Delivery Location".','Debe confirmar su "Ubicación de Entrega".');
       }
     }
-    function showDisclaimer(){
+    function showDisclaimer(message,key='default'){
       if(!confirmDisclaimer) return;
+      const msg=message ?? disclaimerMessage(key);
       confirmDisclaimer.hidden=false;
-      confirmDisclaimer.textContent=t('You must confirm your "Order Delivery Location".','Debe confirmar su "Ubicación de Entrega".');
+      confirmDisclaimer.dataset.key=key;
+      confirmDisclaimer.textContent=msg;
     }
     function hideDisclaimer(){
       if(!confirmDisclaimer) return;
       confirmDisclaimer.hidden=true;
       confirmDisclaimer.textContent='';
+      delete confirmDisclaimer.dataset.key;
     }
     function setMapStatus(message,isAlert=false){
       if(!mapStatusEl) return;
@@ -907,10 +986,13 @@
     }
     function updateMapView(){
       if(!mapDlg) return;
+      if(mapFrame){
+        const baseTitle=t('Delivery location map','Mapa de ubicación de entrega');
+        mapFrame.setAttribute('title',`${baseTitle} – ${mapModeLabel(mapMode)}`);
+      }
       if(gps.lat!=null && gps.lng!=null){
-        const coords=`${gps.lat},${gps.lng}`;
-        const url=`https://www.google.com/maps?q=${coords}&z=17&output=embed`;
-        if(mapFrame && mapFrame.src!==url){
+        const url=buildMapEmbedUrl(mapMode);
+        if(mapFrame && url && mapFrame.src!==url){
           mapFrame.src=url;
         }
         setMapStatus(t('Drag and zoom if needed, then confirm your delivery spot.','Arrastre y ajuste si es necesario, luego confirme su punto de entrega.'),false);
@@ -924,13 +1006,14 @@
           setMapStatus(t('We are waiting for your GPS location. Allow access on your device.','Estamos esperando su ubicación GPS. Permita el acceso en su dispositivo.'),true);
         }
       }
+      updateMapLinks();
     }
 
     let locationRequestPromise=null;
     async function requestLocation(auto=false){
       if(!navigator.geolocation){
         locationStatus='error';
-        updateLocationNote();
+        updateLocationReview();
         if(!auto){
           alert(t('Geolocation not supported','Geolocalización no soportada'));
         }
@@ -938,7 +1021,7 @@
       }
       if(locationRequestPromise) return locationRequestPromise;
       locationStatus='pending';
-      updateLocationNote();
+      updateLocationReview();
       if(mapDlg && mapDlg.open){
         setMapStatus(t('Requesting your location...','Solicitando su ubicación...'),false);
       }
@@ -948,7 +1031,7 @@
           gps.lat=pos.coords.latitude; gps.lng=pos.coords.longitude; gps.confirmedAt=null;
           setLocationConfirmed(false);
           locationStatus='acquired';
-          updateLocationNote();
+          updateLocationReview();
           updateMapView();
           resolve(true);
         };
@@ -957,7 +1040,7 @@
           gps.lat=null; gps.lng=null; gps.confirmedAt=null;
           setLocationConfirmed(false);
           locationStatus='error';
-          updateLocationNote();
+          updateLocationReview();
           updateMapView();
           if(err && err.code===1){
             alert(t('Location permission required. Please allow access.','Se requiere permiso de ubicación. Por favor permita el acceso.'));
@@ -1052,8 +1135,11 @@
       renderProducts(); recalc();
       updateDeliveryTimeDisplays();
       $('#m_deliveryTime').previousElementSibling.textContent = t('Delivery Time','Tiempo de entrega');
-      if(confirmDisclaimer && !confirmDisclaimer.hidden) showDisclaimer();
-      updateLocationNote();
+      if(confirmDisclaimer && !confirmDisclaimer.hidden){
+        const key=confirmDisclaimer.dataset.key || 'default';
+        showDisclaimer(undefined,key);
+      }
+      updateLocationReview();
       renderLocAuthStatus();
       if(mapDlg && mapDlg.open) updateMapView();
     }
@@ -1094,7 +1180,7 @@
       updateDeliveryTimeDisplays();
       $('#m_sub').textContent=fmt(sub); $('#m_tax').textContent=fmt(tax);
       $('#m_del').textContent=fmt(del); $('#m_total').textContent=fmt(total);
-      updateLocationNote();
+      updateLocationReview();
     }
     function modalQtyHandler(e){
       const box=e.target.closest('.inline-qty'); if(!box) return;
@@ -1166,6 +1252,8 @@
 
     /* INIT */
     renderProducts(); recalc(); syncLang(); syncTheme();
+    highlightMapTabs();
+    updateMapLinks();
     initCsat();
     const visitCounts={today:25,month:600,year:7200};
     $('#visitsToday').textContent=visitCounts.today;
@@ -1194,12 +1282,15 @@
     const openPay=()=>{
       renderModal();
       hideDisclaimer();
+      mapMode=detectDefaultMapMode();
+      highlightMapTabs();
       setLocationConfirmed(false);
       gps.confirmedAt=null;
       locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
-      updateLocationNote();
+      updateLocationReview();
+      updateMapView();
+      updateMapLinks();
       orderDlg?.showModal();
-      showLocationAuthorization(true);
     };
     $('#fabPay').addEventListener('click',openPay);
     $('#closeDlg').addEventListener('click',()=>orderDlg?.close());
@@ -1217,7 +1308,7 @@
         setLocationConfirmed(false);
         gps.confirmedAt=null;
         locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
-        updateLocationNote();
+        updateLocationReview();
       },120);
     });
 
@@ -1273,33 +1364,23 @@
       authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
     }
 
-    openMapBtn?.addEventListener('click',()=>{
-      if(locationStatus==='pending') return;
-      if(gps.lat==null || gps.lng==null || locationStatus==='error' || locationStatus==='idle'){
-        showLocationAuthorization(true);
-        return;
-      }
-      openMapForConfirmation();
+    mapModeButtons.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const mode=btn.dataset.mapTab;
+        if(mode) setMapMode(mode);
+      });
     });
-
-    // GPS
-    $('#locBtn').addEventListener('click',()=>{
-      showLocationAuthorization(true);
+    mapShareLinks.forEach(link=>{
+      link.addEventListener('click',()=>{
+        const mode=link.dataset.mapLink;
+        if(mode) setMapMode(mode);
+      });
     });
 
     // Submit to backend + WhatsApp
     $('#confirmBtn').addEventListener('click', async e=>{
-      if(!locationConfirmed){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        showDisclaimer();
-        if(gps.lat==null || gps.lng==null || locationStatus==='error'){
-          showLocationAuthorization(true);
-        }else{
-          openMapForConfirmation();
-        }
-        return;
-      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
       hideDisclaimer();
 
@@ -1320,15 +1401,39 @@
       if(!items.length){ alert(t('Your cart is empty.','Su carrito está vacío.')); return; }
       const {sub,tax,del,total}=totals();
       const deliveryDisplay=formatDeliveryTime(deliveryMinutes);
+
+      const locationReady = await ensureDeliveryLocationConfirmation();
+      if(!locationReady || !locationConfirmed || gps.lat==null || gps.lng==null){
+        showDisclaimer(undefined,'location');
+        return;
+      }
+
+      const timestamp=new Date().toISOString();
+      const desktopMapLink=buildMapShareUrl('desktop');
+      const mobileMapLink=buildMapShareUrl('mobile');
+      const mapLinks={desktop:desktopMapLink||null,mobile:mobileMapLink||null};
       const gpsData={lat:gps.lat,lng:gps.lng,confirmedAt:gps.confirmedAt};
-      const payload={
-        lang,timestamp:new Date().toISOString(),business:BUSINESS,
-        customer:{firstName,lastName,idNumber,phone,email,address,gps:gpsData,locationConfirmed,city:""},
+      const orderPayload={
+        lang,
+        timestamp,
+        business:BUSINESS,
+        customer:{firstName,lastName,idNumber,phone,email,address,gps:gpsData,locationConfirmed,city:"",mapLinks},
         delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
         cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
       };
+      if(!mapLinks.desktop && !mapLinks.mobile){
+        delete orderPayload.customer.mapLinks;
+      }
+      const paymentPayload={
+        lang,
+        timestamp,
+        business:BUSINESS,
+        customer:{firstName,lastName,address},
+        delivery:orderPayload.delivery,
+        cart:{items,subtotal:sub,vat:tax,delivery:del,total}
+      };
 
-      const paymentConfirmed = await ensurePaymentConfirmed(payload);
+      const paymentConfirmed = await ensurePaymentConfirmed(paymentPayload);
       if(!paymentConfirmed){
         alert(t('We will wait for the payment confirmation before sending the order.','Esperaremos la confirmación del pago antes de enviar el pedido.'));
         return;
@@ -1336,14 +1441,26 @@
 
       try{
         if(CLOUDFLARE_WORKER_URL){
-          await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,apps_script_url:APPS_SCRIPT_URL})});
+          await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...orderPayload,apps_script_url:APPS_SCRIPT_URL})});
         }else if(APPS_SCRIPT_URL){
-          await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+          await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(orderPayload)});
         }
       }
-      
+
       catch(e){ console.warn("Backend request failed:",e); }
-      const maps=(locationConfirmed && gps.lat!=null && gps.lng!=null)?`\nMaps: https://maps.google.com/?q=${gps.lat},${gps.lng}`:"";
+      let maps='';
+      if(locationConfirmed && gps.lat!=null && gps.lng!=null){
+        const mapLines=[];
+        if(desktopMapLink){
+          mapLines.push(`${t('Map (PC/Laptop)','Mapa (PC/Portátil)')}: ${desktopMapLink}`);
+        }
+        if(mobileMapLink){
+          mapLines.push(`${t('Map (Mobile/Tablet)','Mapa (Móvil/Tablet)')}: ${mobileMapLink}`);
+        }
+        if(mapLines.length){
+          maps=`\n${mapLines.join('\n')}`;
+        }
+      }
       const confirmationLine = locationConfirmed && gps.confirmedAt
         ? `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`
         : t('Location confirmation pending','Confirmación de ubicación pendiente');
