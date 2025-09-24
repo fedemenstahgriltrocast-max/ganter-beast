@@ -154,15 +154,35 @@
     @media (max-width:960px){.kpis{grid-template-columns:1fr}}
     .kpi{padding:16px;text-align:center}
     .kpi h4{margin:6px 0 8px 0}
-    .csat{display:flex;flex-direction:column;align-items:center;gap:8px}
-    .csat-face{font-size:32px;margin-bottom:8px}
-    .stars{display:flex;gap:4px;margin-bottom:8px}
-    .stars button{all:unset;cursor:pointer;font-size:20px;color:var(--muted)}
-    .csat-footer{display:flex;flex-direction:column;align-items:center;margin-top:12px;gap:10px}
-    .csat-counts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%}
-    .csat-count{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:.85rem;font-weight:600;color:inherit}
-    .csat-count .count{font-variant-numeric:tabular-nums;font-weight:700}
+    .csat{display:grid;grid-template-columns:minmax(160px,220px) 1fr;align-items:flex-start;gap:18px;width:100%}
+    @media (max-width:600px){.csat{grid-template-columns:1fr}}
+    .csat-scale{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
+    .csat-tier{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;width:100%}
+    .csat-star-btn{all:unset;cursor:pointer;padding:8px 12px;border-radius:12px;background:var(--chip);border:1px solid var(--line);color:var(--muted);font-size:14px;font-weight:700;letter-spacing:.05em;display:flex;align-items:center;gap:6px;min-width:140px;justify-content:flex-start;text-align:left;width:100%}
+    .csat-star-btn:hover,.csat-star-btn:focus-visible{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+    .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+    .csat-counts{width:100%}
+    .csat-count{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:.85rem;font-weight:600;color:inherit;width:100%}
+    .csat-count .count{font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:1px}
+    .csat-tier .csat-star-btn.active + .csat-count{border-color:var(--accent);box-shadow:var(--shadow)}
+    .csat-trend{margin-top:12px;padding-top:6px;width:100%;border-top:1px dashed var(--line)}
+    .csat-side{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
+    .csat-face{font-size:40px;margin-bottom:0}
+    .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:0;gap:10px;width:100%}
+    .csat-footer .muted{text-align:left;max-width:260px}
+    #csatTrend{width:100%;max-width:100%;height:60px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);display:block}
+    @media (max-width:600px){
+      .csat-side{align-items:center;text-align:center}
+      .csat-footer{align-items:center}
+      .csat-footer .muted{text-align:center}
+    }
+    html[data-theme="light"] .csat-star-btn{background:#eef1fb;border-color:var(--line-light);color:var(--muted-light)}
+    html[data-theme="light"] .csat-star-btn:hover,html[data-theme="light"] .csat-star-btn:focus-visible,html[data-theme="light"] .csat-star-btn.active{background:var(--accent);color:#fff}
     html[data-theme="light"] .csat-count{background:#eef1fb;border-color:var(--line-light);color:var(--ink-light)}
+    html[data-theme="light"] .csat-tier .csat-star-btn.active + .csat-count{border-color:var(--accent);box-shadow:var(--shadow-light)}
+    html[data-theme="light"] .csat-trend{border-top-color:var(--line-light)}
+    html[data-theme="light"] #csatTrend{background:rgba(10,14,26,.05);border-color:var(--line-light)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
     .kpi canvas{width:100%;max-width:220px;height:80px}
@@ -406,38 +426,66 @@
         <div class="card kpi" id="kpi1">
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
-            <div class="csat-face" role="img" aria-live="polite">😐</div>
-            <div class="stars" id="csatStars" aria-label="Rating">
-              <button type="button" aria-label="1 star" data-val="1">☆</button>
-              <button type="button" aria-label="2 stars" data-val="2">☆</button>
-              <button type="button" aria-label="3 stars" data-val="3">☆</button>
-              <button type="button" aria-label="4 stars" data-val="4">☆</button>
-              <button type="button" aria-label="5 stars" data-val="5">☆</button>
-            </div>
-            <div class="csat-footer">
-              <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
-              <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
-              <div class="csat-counts" id="csatCounts" aria-live="polite">
-                <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
-                  <span aria-hidden="true">😞</span>
-                  <span class="count">0</span>
-                </div>
-                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
-                  <span aria-hidden="true">🙁</span>
-                  <span class="count">0</span>
-                </div>
-                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                  <span aria-hidden="true">😐</span>
-                  <span class="count">0</span>
-                </div>
-                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
-                  <span aria-hidden="true">😄</span>
-                  <span class="count">0</span>
-                </div>
+            <div class="csat-scale csat-counts" id="csatCounts" aria-live="polite">
+              <div class="csat-tier" data-val="5">
+                <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">
+                  <span aria-hidden="true">★★★★★</span>
+                  <span class="sr-only">5 stars</span>
+                </button>
                 <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
                   <span aria-hidden="true">🤩</span>
-                  <span class="count">0</span>
+                  <span class="count">000 000</span>
                 </div>
+              </div>
+              <div class="csat-tier" data-val="4">
+                <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">
+                  <span aria-hidden="true">★★★★</span>
+                  <span class="sr-only">4 stars</span>
+                </button>
+                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
+                  <span aria-hidden="true">😄</span>
+                  <span class="count">000 000</span>
+                </div>
+              </div>
+              <div class="csat-tier" data-val="3">
+                <button type="button" class="csat-star-btn" aria-label="3 stars" data-val="3">
+                  <span aria-hidden="true">★★★</span>
+                  <span class="sr-only">3 stars</span>
+                </button>
+                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
+                  <span aria-hidden="true">😐</span>
+                  <span class="count">000 000</span>
+                </div>
+              </div>
+              <div class="csat-tier" data-val="2">
+                <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">
+                  <span aria-hidden="true">★★</span>
+                  <span class="sr-only">2 stars</span>
+                </button>
+                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
+                  <span aria-hidden="true">🙁</span>
+                  <span class="count">000 000</span>
+                </div>
+              </div>
+              <div class="csat-tier" data-val="1">
+                <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">
+                  <span aria-hidden="true">★</span>
+                  <span class="sr-only">1 star</span>
+                </button>
+                <div class="csat-count" data-val="1" data-label-en="Very unhappy" data-label-es="Muy insatisfecho">
+                  <span aria-hidden="true">😞</span>
+                  <span class="count">000 000</span>
+                </div>
+              </div>
+              <div class="csat-trend">
+                <canvas id="csatTrend" width="220" height="60" role="img" aria-label="Customer satisfaction trend"></canvas>
+              </div>
+            </div>
+            <div class="csat-side">
+              <div class="csat-face" role="img" aria-live="polite">😐</div>
+              <div class="csat-footer">
+                <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+                <div class="muted" data-en="Keep delighting guests." data-es="Sigue encantando a los clientes.">Keep delighting guests.</div>
               </div>
             </div>
           </div>
@@ -1193,6 +1241,7 @@
     function syncTheme(){
       document.documentElement.setAttribute('data-theme', theme);
       $('#themeBtn').textContent = theme==='light' ? t('Dark','Oscuro') : t('Light','Claro');
+      if(typeof window.renderCsatTrend==='function') window.renderCsatTrend();
     }
     function scrollByCards(d){ const c=track.querySelector('.product'); const dx=c?(c.getBoundingClientRect().width+16):300; track.scrollBy({left:d*dx,behavior:'smooth'}); }
 
@@ -1260,14 +1309,12 @@
 
     function initCsat(){
       let rating=0;
-      const STORAGE_KEY='csatCounts';
-      const PENDING_KEY='csatPending';
-      const MAX_PENDING=25;
-      const stars=document.querySelectorAll('#csatStars button');
+      const stars=document.querySelectorAll('.csat-star-btn');
       const face=document.querySelector('.csat-face');
       const moods=['😞','🙁','😐','😄','🤩'];
       const countWrap=document.getElementById('csatCounts');
       const countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
+      const trendCanvas=document.getElementById('csatTrend');
       let counts=[0,0,0,0,0];
 
       const safeParse=(key,fallback)=>{
@@ -1292,33 +1339,83 @@
         }
       }
 
-      let pending=safeParse(PENDING_KEY,[]);
-      if(!Array.isArray(pending)) pending=[];
-
-      const persistCounts=()=>{
-        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(counts));}
-        catch(err){console.warn('Unable to persist CSAT counts.',err);}
+      const formatCount=val=>{
+        if(!Number.isFinite(val)||val<0) val=0;
+        if(val>999999) return val.toLocaleString();
+        const padded=String(val).padStart(6,'0');
+        return `${padded.slice(0,3)} ${padded.slice(3)}`;
       };
 
-      const persistPending=()=>{
-        try{localStorage.setItem(PENDING_KEY,JSON.stringify(pending));}
-        catch(err){console.warn('Unable to persist pending CSAT votes.',err);}
+      const renderTrend=()=>{
+        if(!trendCanvas) return;
+        const ctx=trendCanvas.getContext('2d');
+        if(!ctx) return;
+        const dpr=window.devicePixelRatio||1;
+        const cssW=trendCanvas.clientWidth||trendCanvas.width||220;
+        const cssH=trendCanvas.clientHeight||trendCanvas.height||60;
+        const width=Math.round(cssW*dpr);
+        const height=Math.round(cssH*dpr);
+        if(trendCanvas.width!==width||trendCanvas.height!==height){
+          trendCanvas.width=width;
+          trendCanvas.height=height;
+        }
+        ctx.clearRect(0,0,width,height);
+        const values=[counts[4],counts[3],counts[2],counts[1],counts[0]];
+        const maxVal=Math.max(...values,1);
+        const padding=Math.round(8*dpr);
+        const innerW=width-padding*2;
+        const innerH=height-padding*2;
+        const step=values.length>1?innerW/(values.length-1):innerW;
+        const isLight=document.documentElement.getAttribute('data-theme')==='light';
+        const accent=(getComputedStyle(document.documentElement).getPropertyValue('--accent')||'#6f7dff').trim()||'#6f7dff';
+        const axisColor=isLight?'rgba(10,14,26,.18)':'rgba(255,255,255,.2)';
+
+        ctx.lineWidth=1*dpr;
+        ctx.strokeStyle=axisColor;
+        ctx.beginPath();
+        ctx.moveTo(padding,height-padding);
+        ctx.lineTo(width-padding,height-padding);
+        ctx.stroke();
+
+        ctx.strokeStyle=accent;
+        ctx.lineWidth=2*dpr;
+        ctx.beginPath();
+        values.forEach((val,idx)=>{
+          const ratio=maxVal?val/maxVal:0;
+          const x=padding+(step*idx);
+          const y=padding+(innerH - ratio*innerH);
+          if(idx===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+
+        ctx.fillStyle=accent;
+        values.forEach((val,idx)=>{
+          const ratio=maxVal?val/maxVal:0;
+          const x=padding+(step*idx);
+          const y=padding+(innerH - ratio*innerH);
+          ctx.beginPath();
+          ctx.arc(x,y,2.5*dpr,0,Math.PI*2);
+          ctx.fill();
+        });
       };
 
       const updateCountsUI=()=>{
         if(!countNodes.length) return;
-        countNodes.forEach((node,idx)=>{
-          const val=counts[idx]||0;
+        countNodes.forEach((node)=>{
+          const ratingIdx=(Number(node.dataset.val)||0)-1;
+          const val=counts[ratingIdx]||0;
           const span=node.querySelector('.count');
-          if(span) span.textContent=val;
+          if(span) span.textContent=formatCount(val);
           const label=lang==='en'?(node.dataset.labelEn||''):(node.dataset.labelEs||node.dataset.labelEn||'');
           const text=label?`${label}: ${val}`:`${val} ${t('ratings','calificaciones')}`;
           node.setAttribute('aria-label',text);
           node.setAttribute('title',text);
         });
+        renderTrend();
       };
 
       window.updateCsatCountsUI=updateCountsUI;
+      window.renderCsatTrend=renderTrend;
 
       const updateCounts=(val)=>{
         if(val<1||val>counts.length) return;
@@ -1328,11 +1425,13 @@
       };
 
       const paint=val=>{
-        stars.forEach((s,i)=>{
-          s.textContent=i<val?'★':'☆';
-          s.style.color=i<val?'#ffd700':'var(--muted)';
+        stars.forEach(btn=>{
+          const btnVal=Number(btn.dataset.val)||0;
+          const isActive=val>0 && btnVal===val;
+          btn.classList.toggle('active',isActive);
+          btn.setAttribute('aria-pressed',isActive?'true':'false');
         });
-        const moodIdx=val?val-1:2;
+        const moodIdx=val?Math.min(Math.max(val-1,0),moods.length-1):2;
         face.textContent=moods[moodIdx];
       };
 
@@ -1463,7 +1562,7 @@
       updateCountsUI();
 
       stars.forEach((btn,i)=>{
-        const val=i+1;
+        const val=Number(btn.dataset.val)||i+1;
         btn.addEventListener('mouseenter',()=>paint(val));
         btn.addEventListener('focus',()=>paint(val));
         btn.addEventListener('mouseleave',()=>paint(rating));
@@ -1478,9 +1577,19 @@
         }
         const payload={rating,lang,ts:Date.now()};
         try{
-          const data=await sendToWorker(payload);
-          updateCounts(rating);
-          if(data&&data.stats) showCsatStats(data.stats);
+          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body:JSON.stringify({rating,lang})
+          });
+          const data=await res.json();
+          if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
+          const idx=Math.max(0,Math.min(counts.length-1,rating-1));
+          counts[idx]=(counts[idx]||0)+1;
+          try{ localStorage.setItem('csatCounts', JSON.stringify(counts)); }
+          catch(err){ console.warn('Unable to persist CSAT counts.',err); }
+          updateCountsUI();
+          showCsatStats(data.stats);
           alert(t('Thanks for rating!','¡Gracias por calificar!'));
           await flushPending();
         }catch(err){
@@ -1496,6 +1605,8 @@
       });
 
       paint(0);
+      updateCountsUI();
+      window.addEventListener('resize',renderTrend);
 
       (async()=>{
         const endpoints=orderedEndpoints();
