@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com; frame-src https://www.google.com https://maps.google.com;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://orange-base-dcdc.distraction.workers.dev; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com; frame-src https://www.google.com https://maps.google.com;" />
   <title>Marxia Cafe y Bocaditos</title>
   <!-- Removed external Font Awesome dependency; using Unicode icons instead for broader compatibility -->
   <style nonce="2726c7f26c">
@@ -600,6 +600,7 @@
   <script nonce="2726c7f26c">
     /* CONFIG */
     const CLOUDFLARE_WORKER_URL = "https://damp-snow-3384.distraction.workers.dev/";
+    const WORKER_CSAT_URL = 'https://orange-base-dcdc.distraction.workers.dev';
     const APPS_SCRIPT_URL = "";       // optional
     window.CLOUDFLARE_WORKER_URL = CLOUDFLARE_WORKER_URL;
     window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
@@ -1192,6 +1193,25 @@
     }
 
     /* CSAT rating */
+    function showCsatStats(stats){
+      if(!stats) return;
+      let el=document.getElementById('csatLive');
+      if(!el){
+        el=document.createElement('div');
+        el.id='csatLive';
+        el.className='muted';
+        const footer=document.querySelector('#kpi1 .csat-footer');
+        if(footer){
+          footer.insertAdjacentElement('afterend',el);
+        }else{
+          return;
+        }
+      }
+      const msgEn=`Live avg: ${stats.average.toFixed(2)} (${stats.total} votes)`;
+      const msgEs=`Promedio: ${stats.average.toFixed(2)} (${stats.total} votos)`;
+      el.textContent=(lang==='en')?msgEn:msgEs;
+    }
+
     function initCsat(){
       let rating=0;
       const stars=document.querySelectorAll('#csatStars button');
@@ -1216,11 +1236,38 @@
         btn.addEventListener('click',()=>{rating=val;paint(rating);});
       });
 
-      $('#rateBtn').addEventListener('click',()=>{
-        alert(t('Thanks for rating!','Gracias por calificar!'));
+      document.getElementById('rateBtn').addEventListener('click',async()=>{
+        if(!rating){
+          alert(t('Please select a rating first.','Seleccione una calificación.'));
+          return;
+        }
+        try{
+          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body:JSON.stringify({rating,lang})
+          });
+          const data=await res.json();
+          if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
+          showCsatStats(data.stats);
+          alert(t('Thanks for rating!','¡Gracias por calificar!'));
+        }catch(err){
+          console.error(err);
+          alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+        }
       });
 
       paint(0);
+
+      (async()=>{
+        try{
+          const r=await fetch(`${WORKER_CSAT_URL}/csat`);
+          const d=await r.json();
+          if(d && d.ok) showCsatStats(d.stats);
+        }catch(err){
+          console.warn('CSAT stats unavailable',err);
+        }
+      })();
     }
 
     /* Simple charts */
