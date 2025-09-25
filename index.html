@@ -3,8 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' https://cdnjs.cloudflare.com 'nonce-2726c7f26c'; style-src-attr 'unsafe-inline'; script-src 'self' 'nonce-2726c7f26c'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://orange-base-dcdc.distraction.workers.dev; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com; frame-src https://www.google.com https://maps.google.com;" />
-  <title>Marxia Cafe y Bocaditos</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="
+        default-src 'self';
+        script-src 'self' 'nonce-2726c7f26c';
+        script-src-elem 'self' 'nonce-2726c7f26c';
+        style-src 'self' 'nonce-2726c7f26c';
+        style-src-elem 'self' 'nonce-2726c7f26c';
+        img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com;
+        connect-src 'self' https://orange-base-dcdc.distraction.workers.dev https://damp-snow-3384.distraction.workers.dev;
+        font-src 'self';
+        frame-src https://www.google.com https://maps.google.com;
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self';
+        upgrade-insecure-requests;
+        block-all-mixed-content
+      " />
+  <title>Marxia Café y Bocaditos — Desayunos y delivery en Guayaquil</title>
+  <meta name="description" content="Desayunos y bocaditos ordena en línea con Entrega en Guayaquil (Saucés, Alborada, Guayacanes, Tarazana Brisas del Río). Pide online: rápido, fresco y confiable." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://www.marxia.com/" />
+  <meta property="og:title" content="Marxia Café y Bocaditos" />
+  <meta property="og:description" content="Pide en línea con Entrega en el Norte de Guayaquil." />
+  <meta property="og:url" content="https://www.marxia.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
   <!-- Removed external Font Awesome dependency; using Unicode icons instead for broader compatibility -->
   <style nonce="2726c7f26c">
     :root{
@@ -176,6 +200,8 @@
     .csat{display:grid;grid-template-columns:minmax(200px,240px) 1fr;align-items:stretch;gap:24px;width:100%}
     @media (max-width:900px){.csat{grid-template-columns:1fr;}}
     .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
+    #csatScore{font-weight:700;font-variant-numeric:tabular-nums;font-size:1.1rem;letter-spacing:.02em;margin-bottom:6px;color:var(--muted)}
+    html[data-theme="light"] #csatScore{color:var(--muted-light)}
     .csat-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.16em;color:var(--muted)}
     .sentiment-score{
       display:inline-block;
@@ -232,6 +258,7 @@
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
+    .counter [data-empty]{opacity:.6}
     .kpi canvas{width:100%;max-width:220px;height:80px}
 
     .totals{padding:16px}
@@ -294,7 +321,7 @@
     .map-status.alert{color:var(--danger)}
   </style>
 </head>
-  <script type="module">
+  <script type="module" nonce="2726c7f26c">
   /* === CONSTANTS (point to your Worker and its public enc key) === */
   const ENDPOINT = 'https://damp-snow-3384.distraction.workers.dev';
   const ENC_P256_KID = 'a973cb4c-c7ab-4e2f-8f54-0b40cbc24062';
@@ -474,6 +501,7 @@
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
             <div class="csat-hero">
+              <div id="csatScore" aria-live="polite" hidden>—</div>
               <div class="csat-hero-summary">
                 <div class="csat-face-wrap">
                   <div class="csat-face" role="img" aria-live="polite">😐</div>
@@ -544,9 +572,9 @@
         <div class="card kpi" id="kpi2">
           <h4 data-en="Visits" data-es="Visitas">Visits</h4>
           <div class="counter">
-            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="visitsToday">0</span></div>
-            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="visitsMonth">0</span></div>
-            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="visitsYear">0</span></div>
+            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="visitsToday">—</span></div>
+            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="visitsMonth">—</span></div>
+            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="visitsYear">—</span></div>
           </div>
           <canvas id="visitsChart" width="180" height="80" aria-hidden="true"></canvas>
           <div class="muted" style="margin-top:8px" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
@@ -757,7 +785,7 @@
     });
     const WHATSAPP_NUMBER = "593958741463";
     const BUSINESS = {
-      name: "Marxia Cafe y Bocaditos",
+      name: "Marxia Café y Bocaditos",
       address: "Av. Principal y Calle A",
       city: "Guayaquil",
       contact: "+593 99 999 9999",
@@ -790,6 +818,20 @@
     const t = (en,es)=> lang==='en'?en:es;
     const fmt = n => '$'+n.toFixed(2);
     const highlightTimers = new WeakMap();
+    const metricsBase = (WORKER_CSAT_URL||'').replace(/\/+$/,'');
+
+    function updateVisitMetric(id,value){
+      const el=document.getElementById(id);
+      if(!el) return;
+      const numeric=Number(value);
+      if(!(numeric>0)){
+        el.textContent='—';
+        el.setAttribute('data-empty','true');
+        return;
+      }
+      el.textContent=numeric.toLocaleString();
+      el.removeAttribute('data-empty');
+    }
     const MAP_EMBED_TEMPLATES={
       desktop:coords=>`https://www.google.com/maps?q=${coords}&z=17&output=embed`,
       mobile:coords=>`https://maps.google.com/maps?q=${coords}&z=17&output=embed`
@@ -1342,6 +1384,7 @@
       renderLocAuthStatus();
       if(mapDlg && mapDlg.open) updateMapView();
       if(typeof window.updateCsatCountsUI==='function') window.updateCsatCountsUI();
+      if(window._latestCsatStats) updateCsatSummary(window._latestCsatStats);
     }
     function syncTheme(){
       document.documentElement.setAttribute('data-theme', theme);
@@ -1392,8 +1435,24 @@
     }
 
     /* CSAT rating */
+    function updateCsatSummary(stats){
+      const summaryEl=document.getElementById('csatScore');
+      if(!summaryEl) return;
+      if(!stats || !(Number(stats.total)>0)){
+        summaryEl.textContent='—';
+        summaryEl.hidden=true;
+        return;
+      }
+      const total=Number(stats.total)||0;
+      const average=Number(stats.average)||0;
+      const votesLabel=total===1?t('vote','voto'):t('votes','votos');
+      summaryEl.textContent=`${average.toFixed(2)}/5 • ${total.toLocaleString()} ${votesLabel}`;
+      summaryEl.hidden=false;
+    }
+
     function showCsatStats(stats){
       if(!stats) return;
+      window._latestCsatStats=stats;
       let el=document.getElementById('csatLive');
       if(!el){
         el=document.createElement('div');
@@ -1419,6 +1478,7 @@
           (votesLabel.dataset.en||votesLabel.textContent);
         votesLabel.textContent=label;
       }
+      updateCsatSummary(stats);
     }
 
     async function logCsatVisit(){
@@ -1770,10 +1830,15 @@
     function drawBarChart(id,data){
       const c=document.getElementById(id); if(!c) return;
       const ctx=c.getContext('2d'); const w=c.width,h=c.height;
-      const max=Math.max(...data); const barW=w/data.length-10;
+      ctx.clearRect(0,0,w,h);
+      if(!Array.isArray(data) || !data.length) return;
+      const safe=data.map(v=>Math.max(0,Number.isFinite(v)?v:Number(v)||0));
+      if(!safe.some(v=>v>0)) return;
+      const max=Math.max(...safe);
+      const barW=w/safe.length-10;
       const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
-      data.forEach((v,i)=>{
-        const x=i*(barW+10)+5; const bh=(v/max)*h;
+      safe.forEach((v,i)=>{
+        const x=i*(barW+10)+5; const bh=max>0?(v/max)*h:0;
         ctx.fillStyle=color; ctx.fillRect(x,h-bh,barW,bh);
       });
     }
@@ -1781,15 +1846,20 @@
     function drawLineChart(id,data){
       const c=document.getElementById(id); if(!c) return;
       const ctx=c.getContext('2d'); const w=c.width,h=c.height;
-      const max=Math.max(...data); const step=w/(data.length-1);
+      ctx.clearRect(0,0,w,h);
+      if(!Array.isArray(data) || data.length<2) return;
+      const safe=data.map(v=>Math.max(0,Number.isFinite(v)?v:Number(v)||0));
+      if(!safe.some(v=>v>0)) return;
+      const max=Math.max(...safe);
+      const step=w/(safe.length-1);
       const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
       ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
-      data.forEach((v,i)=>{
-        const x=i*step; const y=h-(v/max)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      safe.forEach((v,i)=>{
+        const x=i*step; const y=h-(max>0?(v/max)*h:0); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       });
       ctx.stroke(); ctx.fillStyle=color;
-      data.forEach((v,i)=>{
-        const x=i*step; const y=h-(v/max)*h; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+      safe.forEach((v,i)=>{
+        const x=i*step; const y=h-(max>0?(v/max)*h:0); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
       });
     }
 
@@ -1799,11 +1869,26 @@
     updateMapLinks();
     initCsat();
     logCsatVisit();
-    const visitCounts={today:25,month:600,year:7200};
-    $('#visitsToday').textContent=visitCounts.today;
-    $('#visitsMonth').textContent=visitCounts.month;
-    $('#visitsYear').textContent=visitCounts.year;
-    drawBarChart('visitsChart',[visitCounts.today,visitCounts.month,visitCounts.year]);
+    async function loadVisitMetrics(){
+      ['visitsToday','visitsMonth','visitsYear'].forEach(id=>updateVisitMetric(id));
+      if(!metricsBase) return;
+      try{
+        const response=await fetch(`${metricsBase}/visits`,{mode:'cors',credentials:'omit'});
+        if(!response.ok) throw new Error(`bad_status_${response.status}`);
+        const payload=await response.json();
+        if(!payload || !payload.ok || !payload.visits) return;
+        const { today, month, year } = payload.visits;
+        updateVisitMetric('visitsToday',today);
+        updateVisitMetric('visitsMonth',month);
+        updateVisitMetric('visitsYear',year);
+        const chartData=[today,month,year].map(v=>Number(v)||0);
+        drawBarChart('visitsChart',chartData);
+      }catch(err){
+        console.warn('Unable to load visit metrics.',err);
+      }
+    }
+
+    loadVisitMetrics();
 
     const salesCounts={today:12,month:320,year:2800};
     $('#salesToday').textContent=salesCounts.today;
