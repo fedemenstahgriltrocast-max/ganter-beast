@@ -204,12 +204,14 @@
     .csat-insights{display:flex;flex-direction:column;gap:16px;width:100%;align-items:stretch}
     .csat-baseline{display:grid;gap:16px;align-content:start}
     .csat-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;width:100%}
-    .csat-count{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--chip);border:1px solid var(--line);font-size:.95rem;font-weight:600;color:inherit;transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease;width:100%}
-    .csat-count .sentiment{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;font-weight:700}
+    .csat-count{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:18px;background:var(--chip);border:1px solid var(--line);font-size:.95rem;font-weight:600;color:inherit;transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease;width:100%}
+    .csat-count .sentiment{display:flex;align-items:center;gap:12px;font-weight:700}
+    .sentiment-icon{font-size:1.4rem;line-height:1}
+    .sentiment-label{font-size:.92rem}
     .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-2px)}
     .csat-count.leader .sentiment-score.visible{color:var(--accent)}
     html[data-theme="light"] .csat-count.leader .sentiment-score.visible{color:var(--accent)}
-    .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:0;gap:10px;width:100%}
+    .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:12px;gap:10px;width:100%}
     .csat-footer-primary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
     .csat-footer .muted{text-align:left;max-width:260px}
     @media (max-width:900px){
@@ -484,6 +486,45 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="csat-insights">
+              <div class="csat-counts" id="csatCounts" aria-live="polite">
+                <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
+                  <span class="sentiment">
+                    <span class="sentiment-icon" aria-hidden="true">🤩</span>
+                    <span class="sentiment-label" data-en="Delighted" data-es="Encantado">Delighted</span>
+                  </span>
+                  <span class="sentiment-score"></span>
+                </div>
+                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
+                  <span class="sentiment">
+                    <span class="sentiment-icon" aria-hidden="true">😄</span>
+                    <span class="sentiment-label" data-en="Happy" data-es="Contento">Happy</span>
+                  </span>
+                  <span class="sentiment-score"></span>
+                </div>
+                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
+                  <span class="sentiment">
+                    <span class="sentiment-icon" aria-hidden="true">😐</span>
+                    <span class="sentiment-label" data-en="Neutral" data-es="Neutral">Neutral</span>
+                  </span>
+                  <span class="sentiment-score"></span>
+                </div>
+                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
+                  <span class="sentiment">
+                    <span class="sentiment-icon" aria-hidden="true">🙁</span>
+                    <span class="sentiment-label" data-en="Unhappy" data-es="Insatisfecho">Unhappy</span>
+                  </span>
+                  <span class="sentiment-score"></span>
+                </div>
+                <div class="csat-count" data-val="1" data-label-en="Angry" data-label-es="Molesto">
+                  <span class="sentiment">
+                    <span class="sentiment-icon" aria-hidden="true">😠</span>
+                    <span class="sentiment-label" data-en="Angry" data-es="Molesto">Angry</span>
+                  </span>
+                  <span class="sentiment-score"></span>
+                </div>
+              </div>
               <div class="csat-footer">
                 <div class="csat-footer-primary" aria-live="polite">
                   <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
@@ -494,19 +535,6 @@
                     <span id="csatTotalVotes">0</span>
                     <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="csat-insights">
-              <div class="csat-counts" id="csatCounts" aria-live="polite">
-                <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
-                  <span class="sentiment"><span aria-hidden="true">🤩</span><span class="sentiment-score"></span></span>
-                </div>
-                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                  <span class="sentiment"><span aria-hidden="true">😐</span><span class="sentiment-score"></span></span>
-                </div>
-                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
-                  <span class="sentiment"><span aria-hidden="true">🙁</span><span class="sentiment-score"></span></span>
                 </div>
               </div>
             </div>
