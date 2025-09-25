@@ -150,8 +150,27 @@
     /* Bottom split: KPIs left, totals right */
     .split{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:var(--section-gap)}
     @media (max-width:960px){.split{grid-template-columns:1fr}}
-    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-    @media (max-width:960px){.kpis{grid-template-columns:1fr}}
+    .kpis{
+      display:grid;
+      grid-template-columns:minmax(320px,2fr) minmax(240px,1fr);
+      grid-template-areas:
+        "csat visits"
+        "csat sales";
+      gap:16px;
+      align-items:stretch;
+    }
+    #kpi1{grid-area:csat}
+    #kpi2{grid-area:visits}
+    #kpi3{grid-area:sales}
+    @media (max-width:960px){
+      .kpis{
+        grid-template-columns:1fr;
+        grid-template-areas:
+          "csat"
+          "visits"
+          "sales";
+      }
+    }
     .kpi{padding:16px;text-align:center}
     .kpi h4{margin:6px 0 8px 0}
     .csat{display:grid;grid-template-columns:minmax(200px,240px) 1fr;align-items:stretch;gap:24px;width:100%}
