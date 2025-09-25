@@ -221,6 +221,9 @@
     .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
     .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em}
     html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
+    .csat-rate-callout{display:flex;flex-direction:column;align-items:flex-end;gap:12px;margin-left:auto}
+    .csat-rate-callout .btn{min-width:128px;justify-content:center}
+    .csat-rate-note{font-size:.85rem;color:var(--muted);text-align:right;max-width:200px;line-height:1.4}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
     .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
@@ -244,11 +247,14 @@
     html[data-theme="light"] .csat-count{background:rgba(10,14,26,.05);border-color:var(--line-light)}
     html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
     html[data-theme="light"] .csat-count-meta{color:var(--muted-light)}
+    html[data-theme="light"] .csat-rate-note{color:var(--muted-light)}
     @media (max-width:900px){
       .csat-hero{align-items:center;text-align:center}
       .csat-hero-summary{flex-direction:column;align-items:center}
       .csat-face-wrap{width:100%;align-items:center}
       .csat-rate-stars{justify-content:center}
+      .csat-rate-callout{margin-left:0;align-items:center;text-align:center}
+      .csat-rate-note{text-align:center}
       .csat-footer{align-items:center;text-align:center}
       .csat-footer-primary{justify-content:center}
     }
@@ -517,11 +523,16 @@
                     <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
                   </div>
                 </div>
+                <div class="csat-rate-callout">
+                  <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia para mantener este puntaje.">
+                    Share your experience to keep this score strong.
+                  </p>
+                </div>
               </div>
             </div>
             <div class="csat-footer">
               <div class="csat-footer-primary" aria-live="polite">
-                <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
                 <div class="csat-average">
                   <span id="csatAverageValue">0.00</span><span>/5</span>
                 </div>
