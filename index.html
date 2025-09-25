@@ -219,6 +219,11 @@
     .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
     .csat-face{font-size:44px;margin:0}
     .csat-face-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+    .csat-emoji-strip{display:flex;gap:12px;justify-content:center;width:100%;margin-top:2px}
+    .csat-emoji{font-size:28px;filter:grayscale(.55);opacity:.6;transition:transform .2s ease,opacity .2s ease,filter .2s ease}
+    .csat-emoji.active{filter:none;opacity:1;transform:scale(1.08)}
+    html[data-theme="light"] .csat-emoji{filter:grayscale(.45);opacity:.55}
+    html[data-theme="light"] .csat-emoji.active{filter:none;opacity:1}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
     .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
@@ -228,15 +233,6 @@
     .csat-star-btn:hover,.csat-star-btn:focus-visible{transform:translateY(-2px);background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow);opacity:1}
     .csat-insights{display:flex;flex-direction:column;gap:16px;width:100%;align-items:stretch}
-    .csat-baseline{display:grid;gap:16px;align-content:start}
-    .csat-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;width:100%}
-    .csat-count{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:18px;background:var(--chip);border:1px solid var(--line);font-size:.95rem;font-weight:600;color:inherit;transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease;width:100%}
-    .csat-count .sentiment{display:flex;align-items:center;gap:12px;font-weight:700}
-    .sentiment-icon{font-size:1.4rem;line-height:1}
-    .sentiment-label{font-size:.92rem}
-    .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-2px)}
-    .csat-count.leader .sentiment-score.visible{color:var(--accent)}
-    html[data-theme="light"] .csat-count.leader .sentiment-score.visible{color:var(--accent)}
     .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:12px;gap:10px;width:100%}
     .csat-footer-primary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
     .csat-footer .muted{text-align:left;max-width:260px}
@@ -247,14 +243,11 @@
       .csat-rate-stars{justify-content:center}
       .csat-footer-primary{justify-content:center}
       .csat-insights{align-items:center}
-      .csat-counts{width:100%}
     }
     html[data-theme="light"] .csat-average{color:var(--ink-light)}
     html[data-theme="light"] .csat-rate-stars{background:linear-gradient(135deg,rgba(10,14,26,.04),rgba(10,14,26,.02));border-color:var(--line-light)}
     html[data-theme="light"] .csat-star-btn{background:#eef1fb;border-color:var(--line-light);color:var(--muted-light)}
     html[data-theme="light"] .csat-star-btn.active,html[data-theme="light"] .csat-star-btn:hover,html[data-theme="light"] .csat-star-btn:focus-visible{background:var(--accent);color:#fff}
-    html[data-theme="light"] .csat-count{background:#eef1fb;border-color:var(--line-light);color:var(--ink-light)}
-    html[data-theme="light"] .csat-count.leader{box-shadow:var(--shadow-light)}
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .counter{margin-bottom:8px;font-size:.9rem;text-align:left;line-height:1.4}
     .counter div{display:flex;justify-content:space-between}
@@ -512,47 +505,17 @@
                     <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
                     <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
                   </div>
+                  <div class="csat-emoji-strip" aria-hidden="true">
+                    <span class="csat-emoji" data-val="1">😞</span>
+                    <span class="csat-emoji" data-val="2">🙁</span>
+                    <span class="csat-emoji" data-val="3">😐</span>
+                    <span class="csat-emoji" data-val="4">😄</span>
+                    <span class="csat-emoji" data-val="5">🤩</span>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="csat-insights">
-              <div class="csat-counts" id="csatCounts" aria-live="polite">
-                <div class="csat-count" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
-                  <span class="sentiment">
-                    <span class="sentiment-icon" aria-hidden="true">🤩</span>
-                    <span class="sentiment-label" data-en="Delighted" data-es="Encantado">Delighted</span>
-                  </span>
-                  <span class="sentiment-score"></span>
-                </div>
-                <div class="csat-count" data-val="4" data-label-en="Happy" data-label-es="Contento">
-                  <span class="sentiment">
-                    <span class="sentiment-icon" aria-hidden="true">😄</span>
-                    <span class="sentiment-label" data-en="Happy" data-es="Contento">Happy</span>
-                  </span>
-                  <span class="sentiment-score"></span>
-                </div>
-                <div class="csat-count" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                  <span class="sentiment">
-                    <span class="sentiment-icon" aria-hidden="true">😐</span>
-                    <span class="sentiment-label" data-en="Neutral" data-es="Neutral">Neutral</span>
-                  </span>
-                  <span class="sentiment-score"></span>
-                </div>
-                <div class="csat-count" data-val="2" data-label-en="Unhappy" data-label-es="Insatisfecho">
-                  <span class="sentiment">
-                    <span class="sentiment-icon" aria-hidden="true">🙁</span>
-                    <span class="sentiment-label" data-en="Unhappy" data-es="Insatisfecho">Unhappy</span>
-                  </span>
-                  <span class="sentiment-score"></span>
-                </div>
-                <div class="csat-count" data-val="1" data-label-en="Angry" data-label-es="Molesto">
-                  <span class="sentiment">
-                    <span class="sentiment-icon" aria-hidden="true">😠</span>
-                    <span class="sentiment-label" data-en="Angry" data-es="Molesto">Angry</span>
-                  </span>
-                  <span class="sentiment-score"></span>
-                </div>
-              </div>
               <div class="csat-footer">
                 <div class="csat-footer-primary" aria-live="polite">
                   <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
@@ -1500,6 +1463,7 @@
       const stars=Array.from(document.querySelectorAll('.csat-star-btn'));
       const face=document.querySelector('.csat-face');
       const moods=['😞','🙁','😐','😄','🤩'];
+      const emojiIcons=Array.from(document.querySelectorAll('.csat-emoji'));
       const countWrap=document.getElementById('csatCounts');
       let countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
       let counts=[0,0,0,0,0];
@@ -1517,7 +1481,7 @@
         }
       };
 
-      if(countNodes.length===counts.length){
+      if(countNodes.length===counts.length || !countWrap){
         const saved=safeParse(STORAGE_KEY,[]);
         if(Array.isArray(saved)){
           counts=counts.map((n,i)=>{
@@ -1540,35 +1504,36 @@
       };
 
       const updateCountsUI=()=>{
-        if(!countWrap) return;
-        countNodes=Array.from(countWrap.querySelectorAll('.csat-count'));
-        countNodes.forEach((node)=>{
-          const ratingIdx=(Number(node.dataset.val)||0)-1;
-          const val=counts[ratingIdx]||0;
-          const label=lang==='en'?(node.dataset.labelEn||''):(node.dataset.labelEs||node.dataset.labelEn||'');
-          const text=label?`${label}: ${val}`:`${val} ${t('ratings','calificaciones')}`;
-          node.setAttribute('aria-label',text);
-          node.setAttribute('title',text);
-          node.dataset.count=String(val);
-          const score=node.querySelector('.sentiment-score');
-          if(score){
-            score.textContent=val>0?val.toLocaleString():'';
-            score.classList.toggle('visible',val>0);
-          }
-        });
-        const sorted=[...countNodes].sort((a,b)=>{
-          const valA=Number(a.dataset.count)||0;
-          const valB=Number(b.dataset.count)||0;
-          if(valA===valB){
-            return (Number(b.dataset.val)||0)-(Number(a.dataset.val)||0);
-          }
-          return valB-valA;
-        });
-        sorted.forEach((node,idx)=>{
-          node.classList.toggle('leader',idx===0 && (Number(node.dataset.count)||0)>0);
-          countWrap.appendChild(node);
-        });
-        countNodes=sorted;
+        if(countWrap){
+          countNodes=Array.from(countWrap.querySelectorAll('.csat-count'));
+          countNodes.forEach((node)=>{
+            const ratingIdx=(Number(node.dataset.val)||0)-1;
+            const val=counts[ratingIdx]||0;
+            const label=lang==='en'?(node.dataset.labelEn||''):(node.dataset.labelEs||node.dataset.labelEn||'');
+            const text=label?`${label}: ${val}`:`${val} ${t('ratings','calificaciones')}`;
+            node.setAttribute('aria-label',text);
+            node.setAttribute('title',text);
+            node.dataset.count=String(val);
+            const score=node.querySelector('.sentiment-score');
+            if(score){
+              score.textContent=val>0?val.toLocaleString():'';
+              score.classList.toggle('visible',val>0);
+            }
+          });
+          const sorted=[...countNodes].sort((a,b)=>{
+            const valA=Number(a.dataset.count)||0;
+            const valB=Number(b.dataset.count)||0;
+            if(valA===valB){
+              return (Number(b.dataset.val)||0)-(Number(a.dataset.val)||0);
+            }
+            return valB-valA;
+          });
+          sorted.forEach((node,idx)=>{
+            node.classList.toggle('leader',idx===0 && (Number(node.dataset.count)||0)>0);
+            countWrap.appendChild(node);
+          });
+          countNodes=sorted;
+        }
         const totalVotes=counts.reduce((sum,val)=>sum+val,0);
         const avg=totalVotes?counts.reduce((sum,val,idx)=>sum+val*(idx+1),0)/totalVotes:0;
         const avgEl=document.getElementById('csatAverageValue');
@@ -1609,6 +1574,11 @@
         });
         const moodIdx=displayVal?Math.min(Math.max(displayVal-1,0),moods.length-1):2;
         face.textContent=moods[moodIdx];
+        const highlightVal=displayVal||3;
+        emojiIcons.forEach(icon=>{
+          const iconVal=Number(icon.dataset.val)||0;
+          icon.classList.toggle('active',iconVal===highlightVal);
+        });
       };
 
       const CSAT_ENDPOINT_PREF_KEY='csatEndpointPref';
