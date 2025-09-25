@@ -830,22 +830,43 @@
     /* CONFIG */
     const CLOUDFLARE_WORKER_URL = "https://damp-snow-3384.distraction.workers.dev/";
     const WORKER_CSAT_URL = 'https://orange-base-dcdc.distraction.workers.dev';
-    const WORKER_CSAT_ENDPOINTS = (()=>{
-      const normalize=url=>{
-        if(!url) return '';
-        return url.replace(/\s+/g,'').replace(/\/+$/,'');
-      };
-      const add=(set,val)=>{const norm=normalize(val); if(norm) set.add(norm);};
-      const endpoints=new Set();
+
+    const joinWorkerPath=(base,segment='')=>{
+      if(!base) return '';
+      const trimmedBase=String(base).trim();
+      const trimmedSegment=String(segment||'').trim();
       try{
-        const parsed=new URL(WORKER_CSAT_URL);
-        const origin=parsed.origin;
-        const base=`${origin}${parsed.pathname}`;
-        add(endpoints,base);
-        add(endpoints,`${origin}/csat`);
-        add(endpoints,origin);
+        const url=new URL(trimmedBase);
+        const cleanBase=url.pathname.replace(/\/+/g,'/').replace(/\/+$/,'');
+        const cleanSegment=trimmedSegment?`/${trimmedSegment.replace(/^\/+/, '')}`:'';
+        url.pathname=(cleanBase+cleanSegment||'/').replace(/\/+/g,'/');
+        return url.toString().replace(/\/+/g,'/').replace(/\/+$/,'');
       }catch{
-        add(endpoints,WORKER_CSAT_URL);
+        const baseNoSlash=trimmedBase.replace(/\/+/g,'/').replace(/\/+$/,'');
+        const segmentNoSlash=trimmedSegment.replace(/^\/+/, '');
+        return segmentNoSlash?`${baseNoSlash}/${segmentNoSlash}`:baseNoSlash;
+      }
+    };
+
+    const WORKER_CSAT_BASE = joinWorkerPath(WORKER_CSAT_URL,'');
+    const CSAT_SUBMIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'csat');
+    const CSAT_VISIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'visit');
+    const CSAT_STATS_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'stats');
+
+    const WORKER_CSAT_ENDPOINTS = (()=>{
+      const endpoints=new Set();
+      const add=url=>{
+        const normalized=joinWorkerPath(url||'','');
+        if(normalized) endpoints.add(normalized);
+      };
+      add(CSAT_SUBMIT_ENDPOINT);
+      add(WORKER_CSAT_BASE);
+      if(WORKER_CSAT_URL){
+        try{
+          const parsed=new URL(WORKER_CSAT_URL);
+          add(`${parsed.origin}/csat`);
+          add(parsed.origin);
+        }catch{}
       }
       return Array.from(endpoints);
     })();
@@ -895,7 +916,7 @@
     const t = (en,es)=> lang==='en'?en:es;
     const fmt = n => '$'+n.toFixed(2);
     const highlightTimers = new WeakMap();
-    const metricsBase = (WORKER_CSAT_URL||'').replace(/\/+$/,'');
+    const metricsBase = WORKER_CSAT_BASE;
 
     function updateVisitMetric(id,value){
       const el=document.getElementById(id);
@@ -1560,10 +1581,10 @@
     }
 
     async function logCsatVisit(){
-      if(!WORKER_CSAT_URL || typeof window._csatGetIds!=='function') return;
+      if(!CSAT_VISIT_ENDPOINT || typeof window._csatGetIds!=='function') return;
       try{
         const { uid, fp } = await window._csatGetIds();
-        await fetch(`${WORKER_CSAT_URL}/visit`,{
+        await fetch(CSAT_VISIT_ENDPOINT,{
           method:'POST',
           headers:{'content-type':'application/json'},
           body:JSON.stringify({ uid, fp, lang, theme: theme || 'dark' })
@@ -1768,17 +1789,28 @@
             signal:controller.signal
           });
           let data=null;
-          try{data=await res.json();}
+          let parsed=false;
+          try{data=await res.json();parsed=true;}
           catch{data=null;}
-          if(!res.ok || !data || data.ok!==true){
-            const error=new Error(data&&data.error?data.error:`csat_http_${res.status}`);
+          const explicitFail=parsed && data && typeof data==='object' && (data.ok===false || data.success===false);
+          if(!res.ok || explicitFail){
+            const message=data && typeof data==='object' && (data.error||data.message)
+              ? data.error||data.message
+              : `csat_http_${res.status}`;
+            const error=new Error(message);
             error.code='server';
             error.status=res.status;
             error.endpoint=endpoint;
             throw error;
           }
           rememberEndpoint(endpoint);
-          return data||{};
+          if(!parsed || data==null){
+            return { ok:true };
+          }
+          if(typeof data==='object' && data.ok===undefined && data.success===undefined){
+            data.ok=true;
+          }
+          return data;
         }finally{
           clearTimeout(timer);
         }
@@ -1819,7 +1851,12 @@
         if(!err) return false;
         if(err.name==='AbortError') return true;
         if(err.code==='timeout') return true;
-        if(err.code==='server') return false;
+        if(err.code==='server'){
+          const status=Number(err.status)||0;
+          if(status===429) return true;
+          if(status>=500 && status<600) return true;
+          return false;
+        }
         const msg=(err.message||'').toLowerCase();
         return msg.includes('failed to fetch')||msg.includes('network');
       };
@@ -1880,31 +1917,23 @@
             console.warn('Unable to resolve CSAT identifiers.',err);
           }
         }
-        const submission={rating,lang,uid,fp};
-        const payload={...submission,ts:Date.now()};
+        const entry={rating,lang,uid,fp,ts:Date.now()};
         try{
-          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
-            method:'POST',
-            headers:{'content-type':'application/json'},
-            body:JSON.stringify(submission)
-          });
-          const data=await res.json();
-          if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
-          const idx=Math.max(0,Math.min(counts.length-1,rating-1));
-          counts[idx]=(counts[idx]||0)+1;
-          persistCounts();
-          updateCountsUI();
-          showCsatStats(data.stats);
+          const data=await sendToWorker(entry);
+          updateCounts(rating);
+          if(data && data.stats) showCsatStats(data.stats);
           alert(t('Thanks for rating!','¡Gracias por calificar!'));
           await flushPending();
         }catch(err){
           console.error('CSAT submission failed',err);
           if(classifyNetworkError(err)){
-            queuePending(payload);
+            queuePending(entry);
             alert(t('We saved your rating and will retry as soon as we reconnect.',
               'Guardamos tu calificación y la enviaremos cuando recuperemos la conexión.'));
           }else{
-            alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
+            const fallbackMsg=t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.');
+            const errMsg=(err&&err.message&&typeof err.message==='string'&&!/^csat_/i.test(err.message))?err.message:fallbackMsg;
+            alert(errMsg);
           }
         }
       });
@@ -1913,8 +1942,15 @@
       updateCountsUI();
 
       (async()=>{
-        const endpoints=orderedEndpoints();
-        for(const endpoint of endpoints){
+        const tried=new Set();
+        const candidates=[];
+        if(CSAT_STATS_ENDPOINT) candidates.push(CSAT_STATS_ENDPOINT);
+        orderedEndpoints().forEach(endpoint=>{
+          if(endpoint) candidates.push(endpoint);
+        });
+        for(const endpoint of candidates){
+          if(!endpoint || tried.has(endpoint)) continue;
+          tried.add(endpoint);
           try{
             const data=await attemptWorkerRequest(endpoint,{method:'GET'});
             if(data && data.ok){
