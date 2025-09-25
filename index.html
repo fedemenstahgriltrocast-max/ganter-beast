@@ -11,7 +11,7 @@
         style-src 'self' 'nonce-2726c7f26c';
         style-src-elem 'self' 'nonce-2726c7f26c';
         img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com;
-        connect-src 'self' https://orange-base-dcdc.distraction.workers.dev https://damp-snow-3384.distraction.workers.dev;
+        connect-src 'self' https://orange-base-dcdc.distraction.workers.dev;
         font-src 'self';
         frame-src https://www.google.com https://maps.google.com;
         frame-ancestors 'none';
@@ -79,6 +79,11 @@
       all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
       padding:10px 14px;border-radius:999px;background:var(--accent);color:#fff;
       font-size:14px;font-weight:700;box-shadow:var(--shadow);line-height:1;
+    }
+    .btn.is-busy,
+    .btn[aria-busy="true"]{
+      pointer-events:none;
+      opacity:.65;
     }
     .btn.alt{background:var(--accent-2)}
 
@@ -358,7 +363,7 @@
 </head>
   <script type="module" nonce="2726c7f26c">
   /* === CONSTANTS (point to your Worker and its public enc key) === */
-  const ENDPOINT = 'https://damp-snow-3384.distraction.workers.dev';
+  const ENDPOINT = 'https://orange-base-dcdc.distraction.workers.dev';
   const ENC_P256_KID = 'a973cb4c-c7ab-4e2f-8f54-0b40cbc24062';
   const ENC_P256_PUB_JWK = {
     "crv":"P-256","ext":true,"key_ops":[],"kty":"EC",
@@ -828,7 +833,7 @@
 
   <script nonce="2726c7f26c">
     /* CONFIG */
-    const CLOUDFLARE_WORKER_URL = "https://damp-snow-3384.distraction.workers.dev/";
+    const CLOUDFLARE_WORKER_URL = "https://orange-base-dcdc.distraction.workers.dev/";
     const WORKER_CSAT_URL = 'https://orange-base-dcdc.distraction.workers.dev';
     const WORKER_CSAT_ENDPOINTS = (()=>{
       const normalize=url=>{
@@ -849,6 +854,22 @@
       }
       return Array.from(endpoints);
     })();
+    const deriveCsatPostUrl=endpoint=>{
+      if(!endpoint) return '';
+      let normalized=String(endpoint).trim();
+      if(!normalized) return '';
+      normalized=normalized.replace(/\s+/g,'');
+      if(/\/csat\/?$/i.test(normalized)){
+        return normalized.replace(/\/+$/,'');
+      }
+      try{
+        const url=new URL(normalized);
+        const base=`${url.origin}${url.pathname.replace(/\/+$/,'')}`||url.origin;
+        return `${base.replace(/\/+$/,'')}/csat`;
+      }catch{
+        return `${normalized.replace(/\/+$/,'')}/csat`;
+      }
+    };
     const APPS_SCRIPT_URL = "";       // optional
     window.CLOUDFLARE_WORKER_URL = CLOUDFLARE_WORKER_URL;
     window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
@@ -1796,7 +1817,9 @@
         let lastErr=null;
         for(const endpoint of endpoints){
           try{
-            return await attemptWorkerRequest(endpoint,{
+            const postUrl=deriveCsatPostUrl(endpoint);
+            if(!postUrl) continue;
+            return await attemptWorkerRequest(postUrl,{
               method:'POST',
               headers:{'content-type':'application/json'},
               body:JSON.stringify(submission)
@@ -1864,11 +1887,19 @@
         btn.addEventListener('click',()=>{rating=val;paint(rating);});
       });
 
-      document.getElementById('rateBtn').addEventListener('click',async()=>{
+      const rateBtn=document.getElementById('rateBtn');
+      const setRateBtnBusy=busy=>{
+        if(!rateBtn) return;
+        rateBtn.disabled=!!busy;
+        rateBtn.setAttribute('aria-busy',busy?'true':'false');
+        rateBtn.classList.toggle('is-busy',!!busy);
+      };
+      rateBtn?.addEventListener('click',async()=>{
         if(!rating){
           alert(t('Please select a rating first.','Seleccione una calificación.'));
           return;
         }
+        if(rateBtn?.disabled) return;
         let uid;
         let fp;
         if(typeof window._csatGetIds==='function'){
@@ -1883,13 +1914,8 @@
         const submission={rating,lang,uid,fp};
         const payload={...submission,ts:Date.now()};
         try{
-          const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
-            method:'POST',
-            headers:{'content-type':'application/json'},
-            body:JSON.stringify(submission)
-          });
-          const data=await res.json();
-          if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
+          setRateBtnBusy(true);
+          const data=await sendToWorker(submission);
           const idx=Math.max(0,Math.min(counts.length-1,rating-1));
           counts[idx]=(counts[idx]||0)+1;
           persistCounts();
@@ -1906,6 +1932,9 @@
           }else{
             alert(t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.'));
           }
+        }
+        finally{
+          setRateBtnBusy(false);
         }
       });
 
