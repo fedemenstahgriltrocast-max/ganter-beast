@@ -214,7 +214,9 @@
       transition:opacity .25s ease,color .25s ease;
     }
     .sentiment-score.visible{opacity:1;color:var(--ink)}
+    .sentiment-score.zero{opacity:.6;color:var(--muted)}
     html[data-theme="light"] .sentiment-score.visible{color:var(--ink-light)}
+    html[data-theme="light"] .sentiment-score.zero{color:var(--muted-light)}
     .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
     .csat-face{font-size:44px;margin:0}
     .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
@@ -234,6 +236,19 @@
     .csat-footer{display:flex;flex-direction:column;align-items:flex-start;margin-top:auto;gap:10px;width:100%}
     .csat-footer-primary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
     .csat-footer .muted{text-align:left;max-width:260px}
+    .csat-breakdown{display:grid;gap:10px;width:100%}
+    .csat-count{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
+    .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow)}
+    .csat-count-emoji{font-size:26px;line-height:1}
+    .csat-count-body{flex:1;display:flex;flex-direction:column;gap:4px}
+    .csat-count-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .csat-count-label{font-weight:700}
+    .csat-count-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+    .csat-count-average,.csat-count-total{font-variant-numeric:tabular-nums;font-weight:700}
+    .csat-count-sep{opacity:.6}
+    html[data-theme="light"] .csat-count{background:rgba(10,14,26,.05);border-color:var(--line-light)}
+    html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
+    html[data-theme="light"] .csat-count-meta{color:var(--muted-light)}
     @media (max-width:900px){
       .csat-hero{align-items:center;text-align:center}
       .csat-hero-summary{flex-direction:column;align-items:center}
@@ -524,6 +539,83 @@
                 <div class="csat-votes">
                   <span id="csatTotalVotes">0</span>
                   <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
+                </div>
+              </div>
+              <div class="csat-breakdown" id="csatCounts" role="list" aria-label="Customer satisfaction breakdown">
+                <div class="csat-count" role="listitem" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
+                  <div class="csat-count-emoji" aria-hidden="true">🤩</div>
+                  <div class="csat-count-body">
+                    <div class="csat-count-top">
+                      <span class="csat-count-label" data-en="Delighted" data-es="Encantado">Delighted</span>
+                      <span class="sentiment-score zero">0</span>
+                    </div>
+                    <div class="csat-count-meta">
+                      <span class="csat-count-average">0.00</span><span>/5</span>
+                      <span class="csat-count-sep">•</span>
+                      <span class="csat-count-total">0</span>
+                      <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="csat-count" role="listitem" data-val="4" data-label-en="Happy" data-label-es="Feliz">
+                  <div class="csat-count-emoji" aria-hidden="true">😄</div>
+                  <div class="csat-count-body">
+                    <div class="csat-count-top">
+                      <span class="csat-count-label" data-en="Happy" data-es="Feliz">Happy</span>
+                      <span class="sentiment-score zero">0</span>
+                    </div>
+                    <div class="csat-count-meta">
+                      <span class="csat-count-average">0.00</span><span>/5</span>
+                      <span class="csat-count-sep">•</span>
+                      <span class="csat-count-total">0</span>
+                      <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="csat-count" role="listitem" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
+                  <div class="csat-count-emoji" aria-hidden="true">😐</div>
+                  <div class="csat-count-body">
+                    <div class="csat-count-top">
+                      <span class="csat-count-label" data-en="Neutral" data-es="Neutral">Neutral</span>
+                      <span class="sentiment-score zero">0</span>
+                    </div>
+                    <div class="csat-count-meta">
+                      <span class="csat-count-average">0.00</span><span>/5</span>
+                      <span class="csat-count-sep">•</span>
+                      <span class="csat-count-total">0</span>
+                      <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="csat-count" role="listitem" data-val="2" data-label-en="Unhappy" data-label-es="Descontento">
+                  <div class="csat-count-emoji" aria-hidden="true">🙁</div>
+                  <div class="csat-count-body">
+                    <div class="csat-count-top">
+                      <span class="csat-count-label" data-en="Unhappy" data-es="Descontento">Unhappy</span>
+                      <span class="sentiment-score zero">0</span>
+                    </div>
+                    <div class="csat-count-meta">
+                      <span class="csat-count-average">0.00</span><span>/5</span>
+                      <span class="csat-count-sep">•</span>
+                      <span class="csat-count-total">0</span>
+                      <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="csat-count" role="listitem" data-val="1" data-label-en="Frustrated" data-label-es="Frustrado">
+                  <div class="csat-count-emoji" aria-hidden="true">😞</div>
+                  <div class="csat-count-body">
+                    <div class="csat-count-top">
+                      <span class="csat-count-label" data-en="Frustrated" data-es="Frustrado">Frustrated</span>
+                      <span class="sentiment-score zero">0</span>
+                    </div>
+                    <div class="csat-count-meta">
+                      <span class="csat-count-average">0.00</span><span>/5</span>
+                      <span class="csat-count-sep">•</span>
+                      <span class="csat-count-total">0</span>
+                      <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1514,8 +1606,24 @@
             node.dataset.count=String(val);
             const score=node.querySelector('.sentiment-score');
             if(score){
-              score.textContent=val>0?val.toLocaleString():'';
-              score.classList.toggle('visible',val>0);
+              score.textContent=val.toLocaleString();
+              score.classList.add('visible');
+              score.classList.toggle('zero',val===0);
+            }
+            const avgDisplay=node.querySelector('.csat-count-average');
+            if(avgDisplay){
+              const ratingVal=Math.max(0,Math.min(5,Number(node.dataset.val)||0));
+              avgDisplay.textContent=(val>0?ratingVal:0).toFixed(2);
+            }
+            const totalDisplay=node.querySelector('.csat-count-total');
+            if(totalDisplay){
+              totalDisplay.textContent=val.toLocaleString();
+            }
+            const votesLabelEl=node.querySelector('.csat-count-votes-label');
+            if(votesLabelEl){
+              const labelText=lang==='es'?(votesLabelEl.dataset.es||votesLabelEl.dataset.en||votesLabelEl.textContent):
+                (votesLabelEl.dataset.en||votesLabelEl.textContent);
+              votesLabelEl.textContent=labelText;
             }
           });
           const sorted=[...countNodes].sort((a,b)=>{
