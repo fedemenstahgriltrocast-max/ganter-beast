@@ -770,6 +770,61 @@
       desktop:coords=>`https://www.google.com/maps/@${coords},17z`,
       mobile:coords=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`
     };
+    const CSAT_UID_STORAGE_KEY='csatUid';
+    const CSAT_FP_STORAGE_KEY='csatFp';
+
+    const csatBytesToHex=bytes=>Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    const safeStorageGet=key=>{
+      try{return localStorage.getItem(key);}catch(err){console.warn(`Unable to read ${key} from storage.`,err);return null;}
+    };
+
+    const safeStorageSet=(key,value)=>{
+      try{localStorage.setItem(key,value);}catch(err){console.warn(`Unable to persist ${key} to storage.`,err);}
+    };
+
+    const deriveCsatFingerprint=async()=>{
+      try{
+        const components=[
+          navigator.userAgent||'',
+          navigator.language||'',
+          navigator.platform||'',
+          String(screen?.width||''),
+          String(screen?.height||''),
+          String(screen?.colorDepth||''),
+          String(window.devicePixelRatio||''),
+          Intl.DateTimeFormat?.().resolvedOptions?.().timeZone||''
+        ].join('|');
+        if(window.crypto?.subtle && window.TextEncoder){
+          const data=new TextEncoder().encode(components);
+          const digest=await crypto.subtle.digest('SHA-256',data);
+          return csatBytesToHex(new Uint8Array(digest));
+        }
+        return btoa(unescape(encodeURIComponent(components))).slice(0,64);
+      }catch(err){
+        console.warn('Unable to derive CSAT fingerprint.',err);
+        return '';
+      }
+    };
+
+    const ensureCsatIdentifiers=async()=>{
+      let uid=safeStorageGet(CSAT_UID_STORAGE_KEY);
+      if(!uid){
+        const raw=window.crypto?.randomUUID?.()||`${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
+        uid=raw.toLowerCase();
+        safeStorageSet(CSAT_UID_STORAGE_KEY,uid);
+      }
+      let fp=safeStorageGet(CSAT_FP_STORAGE_KEY);
+      if(!fp){
+        fp=await deriveCsatFingerprint();
+        if(fp) safeStorageSet(CSAT_FP_STORAGE_KEY,fp);
+      }
+      return {uid,fp};
+    };
+
+    if(typeof window._csatGetIds!=='function'){
+      window._csatGetIds=ensureCsatIdentifiers;
+    }
     function isMobileOrTablet(){
       try{
         if(navigator.userAgentData && typeof navigator.userAgentData.mobile==='boolean'){
@@ -1338,6 +1393,20 @@
       }
     }
 
+    async function logCsatVisit(){
+      if(!WORKER_CSAT_URL || typeof window._csatGetIds!=='function') return;
+      try{
+        const { uid, fp } = await window._csatGetIds();
+        await fetch(`${WORKER_CSAT_URL}/visit`,{
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({ uid, fp, lang, theme: theme || 'dark' })
+        });
+      }catch(err){
+        console.warn('Unable to record CSAT visit.',err);
+      }
+    }
+
     function initCsat(){
       let rating=0;
       const stars=Array.from(document.querySelectorAll('.csat-star-btn'));
@@ -1518,13 +1587,19 @@
       const sendToWorker=async(entry)=>{
         const endpoints=orderedEndpoints();
         if(!endpoints.length) throw new Error('csat_endpoint_missing');
+        const submission={
+          rating:entry?.rating,
+          lang:entry?.lang
+        };
+        if(entry && entry.uid!==undefined && entry.uid!==null) submission.uid=entry.uid;
+        if(entry && entry.fp!==undefined && entry.fp!==null) submission.fp=entry.fp;
         let lastErr=null;
         for(const endpoint of endpoints){
           try{
             return await attemptWorkerRequest(endpoint,{
               method:'POST',
               headers:{'content-type':'application/json'},
-              body:JSON.stringify(entry)
+              body:JSON.stringify(submission)
             });
           }catch(err){
             if(err.name==='AbortError'){
@@ -1594,12 +1669,24 @@
           alert(t('Please select a rating first.','Seleccione una calificación.'));
           return;
         }
-        const payload={rating,lang,ts:Date.now()};
+        let uid;
+        let fp;
+        if(typeof window._csatGetIds==='function'){
+          try{
+            const ids=await window._csatGetIds();
+            uid=ids?.uid;
+            fp=ids?.fp;
+          }catch(err){
+            console.warn('Unable to resolve CSAT identifiers.',err);
+          }
+        }
+        const submission={rating,lang,uid,fp};
+        const payload={...submission,ts:Date.now()};
         try{
           const res=await fetch(`${WORKER_CSAT_URL}/csat`,{
             method:'POST',
             headers:{'content-type':'application/json'},
-            body:JSON.stringify({rating,lang})
+            body:JSON.stringify(submission)
           });
           const data=await res.json();
           if(!res.ok||!data.ok) throw new Error(data.error||'csat_error');
@@ -1683,6 +1770,7 @@
     highlightMapTabs();
     updateMapLinks();
     initCsat();
+    logCsatVisit();
     const visitCounts={today:25,month:600,year:7200};
     $('#visitsToday').textContent=visitCounts.today;
     $('#visitsMonth').textContent=visitCounts.month;
