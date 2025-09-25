@@ -219,11 +219,26 @@
     html[data-theme="light"] .sentiment-score.zero{color:var(--muted-light)}
     .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
     .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
+    .csat-rate-row{display:flex;align-items:center;gap:16px;width:100%}
+    .csat-rate-row .csat-rate-stars{flex:1;min-width:0}
     .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em}
     html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
-    .csat-rate-callout{display:flex;flex-direction:column;align-items:flex-end;gap:12px;margin-left:auto}
-    .csat-rate-callout .btn{min-width:128px;justify-content:center}
-    .csat-rate-note{font-size:.85rem;color:var(--muted);text-align:right;max-width:200px;line-height:1.4}
+    .csat-rate-callout{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-left:auto;
+      padding:12px 16px;
+      border-radius:16px;
+      background:linear-gradient(135deg,rgba(30,169,122,.18),rgba(30,169,122,.42));
+      border:1px solid rgba(30,169,122,.55);
+      min-width:140px;
+      min-height:0;
+      box-shadow:var(--shadow);
+    }
+    .csat-rate-callout .btn{min-width:0;padding:8px 18px;font-size:13px;justify-content:center}
+    .csat-rate-note{font-size:.85rem;color:var(--muted);text-align:left;max-width:320px;line-height:1.4;margin:0}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
     .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
@@ -248,11 +263,17 @@
     html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
     html[data-theme="light"] .csat-count-meta{color:var(--muted-light)}
     html[data-theme="light"] .csat-rate-note{color:var(--muted-light)}
+    html[data-theme="light"] .csat-rate-callout{
+      background:linear-gradient(135deg,rgba(30,169,122,.12),rgba(30,169,122,.25));
+      border-color:rgba(30,169,122,.45);
+      box-shadow:var(--shadow-light);
+    }
     @media (max-width:900px){
       .csat-hero{align-items:center;text-align:center}
       .csat-hero-summary{flex-direction:column;align-items:center}
       .csat-face-wrap{width:100%;align-items:center}
       .csat-rate-stars{justify-content:center}
+      .csat-rate-row{flex-direction:column;align-items:center;gap:12px}
       .csat-rate-callout{margin-left:0;align-items:center;text-align:center}
       .csat-rate-note{text-align:center}
       .csat-footer{align-items:center;text-align:center}
@@ -515,16 +536,18 @@
                   <div class="csat-sentiment" role="status" aria-live="polite">
                     <span id="csatSentiment" data-default-en="Select a rating" data-default-es="Seleccione una calificación">Select a rating</span>
                   </div>
-                  <div class="csat-rate-stars" role="group" aria-label="Rate customer satisfaction">
-                    <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">★</button>
-                    <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">★</button>
-                    <button type="button" class="csat-star-btn" aria-label="3 stars" data-val="3">★</button>
-                    <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
-                    <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
+                  <div class="csat-rate-row">
+                    <div class="csat-rate-stars" role="group" aria-label="Rate customer satisfaction">
+                      <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">★</button>
+                      <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">★</button>
+                      <button type="button" class="csat-star-btn" aria-label="3 stars" data-val="3">★</button>
+                      <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
+                      <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
+                    </div>
+                    <div class="csat-rate-callout">
+                      <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
+                    </div>
                   </div>
-                </div>
-                <div class="csat-rate-callout">
-                  <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
                   <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia para mantener este puntaje.">
                     Share your experience to keep this score strong.
                   </p>
