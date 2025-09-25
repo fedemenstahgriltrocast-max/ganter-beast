@@ -218,7 +218,7 @@
     .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
     .csat-face{font-size:44px;margin:0}
     .csat-face-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
-    .csat-emoji-strip{display:flex;flex-direction:column;gap:12px;justify-content:center;align-items:center;width:100%;margin-top:2px}
+    .csat-emoji-strip{display:flex;flex-direction:column;gap:12px;justify-content:center;align-items:flex-start;width:auto;margin-top:2px}
     .csat-emoji{font-size:28px;filter:grayscale(.55);opacity:.6;transition:transform .2s ease,opacity .2s ease,filter .2s ease}
     .csat-emoji.active{filter:none;opacity:1;transform:scale(1.08)}
     html[data-theme="light"] .csat-emoji{filter:grayscale(.45);opacity:.55}
@@ -239,6 +239,7 @@
       .csat-hero-summary{flex-direction:column;align-items:center}
       .csat-face-wrap{width:100%}
       .csat-rate-stars{justify-content:center}
+      .csat-emoji-strip{align-items:center}
       .csat-footer{align-items:center;text-align:center}
       .csat-footer-primary{justify-content:center}
     }
