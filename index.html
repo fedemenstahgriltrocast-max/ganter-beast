@@ -218,13 +218,9 @@
     html[data-theme="light"] .sentiment-score.visible{color:var(--ink-light)}
     html[data-theme="light"] .sentiment-score.zero{color:var(--muted-light)}
     .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
-    .csat-face{font-size:44px;margin:0}
     .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
-    .csat-emoji-strip{display:flex;flex-direction:column;gap:12px;justify-content:center;align-items:flex-start;width:auto;margin-top:2px}
-    .csat-emoji{font-size:28px;filter:grayscale(.55);opacity:.6;transition:transform .2s ease,opacity .2s ease,filter .2s ease}
-    .csat-emoji.active{filter:none;opacity:1;transform:scale(1.08)}
-    html[data-theme="light"] .csat-emoji{filter:grayscale(.45);opacity:.55}
-    html[data-theme="light"] .csat-emoji.active{filter:none;opacity:1}
+    .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em}
+    html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
     .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
@@ -239,7 +235,6 @@
     .csat-breakdown{display:grid;gap:10px;width:100%}
     .csat-count{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
     .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow)}
-    .csat-count-emoji{font-size:26px;line-height:1}
     .csat-count-body{flex:1;display:flex;flex-direction:column;gap:4px}
     .csat-count-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
     .csat-count-label{font-weight:700}
@@ -254,7 +249,6 @@
       .csat-hero-summary{flex-direction:column;align-items:center}
       .csat-face-wrap{width:100%;align-items:center}
       .csat-rate-stars{justify-content:center}
-      .csat-emoji-strip{align-items:center}
       .csat-footer{align-items:center;text-align:center}
       .csat-footer-primary{justify-content:center}
     }
@@ -512,20 +506,15 @@
               <div id="csatScore" aria-live="polite" hidden>—</div>
               <div class="csat-hero-summary">
                 <div class="csat-face-wrap">
-                  <div class="csat-face" role="img" aria-live="polite">😐</div>
+                  <div class="csat-sentiment" role="status" aria-live="polite">
+                    <span id="csatSentiment" data-default-en="Select a rating" data-default-es="Seleccione una calificación">Select a rating</span>
+                  </div>
                   <div class="csat-rate-stars" role="group" aria-label="Rate customer satisfaction">
                     <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">★</button>
                     <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">★</button>
                     <button type="button" class="csat-star-btn" aria-label="3 stars" data-val="3">★</button>
                     <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
                     <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
-                  </div>
-                  <div class="csat-emoji-strip" aria-hidden="true">
-                    <span class="csat-emoji" data-val="1">😞</span>
-                    <span class="csat-emoji" data-val="2">🙁</span>
-                    <span class="csat-emoji" data-val="3">😐</span>
-                    <span class="csat-emoji" data-val="4">😄</span>
-                    <span class="csat-emoji" data-val="5">🤩</span>
                   </div>
                 </div>
               </div>
@@ -543,7 +532,6 @@
               </div>
               <div class="csat-breakdown" id="csatCounts" role="list" aria-label="Customer satisfaction breakdown">
                 <div class="csat-count" role="listitem" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
-                  <div class="csat-count-emoji" aria-hidden="true">🤩</div>
                   <div class="csat-count-body">
                     <div class="csat-count-top">
                       <span class="csat-count-label" data-en="Delighted" data-es="Encantado">Delighted</span>
@@ -558,7 +546,6 @@
                   </div>
                 </div>
                 <div class="csat-count" role="listitem" data-val="4" data-label-en="Happy" data-label-es="Feliz">
-                  <div class="csat-count-emoji" aria-hidden="true">😄</div>
                   <div class="csat-count-body">
                     <div class="csat-count-top">
                       <span class="csat-count-label" data-en="Happy" data-es="Feliz">Happy</span>
@@ -573,7 +560,6 @@
                   </div>
                 </div>
                 <div class="csat-count" role="listitem" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
-                  <div class="csat-count-emoji" aria-hidden="true">😐</div>
                   <div class="csat-count-body">
                     <div class="csat-count-top">
                       <span class="csat-count-label" data-en="Neutral" data-es="Neutral">Neutral</span>
@@ -588,7 +574,6 @@
                   </div>
                 </div>
                 <div class="csat-count" role="listitem" data-val="2" data-label-en="Unhappy" data-label-es="Descontento">
-                  <div class="csat-count-emoji" aria-hidden="true">🙁</div>
                   <div class="csat-count-body">
                     <div class="csat-count-top">
                       <span class="csat-count-label" data-en="Unhappy" data-es="Descontento">Unhappy</span>
@@ -603,7 +588,6 @@
                   </div>
                 </div>
                 <div class="csat-count" role="listitem" data-val="1" data-label-en="Frustrated" data-label-es="Frustrado">
-                  <div class="csat-count-emoji" aria-hidden="true">😞</div>
                   <div class="csat-count-body">
                     <div class="csat-count-top">
                       <span class="csat-count-label" data-en="Frustrated" data-es="Frustrado">Frustrated</span>
@@ -1436,6 +1420,7 @@
       updateLocationReview();
       renderLocAuthStatus();
       if(mapDlg && mapDlg.open) updateMapView();
+      if(typeof window.updateCsatSentimentLabel==='function') window.updateCsatSentimentLabel();
       if(typeof window.updateCsatCountsUI==='function') window.updateCsatCountsUI();
       if(window._latestCsatStats) updateCsatSummary(window._latestCsatStats);
     }
@@ -1551,9 +1536,16 @@
     function initCsat(){
       let rating=0;
       const stars=Array.from(document.querySelectorAll('.csat-star-btn'));
-      const face=document.querySelector('.csat-face');
-      const moods=['😞','🙁','😐','😄','🤩'];
-      const emojiIcons=Array.from(document.querySelectorAll('.csat-emoji'));
+      const sentimentLabel=document.getElementById('csatSentiment');
+      const sentimentMap={
+        en:['Frustrated','Unhappy','Neutral','Happy','Delighted'],
+        es:['Frustrado','Descontento','Neutral','Feliz','Encantado']
+      };
+      const sentimentDefaults={
+        en:sentimentLabel?.dataset.defaultEn||'Select a rating',
+        es:sentimentLabel?.dataset.defaultEs||'Seleccione una calificación'
+      };
+      let lastSentimentVal=0;
       const countWrap=document.getElementById('csatCounts');
       let countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
       let counts=[0,0,0,0,0];
@@ -1669,6 +1661,16 @@
         persistCounts();
       };
 
+      const setSentiment=val=>{
+        lastSentimentVal=val>0?val:0;
+        if(!sentimentLabel) return;
+        const labels=sentimentMap[lang]||sentimentMap.en;
+        const defaultText=sentimentDefaults[lang]||sentimentDefaults.en;
+        sentimentLabel.textContent=lastSentimentVal>0 ? (labels[lastSentimentVal-1]||labels[2]) : defaultText;
+      };
+
+      window.updateCsatSentimentLabel=()=>setSentiment(lastSentimentVal);
+
       const paint=val=>{
         const selectedVal=val>0?val:0;
         const displayVal=selectedVal||getLeaderRating();
@@ -1678,13 +1680,7 @@
           btn.classList.toggle('active',isFilled);
           btn.setAttribute('aria-pressed',btnVal===selectedVal?'true':'false');
         });
-        const moodIdx=displayVal?Math.min(Math.max(displayVal-1,0),moods.length-1):2;
-        face.textContent=moods[moodIdx];
-        const highlightVal=displayVal||3;
-        emojiIcons.forEach(icon=>{
-          const iconVal=Number(icon.dataset.val)||0;
-          icon.classList.toggle('active',iconVal===highlightVal);
-        });
+        setSentiment(displayVal);
       };
 
       const CSAT_ENDPOINT_PREF_KEY='csatEndpointPref';
