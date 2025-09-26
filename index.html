@@ -842,26 +842,77 @@
       const trimmedSegment=String(segment||'').trim();
       try{
         const url=new URL(trimmedBase);
-        const cleanBase=url.pathname.replace(/\/+/g,'/').replace(/\/+$/,'');
-        const cleanSegment=trimmedSegment?`/${trimmedSegment.replace(/^\/+/, '')}`:'';
-        url.pathname=(cleanBase+cleanSegment||'/').replace(/\/+/g,'/');
-        return url.toString().replace(/\/+/g,'/').replace(/\/+$/,'');
+        const basePath=url.pathname.replace(/\/+$/,'');
+        const normalizedBase=basePath.replace(/^\/+/, '').replace(/\/+$/,'');
+        const normalizedSegment=trimmedSegment?trimmedSegment.replace(/^\/+/, '').replace(/\/+$/,''):'';
+        const pathParts=[];
+        if(normalizedBase) pathParts.push(normalizedBase);
+        if(normalizedSegment) pathParts.push(normalizedSegment);
+        url.pathname=pathParts.length?`/${pathParts.join('/')}`:'/';
+        url.search='';
+        url.hash='';
+        const href=url.href;
+        if(pathParts.length===0) return url.origin;
+        return href.endsWith('/')?href.slice(0,-1):href;
       }catch{
-        const baseNoSlash=trimmedBase.replace(/\/+/g,'/').replace(/\/+$/,'');
+        const baseNoSlash=trimmedBase.replace(/\/+$/,'');
+        if(!trimmedSegment) return baseNoSlash;
         const segmentNoSlash=trimmedSegment.replace(/^\/+/, '');
         return segmentNoSlash?`${baseNoSlash}/${segmentNoSlash}`:baseNoSlash;
       }
     };
 
+    const normalizeUrlCandidate=value=>{
+      const raw=String(value||'').trim();
+      if(!raw) return '';
+      try{
+        const url=new URL(raw);
+        url.hash='';
+        if(!url.search) return url.href.replace(/\/+$/,'');
+        return url.href;
+      }catch{
+        return raw;
+      }
+    };
+
+    const APPS_SCRIPT_URL = "";       // optional
+
     const WORKER_CSAT_BASE = joinWorkerPath(WORKER_CSAT_URL,'');
     const CSAT_SUBMIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'csat');
     const CSAT_VISIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'visit');
-    const CSAT_STATS_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'stats');
+    const CSAT_STATS_ENDPOINTS = (()=>{
+      const set=new Set();
+      const add=url=>{ const normalized=normalizeUrlCandidate(url); if(normalized) set.add(normalized); };
+      add(joinWorkerPath(WORKER_CSAT_BASE,'csat'));
+      add(joinWorkerPath(WORKER_CSAT_BASE,'stats'));
+      if(WORKER_CSAT_URL){
+        try{
+          const parsed=new URL(WORKER_CSAT_URL);
+          add(`${parsed.origin}/csat`);
+          add(`${parsed.origin}/stats`);
+        }catch{}
+      }
+      if(APPS_SCRIPT_URL){
+        const trimmed=String(APPS_SCRIPT_URL).trim();
+        if(trimmed){
+          try{
+            const statsUrl=new URL(trimmed);
+            statsUrl.searchParams.set('app','csat');
+            statsUrl.searchParams.set('stats','1');
+            add(statsUrl.toString());
+          }catch{
+            const base=trimmed.replace(/\/+$/,'');
+            add(`${base}?app=csat&stats=1`);
+          }
+        }
+      }
+      return Array.from(set);
+    })();
 
     const WORKER_CSAT_ENDPOINTS = (()=>{
       const endpoints=new Set();
       const add=url=>{
-        const normalized=joinWorkerPath(url||'','');
+        const normalized=normalizeUrlCandidate(url);
         if(normalized) endpoints.add(normalized);
       };
       add(CSAT_SUBMIT_ENDPOINT);
@@ -891,7 +942,6 @@
         return `${normalized.replace(/\/+$/,'')}/csat`;
       }
     };
-    const APPS_SCRIPT_URL = "";       // optional
     window.CLOUDFLARE_WORKER_URL = CLOUDFLARE_WORKER_URL;
     window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
     window.CLOUDFLARE_ENC_P256_PUB_JWK = Object.freeze({
@@ -1555,22 +1605,67 @@
     }
 
     /* CSAT rating */
+    const ensureCsatStars=source=>{
+      const defaults={1:0,2:0,3:0,4:0,5:0};
+      if(!source||typeof source!=='object') return defaults;
+      const stars={...defaults};
+      Object.keys(defaults).forEach(key=>{
+        const value=Number(source[key]);
+        stars[key]=Number.isFinite(value)&&value>0?value:0;
+      });
+      return stars;
+    };
+
+    const toCsatStats=payload=>{
+      if(!payload||typeof payload!=='object') return null;
+      const base=(payload.stats&&typeof payload.stats==='object')?payload.stats:payload;
+      const averageRaw=base.average??base.avg;
+      const totalRaw=base.total??base.count;
+      if(averageRaw===undefined && totalRaw===undefined) return null;
+      const averageNum=Number(averageRaw);
+      const totalNum=Number(totalRaw);
+      const average=Number.isFinite(averageNum)?averageNum:0;
+      const total=Math.max(0, Number.isFinite(totalNum)?Math.round(totalNum):0);
+      const sumCandidate=base.sum??(average*total);
+      const sumNum=Number(sumCandidate);
+      const sum=Number.isFinite(sumNum)?sumNum:Math.round(average*total)||0;
+      const stats={
+        average,
+        total,
+        sum,
+        stars:ensureCsatStars(base.stars)
+      };
+      if(base.updatedAt!==undefined){
+        const ts=Number(base.updatedAt);
+        if(Number.isFinite(ts)) stats.updatedAt=ts;
+      }
+      ['today','month','year'].forEach(key=>{
+        if(base[key]!==undefined){
+          const val=Number(base[key]);
+          stats[key]=Number.isFinite(val)?val:0;
+        }
+      });
+      return stats;
+    };
+
     function updateCsatSummary(stats){
       const summaryEl=document.getElementById('csatScore');
       if(!summaryEl) return;
-      if(!stats || !(Number(stats.total)>0)){
+      const normalized=toCsatStats(stats);
+      if(!normalized || !(Number(normalized.total)>0)){
         summaryEl.textContent='—';
         summaryEl.hidden=true;
         return;
       }
-      const total=Number(stats.total)||0;
-      const average=Number(stats.average)||0;
+      const total=Number(normalized.total)||0;
+      const average=Number(normalized.average)||0;
       const votesLabel=total===1?t('vote','voto'):t('votes','votos');
       summaryEl.textContent=`${average.toFixed(2)}/5 • ${total.toLocaleString()} ${votesLabel}`;
       summaryEl.hidden=false;
     }
 
-    function showCsatStats(stats){
+    function showCsatStats(raw){
+      const stats=toCsatStats(raw);
       if(!stats) return;
       window._latestCsatStats=stats;
       let el=document.getElementById('csatLive');
@@ -1900,7 +1995,8 @@
           try{
             const data=await sendToWorker(entry);
             updateCounts(entry.rating);
-            if(data&&data.stats) latestStats=data.stats;
+            const stats=toCsatStats(data);
+            if(stats) latestStats=stats;
           }catch(err){
             if(classifyNetworkError(err)){
               pending.push(entry);
@@ -1952,7 +2048,8 @@
         try{
           const data=await sendToWorker(entry);
           updateCounts(rating);
-          if(data && data.stats) showCsatStats(data.stats);
+          const stats=toCsatStats(data);
+          if(stats) showCsatStats(stats);
           alert(t('Thanks for rating!','¡Gracias por calificar!'));
           await flushPending();
         }catch(err){
@@ -1978,7 +2075,7 @@
       (async()=>{
         const tried=new Set();
         const candidates=[];
-        if(CSAT_STATS_ENDPOINT) candidates.push(CSAT_STATS_ENDPOINT);
+        CSAT_STATS_ENDPOINTS.forEach(endpoint=>{ if(endpoint) candidates.push(endpoint); });
         orderedEndpoints().forEach(endpoint=>{
           if(endpoint) candidates.push(endpoint);
         });
@@ -1987,10 +2084,12 @@
           tried.add(endpoint);
           try{
             const data=await attemptWorkerRequest(endpoint,{method:'GET'});
-            if(data && data.ok){
-              showCsatStats(data.stats);
+            const stats=toCsatStats(data);
+            if(stats){
+              showCsatStats(stats);
               return;
             }
+            if(data && data.ok) continue;
           }catch(err){
             if(err.name==='AbortError'){
               err.code='timeout';
