@@ -234,7 +234,10 @@
     .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
     .csat-rate-row{display:flex;align-items:center;gap:16px;width:100%}
     .csat-rate-row .csat-rate-stars{flex:1;min-width:0}
-    .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em}
+    .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em;display:flex;align-items:center;gap:10px;text-align:left}
+    #csatSentiment{display:inline-flex;align-items:center;gap:10px;transition:font-size .3s ease}
+    #csatSentiment.is-emoji{font-size:2.2rem;line-height:1}
+    #csatSentiment.is-emoji .csat-emoji{font-size:2.6rem}
     html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
     .csat-rate-callout{
       display:flex;
@@ -265,12 +268,13 @@
     .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow);opacity:1}
     .csat-footer{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
     .csat-footer .muted{text-align:left;max-width:260px}
-    .csat-breakdown{display:grid;gap:10px;width:100%}
-    .csat-count{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
+    .csat-breakdown{display:grid;gap:10px;width:100%;justify-items:start}
+    .csat-count{display:flex;gap:12px;align-items:center;justify-content:flex-start;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
     .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow)}
     .csat-count-body{flex:1;display:flex;flex-direction:column;gap:0}
     .csat-count-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px}
-    .csat-count-label{font-weight:700}
+    .csat-count-label{font-weight:700;display:flex;align-items:center;gap:12px}
+    .csat-emoji{display:inline-flex;align-items:center;justify-content:center;font-size:1.6rem;line-height:1}
     .csat-count-meta{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
     .csat-count-average,.csat-count-total{font-variant-numeric:tabular-nums;font-weight:700}
     .csat-count-sep{opacity:.6}
@@ -622,7 +626,9 @@
                 <div class="csat-count" role="listitem" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
                   <div class="csat-count-body">
                     <div class="csat-count-top">
-                      <span class="csat-count-label" data-en="Delighted" data-es="Encantado">Delighted</span>
+                      <span class="csat-count-label" data-en="Delighted" data-es="Encantado" data-emoji-label="true">
+                        <span class="csat-emoji" aria-hidden="true">🤩</span>
+                      </span>
                       <div class="csat-count-meta">
                         <span class="csat-count-average">0.00</span><span>/5</span>
                         <span class="csat-count-sep">•</span>
@@ -636,7 +642,9 @@
                 <div class="csat-count" role="listitem" data-val="4" data-label-en="Happy" data-label-es="Feliz">
                   <div class="csat-count-body">
                     <div class="csat-count-top">
-                      <span class="csat-count-label" data-en="Happy" data-es="Feliz">Happy</span>
+                      <span class="csat-count-label" data-en="Happy" data-es="Feliz" data-emoji-label="true">
+                        <span class="csat-emoji" aria-hidden="true">🙂</span>
+                      </span>
                       <div class="csat-count-meta">
                         <span class="csat-count-average">0.00</span><span>/5</span>
                         <span class="csat-count-sep">•</span>
@@ -650,7 +658,9 @@
                 <div class="csat-count" role="listitem" data-val="3" data-label-en="Neutral" data-label-es="Neutral">
                   <div class="csat-count-body">
                     <div class="csat-count-top">
-                      <span class="csat-count-label" data-en="Neutral" data-es="Neutral">Neutral</span>
+                      <span class="csat-count-label" data-en="Neutral" data-es="Neutral" data-emoji-label="true">
+                        <span class="csat-emoji" aria-hidden="true">😐</span>
+                      </span>
                       <div class="csat-count-meta">
                         <span class="csat-count-average">0.00</span><span>/5</span>
                         <span class="csat-count-sep">•</span>
@@ -664,7 +674,9 @@
                 <div class="csat-count" role="listitem" data-val="2" data-label-en="Unhappy" data-label-es="Descontento">
                   <div class="csat-count-body">
                     <div class="csat-count-top">
-                      <span class="csat-count-label" data-en="Unhappy" data-es="Descontento">Unhappy</span>
+                      <span class="csat-count-label" data-en="Unhappy" data-es="Descontento" data-emoji-label="true">
+                        <span class="csat-emoji" aria-hidden="true">🙁</span>
+                      </span>
                       <div class="csat-count-meta">
                         <span class="csat-count-average">0.00</span><span>/5</span>
                         <span class="csat-count-sep">•</span>
@@ -678,7 +690,9 @@
                 <div class="csat-count" role="listitem" data-val="1" data-label-en="Frustrated" data-label-es="Frustrado">
                   <div class="csat-count-body">
                     <div class="csat-count-top">
-                      <span class="csat-count-label" data-en="Frustrated" data-es="Frustrado">Frustrated</span>
+                      <span class="csat-count-label" data-en="Frustrated" data-es="Frustrado" data-emoji-label="true">
+                        <span class="csat-emoji" aria-hidden="true">😠</span>
+                      </span>
                       <div class="csat-count-meta">
                         <span class="csat-count-average">0.00</span><span>/5</span>
                         <span class="csat-count-sep">•</span>
@@ -1658,7 +1672,11 @@
     }
 
     function syncLang(){
-      document.querySelectorAll('[data-en]').forEach(el=>{ el.textContent = el.getAttribute(lang==='en'?'data-en':'data-es'); });
+      document.querySelectorAll('[data-en]').forEach(el=>{
+        if(el.hasAttribute('data-emoji-label')) return;
+        const next=el.getAttribute(lang==='en'?'data-en':'data-es');
+        if(next!==null) el.textContent=next;
+      });
       document.querySelectorAll('[data-ph-en],[data-ph-es]').forEach(setPh);
       $('#langBtn').textContent = lang==='en' ? 'ES' : 'EN';
       renderProducts(); recalc();
@@ -1819,8 +1837,20 @@
       const stars=Array.from(document.querySelectorAll('.csat-star-btn'));
       const sentimentLabel=document.getElementById('csatSentiment');
       const sentimentMap={
-        en:['Frustrated','Unhappy','Neutral','Happy','Delighted'],
-        es:['Frustrado','Descontento','Neutral','Feliz','Encantado']
+        en:[
+          { emoji:'😠', label:'Frustrated' },
+          { emoji:'🙁', label:'Unhappy' },
+          { emoji:'😐', label:'Neutral' },
+          { emoji:'🙂', label:'Happy' },
+          { emoji:'🤩', label:'Delighted' }
+        ],
+        es:[
+          { emoji:'😠', label:'Frustrado' },
+          { emoji:'🙁', label:'Descontento' },
+          { emoji:'😐', label:'Neutral' },
+          { emoji:'🙂', label:'Feliz' },
+          { emoji:'🤩', label:'Encantado' }
+        ]
       };
       const sentimentDefaults={
         en:sentimentLabel?.dataset.defaultEn||'Select a rating',
@@ -1946,8 +1976,19 @@
         lastSentimentVal=val>0?val:0;
         if(!sentimentLabel) return;
         const labels=sentimentMap[lang]||sentimentMap.en;
+        const fallback=sentimentMap.en;
         const defaultText=sentimentDefaults[lang]||sentimentDefaults.en;
-        sentimentLabel.textContent=lastSentimentVal>0 ? (labels[lastSentimentVal-1]||labels[2]) : defaultText;
+        if(lastSentimentVal>0){
+          const idx=Math.max(0,Math.min(labels.length-1,lastSentimentVal-1));
+          const entry=labels[idx]||fallback[idx]||fallback[fallback.length-1]||fallback[0];
+          const emoji=entry?.emoji||fallback[idx]?.emoji||fallback[2]?.emoji||'🙂';
+          const labelText=entry?.label||fallback[idx]?.label||fallback[2]?.label||defaultText;
+          sentimentLabel.innerHTML=`<span class="csat-emoji" aria-hidden="true">${emoji}</span><span class="sr-only">${labelText}</span>`;
+          sentimentLabel.classList.add('is-emoji');
+        }else{
+          sentimentLabel.textContent=defaultText;
+          sentimentLabel.classList.remove('is-emoji');
+        }
       };
 
       window.updateCsatSentimentLabel=()=>setSentiment(lastSentimentVal);
