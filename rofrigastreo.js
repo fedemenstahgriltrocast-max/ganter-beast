@@ -38,6 +38,7 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
   const workerUrl = window.CLOUDFLARE_WORKER_URL;
   if(!workerUrl){
     console.warn("CLOUDFLARE_WORKER_URL not configured");
+    window.forwardPIIToWorker = async ()=>false;
     return;
   }
 
@@ -83,6 +84,9 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
   }
 
   async function forwardPII(){
+    if(!window.locationConfirmed){
+      return false;
+    }
     try{
       const payload = { pii: collectPII(), order: collectOrder() };
       const res = await fetch(workerUrl, {
@@ -100,19 +104,16 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
         if(data.payUrl){
           window.open(data.payUrl, "_blank", "noopener");
         }
+        return true;
       } else {
         console.error("Worker responded with", res.status);
+        return false;
       }
     }catch(err){
       console.error("PII forward failed", err);
+      throw err;
     }
   }
 
-  const confirmBtn = document.getElementById("confirmBtn");
-  if(confirmBtn){
-    confirmBtn.addEventListener("click", ()=>{
-      if(!window.locationConfirmed) return;
-      forwardPII();
-    });
-  }
+  window.forwardPIIToWorker = forwardPII;
 })();

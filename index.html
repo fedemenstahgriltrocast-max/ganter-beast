@@ -372,6 +372,14 @@
   };
 
   /* === helpers === */
+  const sanitizeText = (value)=>{
+    if(typeof value !== 'string') return '';
+    return value.normalize('NFKC').replace(/\p{C}/gu,'').trim();
+  };
+  const toNumber = (value)=>{
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
+  };
   const encInfo = new TextEncoder().encode('enc.v1/ekey');
   const b64u = (bytes)=>{ let s=''; for(const b of bytes) s+=String.fromCharCode(b); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); };
   async function sha256Hex(s){ const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
@@ -423,70 +431,96 @@
     return res.json();
   }
 
-  /* === hook your existing "Confirm / Pay" button ===
-     Uses your globals from the page you shared: PRODUCTS, cart, totals(), etc. */
-  document.getElementById('confirmBtn')?.addEventListener('click', async ()=>{
-    try{
-      const items = PRODUCTS.map(p=>({
-        id:p.id,
-        name:(lang==='en'?p.name_en:p.name_es),
-        desc:(lang==='en'?p.desc_en:p.desc_es),
-        qty:(cart.get(p.id)||0),
-        unit:p.price
-      })).filter(i=>i.qty>0);
-
-      if(!items.length){
-        alert(lang==='en'?'Your cart is empty.':'Su carrito está vacío.');
-        return;
-      }
-
-      const {sub,tax,del,total} = totals();
-      const payload = {
-        policy: "OPS",
-        lang,
-        timestamp: new Date().toISOString(),
-        business: BUSINESS,
-        customer: {
-          firstName: document.getElementById('firstName').value.trim(),
-          lastName:  document.getElementById('lastName').value.trim(),
-          idNumber:  document.getElementById('idNumber').value.trim(),
-          phone:     document.getElementById('phone').value.trim(),
-          email:     document.getElementById('email').value.trim(),
-          address:   document.getElementById('address').value.trim(),
-          gps,
-          city: ""
-        },
-        delivery: {
-          minutes: deliveryMinutes,
-          fee: DELIVERY_FEE,
-          included: true,
-          display: formatDeliveryTime(deliveryMinutes)
-        },
-        cart: {
-          items,
-          subtotal: sub,
-          vat: tax,
-          delivery: del,
-          total,
-          instructions: document.getElementById('instructions').value.trim()
-        }
-      };
-
-      // Encrypt at source → send to Worker
-      const envelope = await sealForWorker(payload);
-      const out = await postEnvelope(envelope);
-
-      if(out?.ok){
-        alert( (lang==='en'?'Transaction initialized. Token: ':'Transacción iniciada. Token: ') + out.token );
-        document.getElementById('orderDlg')?.close();
-      }else{
-        alert(lang==='en'?'Could not initialize transaction.':'No se pudo iniciar la transacción.');
-      }
-    }catch(err){
-      console.error(err);
-      alert(lang==='en'?'Error preparing the transaction.':'Error preparando la transacción.');
+  /**
+   * Build an encrypted envelope for the Worker using an order payload that
+   * mirrors the checkout data collected in the main application flow.
+   * The function returns the Worker response (usually { ok, token }).
+   */
+  async function initializeWorkerTransaction(orderPayload, options={}){
+    if(!ENDPOINT){
+      return { ok:false, skipped:true, reason:'missing_endpoint' };
     }
-  });
+    if(!orderPayload || typeof orderPayload!=='object'){
+      throw new TypeError('orderPayload must be an object');
+    }
+    const policy = typeof options.policy==='string' && options.policy.trim()
+      ? options.policy.trim()
+      : 'OPS';
+    const cartItems = Array.isArray(orderPayload?.cart?.items)
+      ? orderPayload.cart.items.filter(item=>item && Number(item.qty)>0)
+      : [];
+    if(!cartItems.length){
+      return { ok:false, skipped:true, reason:'empty_cart' };
+    }
+    const sanitizedItems = cartItems.map(item=>({
+      id: item.id,
+      name: sanitizeText(item.name||''),
+      desc: sanitizeText(item.desc||''),
+      qty: Number(item.qty)||0,
+      unit: toNumber(item.unit)
+    }));
+    const delivery = orderPayload.delivery || {};
+    const customer = orderPayload.customer || {};
+    const preparedPayload = {
+      policy,
+      lang: sanitizeText(orderPayload.lang||lang||'es'),
+      timestamp: orderPayload.timestamp || new Date().toISOString(),
+      business: orderPayload.business || BUSINESS,
+      customer: {
+        firstName: sanitizeText(customer.firstName),
+        lastName: sanitizeText(customer.lastName),
+        idNumber: sanitizeText(customer.idNumber),
+        phone: sanitizeText(customer.phone),
+        email: sanitizeText(customer.email),
+        address: sanitizeText(customer.address),
+        city: sanitizeText(customer.city),
+        locationConfirmed: Boolean(customer.locationConfirmed)
+      },
+      delivery: {
+        minutes: Number(delivery.minutes)||0,
+        fee: toNumber(delivery.fee),
+        included: delivery.included!==false,
+        display: sanitizeText(
+          delivery.display
+          || (typeof formatDeliveryTime==='function' ? formatDeliveryTime(deliveryMinutes) : '')
+        )
+      },
+      cart: {
+        items: sanitizedItems,
+        subtotal: toNumber(orderPayload?.cart?.subtotal),
+        vat: toNumber(orderPayload?.cart?.vat),
+        delivery: toNumber(orderPayload?.cart?.delivery),
+        total: toNumber(orderPayload?.cart?.total),
+        instructions: sanitizeText(orderPayload?.cart?.instructions)
+      }
+    };
+    if(customer && typeof customer.mapLinks==='object' && customer.mapLinks!==null){
+      preparedPayload.customer.mapLinks = customer.mapLinks;
+    }
+    const gpsSource = (customer && typeof customer.gps==='object' && customer.gps)
+      ? customer.gps
+      : (typeof gps==='object' && gps ? gps : null);
+    if(gpsSource && typeof gpsSource.lat==='number' && typeof gpsSource.lng==='number'){
+      preparedPayload.customer.gps = {
+        lat: Number(gpsSource.lat),
+        lng: Number(gpsSource.lng),
+        confirmedAt: gpsSource.confirmedAt || null
+      };
+    }
+    try{
+      const envelope = await sealForWorker(preparedPayload);
+      const response = await postEnvelope(envelope);
+      if(response && typeof response==='object'){
+        return response;
+      }
+      return { ok:true };
+    }catch(err){
+      console.error('Worker transaction initialization failed',err);
+      throw err;
+    }
+  }
+
+  window.initializeWorkerTransaction = initializeWorkerTransaction;
 </script>
 <body>
   <div class="wrap">
@@ -2290,7 +2324,6 @@
     // Submit to backend + WhatsApp
     $('#confirmBtn').addEventListener('click', async e=>{
       e.preventDefault();
-      e.stopImmediatePropagation();
 
       hideDisclaimer();
 
@@ -2349,6 +2382,28 @@
         return;
       }
 
+      let workerInitToken = '';
+      if(typeof window.initializeWorkerTransaction==='function'){
+        try{
+          const workerResult = await window.initializeWorkerTransaction(orderPayload,{ policy:'OPS' });
+          if(workerResult && workerResult.ok && workerResult.token){
+            workerInitToken = String(workerResult.token);
+          }else if(workerResult && workerResult.error){
+            console.warn('Worker initialization error:', workerResult.error);
+          }
+        }catch(err){
+          console.error('Unable to initialize encrypted worker transaction.',err);
+        }
+      }
+
+      if(typeof window.forwardPIIToWorker==='function'){
+        try{
+          await window.forwardPIIToWorker();
+        }catch(err){
+          console.error('Secure PII forwarding failed.',err);
+        }
+      }
+
       try{
         if(CLOUDFLARE_WORKER_URL){
           await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...orderPayload,apps_script_url:APPS_SCRIPT_URL})});
@@ -2378,7 +2433,10 @@
       const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n${confirmationLine}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
       $('#orderDlg').close();
-      alert(t('Order sent. We also opened WhatsApp with the details.','Pedido enviado. También abrimos WhatsApp con los detalles.'));
+      const tokenLine = workerInitToken
+        ? `\n${t('Transaction token','Token de transacción')}: ${workerInitToken}`
+        : '';
+      alert(`${t('Order sent. We also opened WhatsApp with the details.','Pedido enviado. También abrimos WhatsApp con los detalles.')}${tokenLine}`);
     });
 
     document.addEventListener('click',e=>{
