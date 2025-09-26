@@ -272,21 +272,15 @@
     .csat-count{display:flex;gap:12px;align-items:center;justify-content:flex-start;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
     .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow)}
     .csat-count-body{flex:1;display:flex;flex-direction:column;gap:0}
-    .csat-count-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px}
+    .csat-count-top{display:flex;align-items:center;justify-content:flex-start;gap:12px}
     .csat-count-label{font-weight:700;display:flex;align-items:center;gap:12px}
     .csat-emoji{display:inline-flex;align-items:center;justify-content:center;font-size:1.6rem;line-height:1}
-    .csat-count-meta{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
-    .csat-count-average,.csat-count-total{font-variant-numeric:tabular-nums;font-weight:700}
-    .csat-count-sep{opacity:.6}
-    .csat-count-top .csat-count-meta{justify-self:flex-end}
-    .csat-count-top .sentiment-score{justify-self:flex-end}
     @media (max-width:520px){
-      .csat-count-top{grid-template-columns:minmax(0,1fr);}
-      .csat-count-top .csat-count-meta,.csat-count-top .sentiment-score{justify-self:flex-start}
+      .csat-count{align-items:flex-start}
+      .csat-count-top{flex-direction:column;align-items:flex-start;gap:6px}
     }
     html[data-theme="light"] .csat-count{background:rgba(10,14,26,.05);border-color:var(--line-light)}
     html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
-    html[data-theme="light"] .csat-count-meta{color:var(--muted-light)}
     html[data-theme="light"] .csat-rate-note{color:var(--muted-light)}
     html[data-theme="light"] .csat-callout-meta{color:var(--ink-light)}
     html[data-theme="light"] .csat-rate-callout{
@@ -629,13 +623,6 @@
                       <span class="csat-count-label" data-en="Delighted" data-es="Encantado" data-emoji-label="true">
                         <span class="csat-emoji" aria-hidden="true">🤩</span>
                       </span>
-                      <div class="csat-count-meta">
-                        <span class="csat-count-average">0.00</span><span>/5</span>
-                        <span class="csat-count-sep">•</span>
-                        <span class="csat-count-total">0</span>
-                        <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                      <span class="sentiment-score zero">0</span>
                     </div>
                   </div>
                 </div>
@@ -645,13 +632,6 @@
                       <span class="csat-count-label" data-en="Happy" data-es="Feliz" data-emoji-label="true">
                         <span class="csat-emoji" aria-hidden="true">🙂</span>
                       </span>
-                      <div class="csat-count-meta">
-                        <span class="csat-count-average">0.00</span><span>/5</span>
-                        <span class="csat-count-sep">•</span>
-                        <span class="csat-count-total">0</span>
-                        <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                      <span class="sentiment-score zero">0</span>
                     </div>
                   </div>
                 </div>
@@ -661,13 +641,6 @@
                       <span class="csat-count-label" data-en="Neutral" data-es="Neutral" data-emoji-label="true">
                         <span class="csat-emoji" aria-hidden="true">😐</span>
                       </span>
-                      <div class="csat-count-meta">
-                        <span class="csat-count-average">0.00</span><span>/5</span>
-                        <span class="csat-count-sep">•</span>
-                        <span class="csat-count-total">0</span>
-                        <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                      <span class="sentiment-score zero">0</span>
                     </div>
                   </div>
                 </div>
@@ -677,13 +650,6 @@
                       <span class="csat-count-label" data-en="Unhappy" data-es="Descontento" data-emoji-label="true">
                         <span class="csat-emoji" aria-hidden="true">🙁</span>
                       </span>
-                      <div class="csat-count-meta">
-                        <span class="csat-count-average">0.00</span><span>/5</span>
-                        <span class="csat-count-sep">•</span>
-                        <span class="csat-count-total">0</span>
-                        <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                      <span class="sentiment-score zero">0</span>
                     </div>
                   </div>
                 </div>
@@ -693,13 +659,6 @@
                       <span class="csat-count-label" data-en="Frustrated" data-es="Frustrado" data-emoji-label="true">
                         <span class="csat-emoji" aria-hidden="true">😠</span>
                       </span>
-                      <div class="csat-count-meta">
-                        <span class="csat-count-average">0.00</span><span>/5</span>
-                        <span class="csat-count-sep">•</span>
-                        <span class="csat-count-total">0</span>
-                        <span class="csat-count-votes-label" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                      <span class="sentiment-score zero">0</span>
                     </div>
                   </div>
                 </div>
