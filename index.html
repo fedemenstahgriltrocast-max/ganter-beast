@@ -12,7 +12,7 @@
         style-src 'self' 'nonce-2726c7f26c';
         style-src-elem 'self' 'nonce-2726c7f26c';
         img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com;
-        connect-src 'self' https://orange-base-dcdc.distraction.workers.dev;
+        connect-src 'self' https://weathered-disk-a104.distraction.workers.dev;
         font-src 'self';
         frame-src https://www.google.com https://maps.google.com;
         base-uri 'self';
@@ -395,7 +395,7 @@
 </head>
   <script type="module" nonce="2726c7f26c">
   /* === CONSTANTS (point to your Worker and its public enc key) === */
-  const ENDPOINT = 'https://orange-base-dcdc.distraction.workers.dev';
+  const ENDPOINT = 'https://weathered-disk-a104.distraction.workers.dev';
   const ENC_P256_KID = 'a973cb4c-c7ab-4e2f-8f54-0b40cbc24062';
   const ENC_P256_PUB_JWK = {
     "crv":"P-256","ext":true,"key_ops":[],"kty":"EC",
@@ -829,8 +829,8 @@
 
   <script nonce="2726c7f26c">
     /* CONFIG */
-    const CLOUDFLARE_WORKER_URL = "https://orange-base-dcdc.distraction.workers.dev/";
-    const WORKER_CSAT_URL = 'https://orange-base-dcdc.distraction.workers.dev';
+    const CLOUDFLARE_WORKER_URL = "https://weathered-disk-a104.distraction.workers.dev/";
+    const WORKER_CSAT_URL = 'https://weathered-disk-a104.distraction.workers.dev';
 
     const joinWorkerPath=(base,segment='')=>{
       if(!base) return '';
