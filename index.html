@@ -238,30 +238,32 @@
     html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
     .csat-rate-callout{
       display:flex;
+      flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:10px;
+      gap:12px;
       margin-left:auto;
-      padding:12px 16px;
+      padding:14px 18px;
       border-radius:16px;
       background:linear-gradient(135deg,rgba(30,169,122,.18),rgba(30,169,122,.42));
       border:1px solid rgba(30,169,122,.55);
-      min-width:140px;
+      min-width:180px;
       min-height:0;
       box-shadow:var(--shadow);
+      text-align:center;
     }
-    .csat-rate-callout .btn{min-width:0;padding:8px 18px;font-size:13px;justify-content:center}
+    .csat-callout-stats{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .csat-callout-meta{display:flex;align-items:center;gap:6px;font-size:.95rem;color:var(--ink);font-weight:600}
+    .csat-callout-meta span{font-variant-numeric:tabular-nums}
+    .csat-rate-callout .btn{min-width:0;padding:8px 20px;font-size:13px;justify-content:center}
     .csat-rate-note{font-size:.85rem;color:var(--muted);text-align:left;max-width:320px;line-height:1.4;margin:0}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
-    .csat-votes{display:flex;align-items:center;gap:6px;font-size:.9rem}
-    .csat-votes span{font-variant-numeric:tabular-nums}
     .csat-rate-stars{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:8px 12px;border-radius:16px;border:1px solid var(--line)}
     .csat-star-btn{all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--muted);background:var(--chip);border:1px solid var(--line);transition:transform .2s ease,box-shadow .25s ease,background .25s ease,color .25s ease;opacity:.7}
     .csat-star-btn:hover,.csat-star-btn:focus-visible{transform:translateY(-2px);background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow);opacity:1}
     .csat-footer{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
-    .csat-footer-primary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
     .csat-footer .muted{text-align:left;max-width:260px}
     .csat-breakdown{display:grid;gap:10px;width:100%}
     .csat-count{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
@@ -282,6 +284,7 @@
     html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
     html[data-theme="light"] .csat-count-meta{color:var(--muted-light)}
     html[data-theme="light"] .csat-rate-note{color:var(--muted-light)}
+    html[data-theme="light"] .csat-callout-meta{color:var(--ink-light)}
     html[data-theme="light"] .csat-rate-callout{
       background:linear-gradient(135deg,rgba(30,169,122,.12),rgba(30,169,122,.25));
       border-color:rgba(30,169,122,.45);
@@ -293,10 +296,9 @@
       .csat-face-wrap{width:100%;align-items:center}
       .csat-rate-stars{justify-content:center}
       .csat-rate-row{flex-direction:column;align-items:center;gap:12px}
-      .csat-rate-callout{margin-left:0;align-items:center;text-align:center}
+      .csat-rate-callout{margin-left:0;width:100%;max-width:260px}
       .csat-rate-note{text-align:center}
       .csat-footer{align-items:center;text-align:center}
-      .csat-footer-primary{justify-content:center}
     }
     html[data-theme="light"] .csat-average{color:var(--ink-light)}
     html[data-theme="light"] .csat-rate-stars{background:linear-gradient(135deg,rgba(10,14,26,.04),rgba(10,14,26,.02));border-color:var(--line-light)}
@@ -597,6 +599,15 @@
                       <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
                     </div>
                     <div class="csat-rate-callout">
+                      <div class="csat-callout-stats" aria-live="polite">
+                        <div class="csat-average">
+                          <span id="csatAverageValue">0.00</span><span>/5</span>
+                        </div>
+                        <div class="csat-callout-meta">
+                          <span id="csatTotalVotes">0</span>
+                          <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
+                        </div>
+                      </div>
                       <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
                     </div>
                   </div>
@@ -607,15 +618,6 @@
               </div>
             </div>
             <div class="csat-footer">
-              <div class="csat-footer-primary" aria-live="polite">
-                <div class="csat-average">
-                  <span id="csatAverageValue">0.00</span><span>/5</span>
-                </div>
-                <div class="csat-votes">
-                  <span id="csatTotalVotes">0</span>
-                  <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
-                </div>
-              </div>
               <div class="csat-breakdown" id="csatCounts" role="list" aria-label="Customer satisfaction breakdown">
                 <div class="csat-count" role="listitem" data-val="5" data-label-en="Delighted" data-label-es="Encantado">
                   <div class="csat-count-body">
