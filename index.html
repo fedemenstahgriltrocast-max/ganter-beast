@@ -209,7 +209,7 @@
       gap:16px;
       align-items:stretch;
     }
-    #kpi1{grid-area:csat}
+    #kpi1{grid-area:csat;margin-top:20px}
     #kpi2{grid-area:visits}
     #kpi3{grid-area:sales}
     @media (max-width:960px){
@@ -220,6 +220,7 @@
           "visits"
           "sales";
       }
+      #kpi1{margin-top:12px}
     }
     .kpi{padding:16px;text-align:center}
     .kpi h4{margin:6px 0 8px 0}
@@ -332,6 +333,7 @@
 
     .totals{padding:16px}
     .delivery-time{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
+    .delivery-time-value{font-weight:600;letter-spacing:.2px;font-size:1rem;font-family:inherit}
     .totals .line{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
     .totals strong{font-weight:800}
 
@@ -635,8 +637,8 @@
                     </div>
                     <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
                   </div>
-                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia.">
-                    Share your experience to keep this score strong.
+                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="[Comparte tu experiencia.]">
+                    [Comparte tu experiencia.]
                   </p>
                 </div>
               </div>
@@ -683,7 +685,7 @@
         <div class="hr"></div>
         <div class="delivery-time">
           <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
-          <strong id="t_deliveryTime" aria-live="polite">45 min</strong>
+          <strong id="t_deliveryTime" class="delivery-time-value" aria-live="polite">45 min</strong>
         </div>
         <div class="chips" id="delTimes">
           <button class="chip sel" data-min="45">45 min</button>
@@ -713,7 +715,7 @@
           <div class="hr"></div>
           <div class="row justify-between">
             <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
-            <strong id="m_deliveryTime">45 min</strong>
+            <strong id="m_deliveryTime" class="delivery-time-value">45 min</strong>
           </div>
           <div class="row justify-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div>
           <div class="row justify-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
