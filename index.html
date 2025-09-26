@@ -12,7 +12,7 @@
         style-src 'self' 'nonce-2726c7f26c';
         style-src-elem 'self' 'nonce-2726c7f26c';
         img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com;
-        connect-src 'self' https://weathered-disk-a104.distraction.workers.dev;
+        connect-src 'self' https:;
         font-src 'self';
         frame-src https://www.google.com https://maps.google.com;
         base-uri 'self';
@@ -394,8 +394,136 @@
   </style>
 </head>
   <script type="module" nonce="2726c7f26c">
+    const workerTomlUrl = new URL('worker.toml', window.location.href).href;
+
+    function stripInlineComment(line){
+      let quote = null;
+      let escaped = false;
+      let result = '';
+      for(const char of line){
+        if(escaped){
+          result += char;
+          escaped = false;
+          continue;
+        }
+        if(char === '\\'){
+          escaped = true;
+          result += char;
+          continue;
+        }
+        if(char === '"' || char === "'"){
+          if(quote === char){
+            quote = null;
+          }else if(!quote){
+            quote = char;
+          }
+          result += char;
+          continue;
+        }
+        if(char === '#' && !quote){
+          break;
+        }
+        result += char;
+      }
+      return result.trim();
+    }
+
+    function assignPath(target, path, key, value){
+      let scope = target;
+      for(const segment of path){
+        if(!segment) continue;
+        if(typeof scope[segment] !== 'object' || scope[segment] === null){
+          scope[segment] = {};
+        }
+        scope = scope[segment];
+      }
+      scope[key] = value;
+    }
+
+    function parseTomlValue(raw){
+      const value = raw.trim();
+      if(!value) return '';
+      if((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))){
+        return value.slice(1, -1);
+      }
+      if(value === 'true' || value === 'false'){
+        return value === 'true';
+      }
+      const num = Number(value);
+      if(Number.isFinite(num)){
+        return num;
+      }
+      return value;
+    }
+
+    function parseWorkerToml(text){
+      const config = {};
+      const sectionPath = [];
+      const lines = text.split(/\r?\n/);
+      for(let rawLine of lines){
+        let line = stripInlineComment(rawLine);
+        if(!line) continue;
+        if(line.startsWith('[') && line.endsWith(']')){
+          sectionPath.length = 0;
+          const inner = line.slice(1, -1).trim();
+          if(inner){
+            for(const part of inner.split('.')){
+              if(part) sectionPath.push(part);
+            }
+          }
+          continue;
+        }
+        const equalsIndex = line.indexOf('=');
+        if(equalsIndex === -1) continue;
+        const key = line.slice(0, equalsIndex).trim();
+        const value = parseTomlValue(line.slice(equalsIndex + 1));
+        if(key) assignPath(config, sectionPath, key, value);
+      }
+      return config;
+    }
+
+    window.workerConfigPromise = (async ()=>{
+      try{
+        const response = await fetch(workerTomlUrl, { cache: 'no-store', credentials: 'omit' });
+        if(!response.ok){
+          throw new Error(`worker.toml load failed: ${response.status}`);
+        }
+        const text = await response.text();
+        return parseWorkerToml(text);
+      }catch(error){
+        console.warn('Unable to load worker configuration', error);
+        return {};
+      }
+    })();
+
+    window.workerConfigPromise.then(config=>{
+      if(config && typeof config === 'object'){
+        window.workerConfig = config;
+      }
+    });
+  </script>
+  <script type="module" nonce="2726c7f26c">
   /* === CONSTANTS (point to your Worker and its public enc key) === */
-  const ENDPOINT = 'https://weathered-disk-a104.distraction.workers.dev';
+  const workerSettings = await window.workerConfigPromise;
+  const ENDPOINT = normalizeEndpoint(
+    workerSettings?.vars?.PUBLIC_SENTIMENT_BASE
+      || workerSettings?.vars?.PUBLIC_WORKER_BASE
+      || workerSettings?.vars?.APPS_FORWARD_URL
+      || ''
+  );
+
+  function normalizeEndpoint(value){
+    if(typeof value !== 'string') return '';
+    try{
+      const url = new URL(value);
+      url.pathname = url.pathname.replace(/\/+$/, '');
+      url.search = '';
+      url.hash = '';
+      return url.origin + (url.pathname || '');
+    }catch{
+      return value.trim().replace(/\/+$/, '');
+    }
+  }
   const ENC_P256_KID = 'a973cb4c-c7ab-4e2f-8f54-0b40cbc24062';
   const ENC_P256_PUB_JWK = {
     "crv":"P-256","ext":true,"key_ops":[],"kty":"EC",
@@ -827,10 +955,40 @@
     </div>
   </dialog>
 
-  <script nonce="2726c7f26c">
+  <script type="module" nonce="2726c7f26c">
     /* CONFIG */
-    const CLOUDFLARE_WORKER_URL = "https://weathered-disk-a104.distraction.workers.dev/";
-    const WORKER_CSAT_URL = 'https://weathered-disk-a104.distraction.workers.dev';
+    const workerConfig = await window.workerConfigPromise;
+    const CLOUDFLARE_WORKER_URL = selectWorkerUrl(workerConfig, 'PUBLIC_WORKER_BASE');
+    const WORKER_CSAT_URL = selectWorkerUrl(workerConfig, 'PUBLIC_CSAT_URL') || CLOUDFLARE_WORKER_URL;
+
+    function selectWorkerUrl(config, primaryKey){
+      const fallbackKeys = ['PUBLIC_SENTIMENT_BASE', 'APPS_FORWARD_URL'];
+      const keys = [primaryKey, ...fallbackKeys];
+      for(const key of keys){
+        if(!key) continue;
+        const value = config?.vars?.[key];
+        if(typeof value === 'string' && value.trim()){
+          const normalized = sanitizeBaseUrl(value);
+          if(normalized) return normalized;
+        }
+      }
+      return '';
+    }
+
+    function sanitizeBaseUrl(value){
+      if(typeof value !== 'string') return '';
+      const trimmed = value.trim();
+      if(!trimmed) return '';
+      try{
+        const url = new URL(trimmed);
+        if(!/^https?:$/i.test(url.protocol)) return '';
+        url.search = '';
+        url.hash = '';
+        return url.toString().replace(/\/+$/, '/');
+      }catch{
+        return trimmed.replace(/\s+/g,'');
+      }
+    }
 
     const joinWorkerPath=(base,segment='')=>{
       if(!base) return '';
