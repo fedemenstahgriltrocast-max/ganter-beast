@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Frame-ancestor protections must be applied via HTTP headers (CSP/X-Frame-Options) on the host -->
   <meta http-equiv="Content-Security-Policy"
         content="
         default-src 'self';
-        script-src 'self' 'nonce-2726c7f26c';
-        script-src-elem 'self' 'nonce-2726c7f26c';
+        script-src 'self' 'nonce-2726c7f26c' https://static.cloudflareinsights.com;
+        script-src-elem 'self' 'nonce-2726c7f26c' https://static.cloudflareinsights.com;
         style-src 'self' 'nonce-2726c7f26c';
         style-src-elem 'self' 'nonce-2726c7f26c';
         img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://maps.google.com;
         connect-src 'self' https://orange-base-dcdc.distraction.workers.dev;
         font-src 'self';
         frame-src https://www.google.com https://maps.google.com;
-        frame-ancestors 'none';
         base-uri 'self';
         form-action 'self';
         upgrade-insecure-requests;
@@ -102,6 +102,16 @@
       background:var(--accent) !important;color:#fff !important;
       box-shadow:0 0 0 3px rgba(111,125,255,.65),0 0 0 8px rgba(111,125,255,.25) !important;
     }
+
+    .text-center{text-align:center}
+    .font-bold{font-weight:700}
+    .text-xl{font-size:1.25rem}
+    .mt-8{margin-top:8px}
+    .justify-center{justify-content:center}
+    .justify-between{justify-content:space-between}
+    .fields.single-column{grid-template-columns:1fr}
+    .min-w-0{min-width:0}
+    .text-sm{font-size:.9rem}
 
     #clearBtn{
       font-size:12px;font-weight:700;padding:14px 28px;border-radius:999px;
@@ -541,7 +551,7 @@
 
     <!-- DELIVERY NOTICE + ACCORDION -->
     <section class="panel card">
-      <div class="muted" style="text-align:center;font-weight:700;font-size:1.25rem"
+      <div class="muted text-center font-bold text-xl"
            data-en="We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio"
            data-es="Entregamos en: Saucés, Alborada, Guayacanes, Tarazana Brisas del Rio">
         We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio
@@ -693,7 +703,7 @@
             <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="visitsYear">—</span></div>
           </div>
           <canvas id="visitsChart" width="180" height="80" aria-hidden="true"></canvas>
-          <div class="muted" style="margin-top:8px" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
+          <div class="muted mt-8" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
         </div>
 
         <div class="card kpi" id="kpi3">
@@ -704,7 +714,7 @@
             <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="salesYear">0</span></div>
           </div>
           <canvas id="salesChart" width="180" height="80" aria-hidden="true"></canvas>
-          <div class="muted" style="margin-top:8px" data-en="Room to grow." data-es="Espacio para crecer.">Room to grow.</div>
+          <div class="muted mt-8" data-en="Room to grow." data-es="Espacio para crecer.">Room to grow.</div>
         </div>
       </div>
 
@@ -716,7 +726,7 @@
         <div class="line"><span class="muted" data-en="Total" data-es="Total">Total</span><strong id="t_total">$0.00</strong></div>
 
         <div class="hr"></div>
-        <div class="row" style="justify-content:center">
+        <div class="row justify-center">
           <button id="clearBtn" class="toggle" data-en="Clear Cart" data-es="Vaciar Carrito">Clear Cart</button>
         </div>
 
@@ -751,14 +761,14 @@
         <section>
           <div id="orderItems" class="items"></div>
           <div class="hr"></div>
-          <div class="row" style="justify-content:space-between">
+          <div class="row justify-between">
             <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
             <strong id="m_deliveryTime">45 min</strong>
           </div>
-          <div class="row" style="justify-content:space-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div>
-          <div class="row" style="justify-content:space-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
-          <div class="row" style="justify-content:space-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div>
-          <div class="row" style="justify-content:space-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div>
+          <div class="row justify-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div>
+          <div class="row justify-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
+          <div class="row justify-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div>
+          <div class="row justify-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div>
           <div id="locationReview" class="location-review" aria-live="polite" data-state="idle" data-en="We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”" data-es="Le pediremos autorizar y confirmar su ubicación de entrega después de presionar “Confirmar transacción”.">We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”</div>
         </section>
 
@@ -780,11 +790,11 @@
             <input id="idNumber" required data-ph-en="Céd / RUC" data-ph-es="Céd / RUC" placeholder="Céd / RUC" />
             <input id="phone" required data-ph-en="+593 9xx xxx xxx" data-ph-es="+593 9xx xxx xxx" placeholder="+593 9xx xxx xxx" inputmode="tel" />
           </div>
-          <div class="fields" style="grid-template-columns:1fr;">
+          <div class="fields single-column">
             <input id="email" required type="email" data-ph-en="Email" data-ph-es="Correo electrónico" placeholder="Email" />
           </div>
-          <div class="fields" style="grid-template-columns:1fr;">
-            <input id="address" required style="min-width:0" data-ph-en="Address" data-ph-es="Dirección" placeholder="Address" />
+          <div class="fields single-column">
+            <input id="address" required class="min-w-0" data-ph-en="Address" data-ph-es="Dirección" placeholder="Address" />
           </div>
           <p class="muted location-hint" data-en="After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps." data-es="Después de revisar su pedido, haga clic en “Confirmar transacción” y le guiaremos para autorizar y confirmar su ubicación de entrega en Google Maps.">After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps.</p>
         </section>
@@ -912,6 +922,8 @@
     const APPS_SCRIPT_URL = "";       // optional
 
     const WORKER_CSAT_BASE = joinWorkerPath(WORKER_CSAT_URL,'');
+    const MAX_PENDING = 25;
+    let pending = [];
     const CSAT_SUBMIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'csat');
     const CSAT_VISIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'visit');
     const CSAT_STATS_ENDPOINTS = (()=>{
@@ -1022,6 +1034,80 @@
     const fmt = n => '$'+n.toFixed(2);
     const highlightTimers = new WeakMap();
     const metricsBase = WORKER_CSAT_BASE;
+    const VISIT_METRICS_STORAGE_KEY='visitMetricsCache';
+    const VISIT_METRICS_CACHE_TTL=1000*60*60; // 1 hour
+    const VISIT_METRIC_ENDPOINTS=(()=>{
+      const set=new Set();
+      const add=url=>{ const normalized=normalizeUrlCandidate(url); if(normalized) set.add(normalized); };
+      add(joinWorkerPath(metricsBase,'visits'));
+      add(joinWorkerPath(metricsBase,'metrics/visits'));
+      add(joinWorkerPath(WORKER_CSAT_URL,'visits'));
+      add(joinWorkerPath(WORKER_CSAT_URL,'metrics/visits'));
+      add(joinWorkerPath(CLOUDFLARE_WORKER_URL,'visits'));
+      add(joinWorkerPath(CLOUDFLARE_WORKER_URL,'metrics/visits'));
+      return Array.from(set);
+    })();
+
+    const parseVisitMetricValue=value=>{
+      const num=Number(value);
+      if(!Number.isFinite(num) || num<0) return null;
+      return Math.round(num);
+    };
+
+    const coerceVisitMetrics=input=>{
+      if(!input || typeof input!=='object') return null;
+      const today=parseVisitMetricValue(input.today ?? input.daily ?? input.day);
+      const month=parseVisitMetricValue(input.month ?? input.monthly);
+      const year=parseVisitMetricValue(input.year ?? input.annual ?? input.total);
+      if(today==null && month==null && year==null) return null;
+      return {
+        today:today ?? 0,
+        month:month ?? 0,
+        year:year ?? 0,
+      };
+    };
+
+    const applyVisitMetrics=(metrics,source='live')=>{
+      if(!metrics) return;
+      const data=coerceVisitMetrics(metrics);
+      if(!data) return;
+      updateVisitMetric('visitsToday',data.today);
+      updateVisitMetric('visitsMonth',data.month);
+      updateVisitMetric('visitsYear',data.year);
+      const chartData=[data.today,data.month,data.year];
+      drawBarChart('visitsChart',chartData);
+      ['visitsToday','visitsMonth','visitsYear'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){
+          el.setAttribute('data-source',source);
+        }
+      });
+      if(source==='live'){
+        safeStorageSet(VISIT_METRICS_STORAGE_KEY,JSON.stringify({ts:Date.now(),metrics:data}));
+      }
+    };
+
+    const restoreVisitMetricsFromCache=()=>{
+      const raw=safeStorageGet(VISIT_METRICS_STORAGE_KEY);
+      if(!raw) return false;
+      try{
+        const parsed=JSON.parse(raw);
+        if(!parsed || typeof parsed!=='object') return false;
+        const {ts,metrics}=parsed;
+        if(!metrics) return false;
+        if(Number.isFinite(ts) && ts>0 && (Date.now()-ts)>VISIT_METRICS_CACHE_TTL) return false;
+        applyVisitMetrics(metrics,'cache');
+        return true;
+      }catch(err){
+        console.warn('Unable to parse cached visit metrics.',err);
+        return false;
+      }
+    };
+
+    const applyVisitFallback=reason=>{
+      const fallback={today:48,month:1280,year:9820};
+      applyVisitMetrics(fallback,reason||'fallback');
+    };
 
     function updateVisitMetric(id,value){
       const el=document.getElementById(id);
@@ -1616,7 +1702,7 @@
         const q=cart.get(p.id)||0; if(!q) return;
         const row=document.createElement('div'); row.className='item-row';
         row.innerHTML=`<div><strong>${lang==='en'?p.name_en:p.name_es}</strong>
-          <div class="muted" style="font-size:.9rem">${lang==='en'?p.desc_en:p.desc_es}</div></div>
+          <div class="muted text-sm">${lang==='en'?p.desc_en:p.desc_es}</div></div>
           <div class="inline-qty" data-id="${p.id}">
             <button aria-label="${t('Remove','Quitar')}">−</button><span>${q}</span>
             <button aria-label="${t('Add','Agregar')}">+</button></div>`;
@@ -2186,21 +2272,63 @@
     logCsatVisit();
     async function loadVisitMetrics(){
       ['visitsToday','visitsMonth','visitsYear'].forEach(id=>updateVisitMetric(id));
-      if(!metricsBase) return;
-      try{
-        const response=await fetch(`${metricsBase}/visits`,{mode:'cors',credentials:'omit'});
-        if(!response.ok) throw new Error(`bad_status_${response.status}`);
-        const payload=await response.json();
-        if(!payload || !payload.ok || !payload.visits) return;
-        const { today, month, year } = payload.visits;
-        updateVisitMetric('visitsToday',today);
-        updateVisitMetric('visitsMonth',month);
-        updateVisitMetric('visitsYear',year);
-        const chartData=[today,month,year].map(v=>Number(v)||0);
-        drawBarChart('visitsChart',chartData);
-      }catch(err){
-        console.warn('Unable to load visit metrics.',err);
+      const hadCache=restoreVisitMetricsFromCache();
+      if(!metricsBase || !VISIT_METRIC_ENDPOINTS.length){
+        if(!hadCache) applyVisitFallback('fallback');
+        return;
       }
+      for(const endpoint of VISIT_METRIC_ENDPOINTS){
+        if(!endpoint) continue;
+        const supportsAbort=typeof AbortController!=='undefined';
+        let controller=null;
+        let timeout=null;
+        try{
+          if(supportsAbort){
+            controller=new AbortController();
+            timeout=setTimeout(()=>controller.abort(),8000);
+          }
+          const response=await fetch(endpoint,{
+            mode:'cors',
+            credentials:'omit',
+            headers:{'Accept':'application/json'},
+            signal:controller?.signal,
+          });
+          if(timeout) clearTimeout(timeout);
+          if(!response.ok){
+            if(response.status>=500){
+              console.warn('Visit metrics endpoint returned server error.',response.status,endpoint);
+              continue;
+            }
+            throw new Error(`bad_status_${response.status}`);
+          }
+          const payload=await response.json().catch(()=>null);
+          const visits=payload?.visits ?? payload;
+          if(!visits){
+            console.warn('Visit metrics response missing data.',endpoint,payload);
+            continue;
+          }
+          if(!coerceVisitMetrics(visits)){
+            console.warn('Visit metrics response contained invalid values.',endpoint,payload);
+            continue;
+          }
+          applyVisitMetrics(visits,'live');
+          return;
+        }catch(err){
+          if(timeout){
+            try{clearTimeout(timeout);}catch{}
+          }
+          if(err?.name==='AbortError'){
+            console.warn('Visit metrics request timed out.',endpoint);
+            continue;
+          }
+          if(classifyNetworkError && classifyNetworkError(err)){
+            console.warn('Visit metrics request failed (network).',endpoint,err);
+            continue;
+          }
+          console.warn('Unable to load visit metrics.',endpoint,err);
+        }
+      }
+      if(!hadCache) applyVisitFallback('fallback');
     }
 
     loadVisitMetrics();
