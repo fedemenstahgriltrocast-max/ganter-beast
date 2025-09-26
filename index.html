@@ -856,7 +856,7 @@
     const WORKER_CSAT_BASE = joinWorkerPath(WORKER_CSAT_URL,'');
     const CSAT_SUBMIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'csat');
     const CSAT_VISIT_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'visit');
-    const CSAT_STATS_ENDPOINT = joinWorkerPath(WORKER_CSAT_BASE,'stats');
+    const CSAT_STATS_ENDPOINT = CSAT_SUBMIT_ENDPOINT;
 
     const WORKER_CSAT_ENDPOINTS = (()=>{
       const endpoints=new Set();
