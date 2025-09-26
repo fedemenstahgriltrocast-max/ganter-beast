@@ -223,8 +223,8 @@
     }
     .kpi{padding:16px;text-align:center}
     .kpi h4{margin:6px 0 8px 0}
-    .csat{display:flex;flex-direction:column;gap:24px;width:100%;height:100%}
-    .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
+    .csat{display:flex;flex-direction:column;gap:24px;width:100%;height:100%;align-items:center;text-align:center}
+    .csat-hero{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
     .csat-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.16em;color:var(--muted)}
     .sentiment-score{
       display:inline-block;
@@ -241,11 +241,11 @@
     .sentiment-score.zero{opacity:.6;color:var(--muted)}
     html[data-theme="light"] .sentiment-score.visible{color:var(--ink-light)}
     html[data-theme="light"] .sentiment-score.zero{color:var(--muted-light)}
-    .csat-hero-summary{display:flex;align-items:flex-start;gap:16px}
-    .csat-face-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:100%}
-    .csat-rate-row{display:flex;align-items:center;gap:16px;width:100%;flex-wrap:wrap}
+    .csat-hero-summary{display:flex;align-items:center;justify-content:center;gap:16px}
+    .csat-face-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+    .csat-rate-row{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;flex-wrap:wrap}
     .csat-rate-row .csat-rate-stars{flex:1;min-width:0}
-    .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em;display:flex;align-items:center;gap:10px;text-align:left}
+    .csat-sentiment{font-weight:700;font-size:1.05rem;letter-spacing:.01em;display:flex;align-items:center;gap:10px;text-align:center;justify-content:center}
     #csatSentiment{display:inline-flex;align-items:center;gap:10px;transition:font-size .3s ease;font-size:1.15rem}
     html[data-theme="light"] .csat-sentiment{color:var(--ink-light)}
     .csat-rate-callout{
@@ -273,17 +273,17 @@
     .csat-rate-note{font-size:.85rem;color:var(--muted);text-align:center;max-width:360px;line-height:1.4;margin:0 auto}
     .csat-average{display:flex;align-items:baseline;gap:8px;color:var(--ink);font-size:2.6rem;font-weight:800;line-height:1}
     .csat-average span{font-variant-numeric:tabular-nums}
-    .csat-rate-stars{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:8px 12px;border-radius:16px;border:1px solid var(--line)}
+    .csat-rate-stars{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:8px 12px;border-radius:16px;border:1px solid var(--line)}
     .csat-star-btn{all:unset;cursor:pointer;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--muted);background:var(--chip);border:1px solid var(--line);transition:transform .2s ease,box-shadow .25s ease,background .25s ease,color .25s ease;opacity:.7}
     .csat-star-btn:hover,.csat-star-btn:focus-visible{transform:translateY(-2px);background:var(--accent);color:#fff;box-shadow:var(--shadow)}
     .csat-star-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow);opacity:1}
-    .csat-footer{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
-    .csat-footer .muted{text-align:left;max-width:260px}
-    .csat-breakdown{display:grid;gap:10px;width:100%;justify-items:start}
-    .csat-count{display:flex;gap:12px;align-items:center;justify-content:flex-start;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease}
+    .csat-footer{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;text-align:center}
+    .csat-footer .muted{text-align:center;max-width:260px;margin:0 auto}
+    .csat-breakdown{display:grid;gap:10px;width:100%;justify-items:center}
+    .csat-count{display:flex;gap:12px;align-items:center;justify-content:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease;text-align:center}
     .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow)}
-    .csat-count-body{flex:1;display:flex;flex-direction:column;gap:0}
-    .csat-count-top{display:flex;align-items:center;justify-content:flex-start;gap:12px}
+    .csat-count-body{flex:1;display:flex;flex-direction:column;gap:0;align-items:center;text-align:center}
+    .csat-count-top{display:flex;align-items:center;justify-content:center;gap:12px}
     .csat-count-stars{
       font-weight:700;
       display:inline-flex;
@@ -298,8 +298,8 @@
     }
     html[data-theme="light"] .csat-count-stars{background:rgba(10,14,26,.08);color:var(--ink-light)}
     @media (max-width:520px){
-      .csat-count{align-items:flex-start}
-      .csat-count-top{flex-direction:column;align-items:flex-start;gap:6px}
+      .csat-count{align-items:center}
+      .csat-count-top{flex-direction:column;align-items:center;gap:6px}
     }
     html[data-theme="light"] .csat-count{background:rgba(10,14,26,.05);border-color:var(--line-light)}
     html[data-theme="light"] .csat-count.leader{border-color:var(--accent);box-shadow:var(--shadow-light)}
@@ -635,7 +635,7 @@
                     </div>
                     <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
                   </div>
-                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia para mantener este puntaje.">
+                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia.">
                     Share your experience to keep this score strong.
                   </p>
                 </div>
