@@ -352,6 +352,12 @@
     .modal header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
     .modal main{padding:14px;display:grid;gap:14px;overflow-y:auto;flex:1}
     .modal footer{display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+    .address-modal main{gap:18px}
+    .address-modal .fields{display:grid;gap:var(--field-gap)}
+    .address-modal input{all:unset;background:var(--input);border-radius:12px;border:1px solid var(--line);padding:14px 16px;font-size:15px;color:inherit}
+    html[data-theme="light"] .address-modal input{background:var(--input-light);border-color:var(--line-light)}
+    .form-error{font-size:.85rem;color:var(--danger);font-weight:600}
+    .form-error[hidden]{display:none}
     .footer-actions{display:flex;gap:10px;justify-content:flex-end;width:100%}
     #orderItems{max-height:200px;overflow-y:auto}
     @media(max-width:640px){dialog{width:100vw;height:100vh;border-radius:0}}
@@ -702,6 +708,29 @@
     <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button>
   </div>
 
+  <dialog id="addressDlg">
+    <form id="addressForm" class="modal address-modal" novalidate>
+      <header>
+        <div class="brand" data-en="Delivery Address" data-es="Dirección de entrega">Delivery Address</div>
+        <button type="button" class="close" id="closeAddressDlg" aria-label="Close">×</button>
+      </header>
+      <main>
+        <p class="muted" data-en="Please accurately choose where do you want us to deliver to." data-es="Por favor elija con precisión dónde desea que entreguemos.">Please accurately choose where do you want us to deliver to.</p>
+        <div class="fields">
+          <label class="sr-only" for="addressSearchInput">Delivery address</label>
+          <input id="addressSearchInput" name="addressSearch" autocomplete="street-address" data-ph-en="Start typing your delivery address" data-ph-es="Escriba su dirección de entrega" placeholder="Start typing your delivery address" />
+        </div>
+        <p id="addressError" class="form-error" role="alert" hidden data-en="Please enter a delivery address before continuing." data-es="Ingrese una dirección de entrega antes de continuar.">Please enter a delivery address before continuing.</p>
+      </main>
+      <footer>
+        <div class="footer-actions">
+          <button type="button" class="toggle" id="addressCancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
+          <button type="submit" class="btn alt" id="addressAcceptBtn" data-en="Accept" data-es="Aceptar">Accept</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
   <!-- ORDER MODAL -->
   <dialog id="orderDlg">
     <div class="modal">
@@ -975,9 +1004,11 @@
     const cart = new Map();
     let deliveryMinutes = 45;
     const gps = { lat:null, lng:null, confirmedAt:null };
+    const manualAddress = { value:'', confirmedAt:null };
     let locationStatus = 'idle';
     let locationConfirmed = false;
     window.locationConfirmed = false;
+    let suppressAddressFieldListener = false;
 
     /* HELPERS */
     const $ = s => document.querySelector(s);
@@ -1077,10 +1108,15 @@
       desktop:coords=>`https://www.google.com/maps?q=${coords}&z=17&output=embed`,
       mobile:coords=>`https://maps.google.com/maps?q=${coords}&z=17&output=embed`
     };
+    const MAP_EMBED_ADDRESS_TEMPLATES={
+      desktop:query=>`https://www.google.com/maps?q=${query}&output=embed`,
+      mobile:query=>`https://maps.google.com/maps?q=${query}&output=embed`
+    };
     const MAP_SHARE_TEMPLATES={
       desktop:coords=>`https://www.google.com/maps/@${coords},17z`,
       mobile:coords=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`
     };
+    const MAP_SHARE_ADDRESS_TEMPLATE=query=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     const CSAT_UID_STORAGE_KEY='csatUid';
     const CSAT_FP_STORAGE_KEY='csatFp';
 
@@ -1150,22 +1186,35 @@
       return isMobileOrTablet()?'mobile':'desktop';
     }
     function coordsForMaps(){
-      if(typeof gps.lat==='number' && typeof gps.lng==='number'){
+      if(hasCoordinateLocation()){
         return `${gps.lat},${gps.lng}`;
       }
       return '';
     }
     function buildMapEmbedUrl(mode){
       const coords=coordsForMaps();
-      if(!coords) return '';
-      const template=MAP_EMBED_TEMPLATES[mode]||MAP_EMBED_TEMPLATES.desktop;
-      return template(coords);
+      if(coords){
+        const template=MAP_EMBED_TEMPLATES[mode]||MAP_EMBED_TEMPLATES.desktop;
+        return template(coords);
+      }
+      const manual=normalizedManualAddress();
+      if(manual){
+        const template=MAP_EMBED_ADDRESS_TEMPLATES[mode]||MAP_EMBED_ADDRESS_TEMPLATES.desktop;
+        return template(encodeURIComponent(manual));
+      }
+      return '';
     }
     function buildMapShareUrl(mode){
       const coords=coordsForMaps();
-      if(!coords) return '';
-      const template=MAP_SHARE_TEMPLATES[mode]||MAP_SHARE_TEMPLATES.desktop;
-      return template(coords);
+      if(coords){
+        const template=MAP_SHARE_TEMPLATES[mode]||MAP_SHARE_TEMPLATES.desktop;
+        return template(coords);
+      }
+      const manual=normalizedManualAddress();
+      if(manual){
+        return MAP_SHARE_ADDRESS_TEMPLATE(manual);
+      }
+      return '';
     }
     function mapModeLabel(mode){
       return mode==='mobile'
@@ -1200,10 +1249,114 @@
     const confirmBtnEl = $('#confirmBtn');
     const mapModeButtons = document.querySelectorAll('[data-map-tab]');
     const mapShareLinks = document.querySelectorAll('[data-map-link]');
+    const addressDlg = $('#addressDlg');
+    const addressForm = $('#addressForm');
+    const addressInput = $('#addressSearchInput');
+    const addressErrorEl = $('#addressError');
+    const addressCancelBtn = $('#addressCancelBtn');
+    const addressAcceptBtn = $('#addressAcceptBtn');
+    const closeAddressDlgBtn = $('#closeAddressDlg');
+    const addressField = $('#address');
 
     let locAuthStatusKey = 'idle';
     let autoOpenMapAfterAuth = true;
     let mapMode = detectDefaultMapMode();
+
+    function normalizedManualAddress(){
+      return manualAddress.value ? manualAddress.value.trim() : '';
+    }
+    function hasManualAddress(){
+      return normalizedManualAddress().length>0;
+    }
+    function hasCoordinateLocation(){
+      return typeof gps.lat==='number' && typeof gps.lng==='number';
+    }
+    function hasMapLocation(){
+      return hasCoordinateLocation() || hasManualAddress();
+    }
+    function setAddressError(visible){
+      if(!addressErrorEl) return;
+      if(visible){
+        addressErrorEl.hidden=false;
+        addressErrorEl.textContent=t('Please enter a delivery address before continuing.','Ingrese una dirección de entrega antes de continuar.');
+      }else{
+        addressErrorEl.hidden=true;
+      }
+    }
+    function showAddressDialog(){
+      if(!addressDlg || typeof addressDlg.showModal!=='function'){
+        const initialValue=normalizedManualAddress()||(addressField?addressField.value.trim():'');
+        const response=prompt(t('Please accurately choose where do you want us to deliver to.','Por favor elija con precisión dónde desea que entreguemos.'),initialValue||'');
+        const sanitized=response?response.trim().replace(/\s+/g,' '):'';
+        if(sanitized){
+          manualAddress.value=sanitized;
+          manualAddress.confirmedAt=new Date().toISOString();
+          gps.lat=null; gps.lng=null; gps.confirmedAt=null;
+          locationStatus='confirmed';
+          setLocationConfirmed(true);
+          if(addressField){
+            suppressAddressFieldListener=true;
+            addressField.value=sanitized;
+            suppressAddressFieldListener=false;
+          }
+          updateLocationReview();
+          updateMapLinks();
+          updateMapView();
+          const preferredMode=detectDefaultMapMode();
+          const shareUrl=buildMapShareUrl(preferredMode)||buildMapShareUrl('desktop')||buildMapShareUrl('mobile');
+          if(shareUrl){
+            const mapWindow=window.open(shareUrl,'_blank');
+            if(mapWindow){ mapWindow.opener=null; }
+          }
+        }
+        openPay();
+        return;
+      }
+      setAddressError(false);
+      if(addressInput){
+        const current=normalizedManualAddress()||(addressField?addressField.value.trim():'');
+        addressInput.value=current;
+        setPh(addressInput);
+        setTimeout(()=>addressInput.focus(),120);
+      }
+      addressDlg.showModal();
+    }
+    function handleAddressSubmit(e){
+      if(e){ e.preventDefault(); }
+      if(!addressInput){
+        if(addressDlg && addressDlg.open) addressDlg.close();
+        openPay();
+        return;
+      }
+      const raw=addressInput.value.trim();
+      if(!raw){
+        setAddressError(true);
+        addressInput.focus();
+        return;
+      }
+      const sanitized=raw.replace(/\s+/g,' ').trim();
+      manualAddress.value=sanitized;
+      manualAddress.confirmedAt=new Date().toISOString();
+      gps.lat=null; gps.lng=null; gps.confirmedAt=null;
+      locationStatus='confirmed';
+      setLocationConfirmed(true);
+      if(addressDlg && addressDlg.open) addressDlg.close();
+      if(addressField){
+        suppressAddressFieldListener=true;
+        addressField.value=sanitized;
+        suppressAddressFieldListener=false;
+      }
+      updateLocationReview();
+      updateMapLinks();
+      updateMapView();
+      const preferredMode=detectDefaultMapMode();
+      const shareUrl=buildMapShareUrl(preferredMode)||buildMapShareUrl('desktop')||buildMapShareUrl('mobile');
+      if(shareUrl){
+        const mapWindow=window.open(shareUrl,'_blank');
+        if(mapWindow){ mapWindow.opener=null; }
+      }
+      openPay();
+    }
 
     function highlightMapTabs(){
       mapModeButtons.forEach(btn=>{
@@ -1213,17 +1366,14 @@
       });
     }
     function updateMapLinks(){
-      const coordsReady = typeof gps.lat==='number' && typeof gps.lng==='number';
       mapShareLinks.forEach(link=>{
         const mode = link.dataset.mapLink;
         const active = mode===mapMode;
         link.dataset.active=active?'true':'false';
         link.classList.toggle('active',active);
-        if(coordsReady){
-          const url=buildMapShareUrl(mode);
-          if(url){
-            link.href=url;
-          }
+        const url=buildMapShareUrl(mode);
+        if(url){
+          link.href=url;
           link.classList.remove('disabled');
           link.removeAttribute('aria-disabled');
         }else{
@@ -1268,7 +1418,7 @@
     function resetLocAuthStatus(){
       if(locationStatus==='error'){
         locAuthStatusKey='error';
-      }else if(gps.lat!=null && gps.lng!=null){
+      }else if(hasMapLocation()){
         locAuthStatusKey='ready';
       }else{
         locAuthStatusKey='idle';
@@ -1291,14 +1441,15 @@
         if(!mapDlg.open){
           mapDlg.showModal();
         }
-      }else if(gps.lat!=null && gps.lng!=null){
+      }else if(hasMapLocation()){
         const shareUrl=buildMapShareUrl(mapMode)||buildMapShareUrl('desktop')||buildMapShareUrl('mobile');
         if(shareUrl){
-          window.open(shareUrl,'_blank');
+          const mapWindow=window.open(shareUrl,'_blank');
+          if(mapWindow){ mapWindow.opener=null; }
         }
-        alert(t('The map opened in a new tab so you can verify your delivery pin.','El mapa se abrió en una nueva pestaña para que verifique su punto de entrega.'));
+        alert(t('The map opened in a new tab so you can verify your delivery location.','El mapa se abrió en una nueva pestaña para que verifique su ubicación de entrega.'));
       }else{
-        alert(t('We still need your coordinates before the map can load.','Aún necesitamos sus coordenadas antes de cargar el mapa.'));
+        alert(t('We still need your delivery address before the map can load.','Aún necesitamos su dirección de entrega antes de cargar el mapa.'));
       }
     }
     function showLocationAuthorization(shouldOpenMap=true){
@@ -1311,7 +1462,7 @@
       }
     }
     async function handleAuthorizeLocation(){
-      if(gps.lat!=null && gps.lng!=null){
+      if(hasMapLocation()){
         if(locAuthDlg && locAuthDlg.open) locAuthDlg.close();
         if(autoOpenMapAfterAuth) openMapForConfirmation();
         return;
@@ -1396,6 +1547,8 @@
     function buildLocationReview(){
       const coords=formatCoords();
       const when=formatTimestamp(gps.confirmedAt);
+      const manual=normalizedManualAddress();
+      const manualWhen=formatTimestamp(manualAddress.confirmedAt);
       switch(locationStatus){
         case 'pending':
           return {
@@ -1410,6 +1563,16 @@
             state:'acquired'
           };
         case 'confirmed':{
+          if(manual){
+            const base=t(`Confirmed address: ${manual}.`,`Dirección confirmada: ${manual}.`);
+            const whenLine=manualWhen
+              ? t(`Confirmed on ${manualWhen}.`,`Confirmado el ${manualWhen}.`)
+              : '';
+            return {
+              review:whenLine?`${base} ${whenLine}`:base,
+              state:'confirmed'
+            };
+          }
           const coordLine=coords
             ? t(`Confirmed coordinates: ${coords}.`,`Coordenadas confirmadas: ${coords}.`)
             : t('Delivery location confirmed.','Ubicación de entrega confirmada.');
@@ -1472,12 +1635,16 @@
         const baseTitle=t('Delivery location map','Mapa de ubicación de entrega');
         mapFrame.setAttribute('title',`${baseTitle} – ${mapModeLabel(mapMode)}`);
       }
-      if(gps.lat!=null && gps.lng!=null){
-        const url=buildMapEmbedUrl(mapMode);
-        if(mapFrame && url && mapFrame.src!==url){
+      const url=buildMapEmbedUrl(mapMode);
+      if(url){
+        if(mapFrame && mapFrame.src!==url){
           mapFrame.src=url;
         }
-        setMapStatus(t('Drag and zoom if needed, then confirm your delivery spot.','Arrastre y ajuste si es necesario, luego confirme su punto de entrega.'),false);
+        if(hasManualAddress() && !hasCoordinateLocation()){
+          setMapStatus(t('Review the map and confirm the highlighted delivery address.','Revise el mapa y confirme la dirección de entrega resaltada.'),false);
+        }else{
+          setMapStatus(t('Drag and zoom if needed, then confirm your delivery spot.','Arrastre y ajuste si es necesario, luego confirme su punto de entrega.'),false);
+        }
       }else{
         if(mapFrame){
           mapFrame.removeAttribute('src');
@@ -1562,6 +1729,8 @@
       });
       updateDeliveryTimeDisplays();
       gps.lat=null; gps.lng=null; gps.confirmedAt=null;
+      manualAddress.value='';
+      manualAddress.confirmedAt=null;
       locationStatus='idle';
       hideDisclaimer();
       setLocationConfirmed(false);
@@ -2333,17 +2502,40 @@
       hideDisclaimer();
       mapMode=detectDefaultMapMode();
       highlightMapTabs();
-      setLocationConfirmed(false);
-      gps.confirmedAt=null;
-      locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
+      if(hasManualAddress()){
+        locationStatus='confirmed';
+        if(!manualAddress.confirmedAt){
+          manualAddress.confirmedAt=new Date().toISOString();
+        }
+        setLocationConfirmed(true);
+      }else if(locationConfirmed && hasCoordinateLocation()){
+        locationStatus='confirmed';
+      }else if(hasCoordinateLocation()){
+        locationStatus='acquired';
+        setLocationConfirmed(false);
+      }else{
+        locationStatus='idle';
+        setLocationConfirmed(false);
+      }
       updateLocationReview();
       updateMapView();
       updateMapLinks();
       orderDlg?.showModal();
     };
-    $('#fabPay').addEventListener('click',openPay);
+    $('#fabPay').addEventListener('click',showAddressDialog);
     $('#closeDlg').addEventListener('click',()=>orderDlg?.close());
     $('#cancelBtn').addEventListener('click',()=>orderDlg?.close());
+    addressForm?.addEventListener('submit',handleAddressSubmit);
+    addressInput?.addEventListener('input',()=>setAddressError(false));
+    addressCancelBtn?.addEventListener('click',()=>addressDlg?.close());
+    closeAddressDlgBtn?.addEventListener('click',()=>addressDlg?.close());
+    if(addressDlg){
+      addressDlg.addEventListener('cancel',e=>{ e.preventDefault(); addressDlg.close(); });
+      addressDlg.addEventListener('close',()=>{
+        setAddressError(false);
+        if(addressInput){ addressInput.value=''; }
+      });
+    }
     clearReviewBtn?.addEventListener('click',()=>{
       const confirmReset=confirm(t('Do you want to clear this order review?','¿Desea limpiar esta revisión del pedido?'));
       if(!confirmReset) return;
@@ -2374,13 +2566,17 @@
         }
       });
       $('#mapConfirm')?.addEventListener('click',async ()=>{
-        if(gps.lat==null || gps.lng==null){
-          setMapStatus(t('We still do not have your coordinates. Please allow GPS access and try again.','Aún no tenemos sus coordenadas. Permita el acceso al GPS e intente nuevamente.'),true);
+        if(!hasCoordinateLocation() && !hasManualAddress()){
+          setMapStatus(t('We still do not have your delivery address or GPS coordinates. Please authorize location or enter your address, then try again.','Aún no tenemos su dirección de entrega ni coordenadas GPS. Autorice la ubicación o ingrese su dirección y vuelva a intentarlo.'),true);
           await requestLocation(false);
           updateMapView();
           return;
         }
-        gps.confirmedAt=new Date().toISOString();
+        if(hasManualAddress() && !hasCoordinateLocation()){
+          manualAddress.confirmedAt=new Date().toISOString();
+        }else{
+          gps.confirmedAt=new Date().toISOString();
+        }
         locationStatus='confirmed';
         setLocationConfirmed(true);
         hideDisclaimer();
@@ -2411,6 +2607,28 @@
       });
     }else{
       authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
+    }
+
+    if(addressField){
+      addressField.addEventListener('input',()=>{
+        if(suppressAddressFieldListener) return;
+        const manualCurrent=normalizedManualAddress();
+        if(!manualCurrent) return;
+        const currentValue=addressField.value.trim();
+        if(currentValue===manualCurrent) return;
+        manualAddress.value='';
+        manualAddress.confirmedAt=null;
+        if(!hasCoordinateLocation()){
+          locationStatus='idle';
+          if(locationConfirmed){
+            setLocationConfirmed(false);
+          }else{
+            updateLocationReview();
+          }
+          updateMapLinks();
+          updateMapView();
+        }
+      });
     }
 
     mapModeButtons.forEach(btn=>{
@@ -2451,7 +2669,8 @@
       const deliveryDisplay=formatDeliveryTime(deliveryMinutes);
 
       const locationReady = await ensureDeliveryLocationConfirmation();
-      if(!locationReady || !locationConfirmed || gps.lat==null || gps.lng==null){
+      const hasDeliveryLocation = locationConfirmed && (hasCoordinateLocation() || hasManualAddress());
+      if(!locationReady || !hasDeliveryLocation){
         showDisclaimer(undefined,'location');
         return;
       }
@@ -2461,6 +2680,10 @@
       const mobileMapLink=buildMapShareUrl('mobile');
       const mapLinks={desktop:desktopMapLink||null,mobile:mobileMapLink||null};
       const gpsData={lat:gps.lat,lng:gps.lng,confirmedAt:gps.confirmedAt};
+      if(manualAddress.value){
+        gpsData.addressQuery=manualAddress.value;
+        gpsData.confirmedAt=manualAddress.confirmedAt||gps.confirmedAt;
+      }
       const orderPayload={
         lang,
         timestamp,
@@ -2519,7 +2742,7 @@
 
       catch(e){ console.warn("Backend request failed:",e); }
       let maps='';
-      if(locationConfirmed && gps.lat!=null && gps.lng!=null){
+      if(locationConfirmed){
         const mapLines=[];
         if(desktopMapLink){
           mapLines.push(`${t('Map (PC/Laptop)','Mapa (PC/Portátil)')}: ${desktopMapLink}`);
@@ -2531,9 +2754,21 @@
           maps=`\n${mapLines.join('\n')}`;
         }
       }
-      const confirmationLine = locationConfirmed && gps.confirmedAt
-        ? `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`
-        : t('Location confirmation pending','Confirmación de ubicación pendiente');
+      let confirmationLine;
+      if(locationConfirmed){
+        if(manualAddress.value){
+          const ts=formatTimestamp(manualAddress.confirmedAt||gps.confirmedAt);
+          confirmationLine = ts
+            ? `${t('Address confirmed at','Dirección confirmada el')} ${ts}`
+            : t('Delivery address confirmed','Dirección de entrega confirmada');
+        }else if(gps.confirmedAt){
+          confirmationLine = `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`;
+        }else{
+          confirmationLine = t('Delivery location confirmed','Ubicación de entrega confirmada');
+        }
+      }else{
+        confirmationLine = t('Location confirmation pending','Confirmación de ubicación pendiente');
+      }
       const lines=items.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.qty*i.unit)}`).join("\n");
       const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n${confirmationLine}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
