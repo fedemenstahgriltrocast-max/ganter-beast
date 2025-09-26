@@ -204,8 +204,6 @@
     .kpi h4{margin:6px 0 8px 0}
     .csat{display:flex;flex-direction:column;gap:24px;width:100%;height:100%}
     .csat-hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
-    #csatScore{font-weight:700;font-variant-numeric:tabular-nums;font-size:1.1rem;letter-spacing:.02em;margin-bottom:6px;color:var(--muted)}
-    html[data-theme="light"] #csatScore{color:var(--muted-light)}
     .csat-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.16em;color:var(--muted)}
     .sentiment-score{
       display:inline-block;
@@ -541,7 +539,6 @@
           <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
           <div class="csat">
             <div class="csat-hero">
-              <div id="csatScore" aria-live="polite" hidden>—</div>
               <div class="csat-hero-summary">
                 <div class="csat-face-wrap">
                   <div class="csat-sentiment" role="status" aria-live="polite">
@@ -1668,21 +1665,6 @@
       const stats=toCsatStats(raw);
       if(!stats) return;
       window._latestCsatStats=stats;
-      let el=document.getElementById('csatLive');
-      if(!el){
-        el=document.createElement('div');
-        el.id='csatLive';
-        el.className='muted';
-        const footer=document.querySelector('#kpi1 .csat-footer');
-        if(footer){
-          footer.insertAdjacentElement('afterend',el);
-        }else{
-          return;
-        }
-      }
-      const msgEn=`Live avg: ${stats.average.toFixed(2)} (${stats.total} votes)`;
-      const msgEs=`Promedio: ${stats.average.toFixed(2)} (${stats.total} votos)`;
-      el.textContent=(lang==='en')?msgEn:msgEs;
       const avgEl=document.getElementById('csatAverageValue');
       if(avgEl) avgEl.textContent=stats.average.toFixed(2);
       const totalEl=document.getElementById('csatTotalVotes');
