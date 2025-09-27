@@ -1058,7 +1058,7 @@
       }
     };
 
-    const APPS_SCRIPT_URL = "";       // optional
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJ8ZBUrTnS4xsGQbXT2J7m7-dKFOTHITq6MgposYzanjYWeti-dXlpr6_0YLN8mfYevQ/exec";
 
     const WORKER_CSAT_BASE = joinWorkerPath(WORKER_CSAT_URL,'');
     const MAX_PENDING = 25;
@@ -2457,6 +2457,7 @@
           return;
         }
         if(rateBtn?.disabled) return;
+        setRateBtnBusy(true);
         let uid;
         let fp;
         if(typeof window._csatGetIds==='function'){
