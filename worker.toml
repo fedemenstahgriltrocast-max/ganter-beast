@@ -4,7 +4,6 @@ compatibility_date = "2024-06-28"
 workers_dev = true
 
 [vars]
-APPS_FORWARD_URL = "https://script.google.com/macros/s/AKfycbyJ8ZBUrTnS4xsGQbXT2J7m7-dKFOTHITq6MgposYzanjYWeti-dXlpr6_0YLN8mfYevQ/exec"
 PUBLIC_WORKER_BASE = "https://weathered-disk-a104.distraction.workers.dev/"
 PUBLIC_CSAT_URL = "https://weathered-disk-a104.distraction.workers.dev/csat"
 PUBLIC_SENTIMENT_BASE = "https://weathered-disk-a104.distraction.workers.dev/"
