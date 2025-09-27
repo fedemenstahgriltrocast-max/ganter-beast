@@ -1,13 +1,19 @@
 (function () {
   const button = document.querySelector('#orderButton');
-  if (!button) return;
+  if (button) {
+    button.addEventListener('click', () => {
+      const message = [
+        'Thanks for choosing Marxia Café y Bocaditos!',
+        'We will message you on WhatsApp to confirm your order.',
+      ].join('\n');
 
-  button.addEventListener('click', () => {
-    const message = [
-      'Thanks for choosing Marxia Café y Bocaditos!',
-      'We will message you on WhatsApp to confirm your order.',
-    ].join('\n');
+      alert(message);
+    });
+  }
 
-    alert(message);
-  });
+  const copyright = document.querySelector('#copyrightYear');
+  if (copyright) {
+    const currentYear = new Date().getFullYear();
+    copyright.textContent = String(currentYear);
+  }
 })();

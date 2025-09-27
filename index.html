@@ -4,38 +4,68 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marxia Café y Bocaditos</title>
+  <meta name="description" content="Hand-crafted breakfasts, pastries, and coffee delivered across Guayaquil by Marxia Café y Bocaditos.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://marxia.example/">
+  <link rel="alternate" href="https://marxia.example/" hreflang="es">
   <link rel="stylesheet" href="main.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": "Marxia Café y Bocaditos",
+    "url": "https://marxia.example/",
+    "image": "https://marxia.example/assets/hero.jpg",
+    "servesCuisine": ["Breakfast", "Coffee", "Pastry"],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Guayaquil",
+      "addressCountry": "EC"
+    },
+    "sameAs": [
+      "https://www.instagram.com/marxiacafe"
+    ],
+    "telephone": "+593987654321"
+  }
+  </script>
 </head>
 <body>
-  <main class="page">
-    <header class="hero">
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <main class="page" id="mainContent">
+    <header class="hero" role="banner">
       <h1>Marxia Café y Bocaditos</h1>
       <p class="tagline">Breakfasts, pastries, and delivery throughout Guayaquil.</p>
-      <button id="orderButton" class="cta">Order now</button>
+      <button id="orderButton" class="cta" type="button">Order now</button>
     </header>
 
-    <section class="highlights">
+    <section class="highlights" aria-labelledby="highlights-title">
+      <h2 id="highlights-title">Why neighbors choose us</h2>
       <article>
-        <h2>Fresh Ingredients</h2>
+        <h3>Fresh Ingredients</h3>
         <p>Each order is prepared with locally sourced breads, fruits, and cheeses.</p>
       </article>
       <article>
-        <h2>Fast Delivery</h2>
+        <h3>Fast Delivery</h3>
         <p>We deliver to Saucés, Alborada, Guayacanes, Tarazana, and Brisas del Río.</p>
       </article>
       <article>
-        <h2>Celebrate Every Moment</h2>
+        <h3>Celebrate Every Moment</h3>
         <p>Surprise someone special with customizable breakfast boxes and pastries.</p>
       </article>
     </section>
 
-    <section class="contact">
-      <h2>Contact</h2>
+    <section class="contact" aria-labelledby="contact-title">
+      <h2 id="contact-title">Contact</h2>
       <p>WhatsApp <a href="https://wa.me/593987654321">+593 98 765 4321</a></p>
       <p>Email <a href="mailto:hola@marxia.com">hola@marxia.com</a></p>
+      <p>Instagram <a href="https://www.instagram.com/marxiacafe">@marxiacafe</a></p>
     </section>
   </main>
 
-  <script src="main.js"></script>
+  <footer class="footer" role="contentinfo">
+    <small>© <span id="copyrightYear"></span> Marxia Café y Bocaditos. All rights reserved.</small>
+  </footer>
+
+  <script src="main.js" defer></script>
 </body>
 </html>
