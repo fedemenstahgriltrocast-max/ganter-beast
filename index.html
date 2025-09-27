@@ -1,318 +1,70 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Marxia Café y Bocaditos — Desayunos y delivery en Guayaquil</title>
-  <meta name="description" content="Desayunos y bocaditos ordena en línea con Entrega en Guayaquil (Saucés, Alborada, Guayacanes, Tarazana Brisas del Río). Pide online: rápido, fresco y confiable." />
-  <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://www.marxia.com/" />
-  <meta property="og:title" content="Marxia Café y Bocaditos" />
-  <meta property="og:description" content="Pide en línea con Entrega en el Norte de Guayaquil." />
-  <meta property="og:url" content="https://www.marxia.com/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <!-- Removed external Font Awesome dependency; using Unicode icons instead for broader compatibility -->
-  <link rel="stylesheet" href="main.css" />
-  <!-- CSP & CORS policy moved to csp-cors.html for centralized governance -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marxia Café y Bocaditos</title>
+  <meta name="description" content="Hand-crafted breakfasts, pastries, and coffee delivered across Guayaquil by Marxia Café y Bocaditos.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://marxia.example/">
+  <link rel="alternate" href="https://marxia.example/" hreflang="es">
+  <link rel="stylesheet" href="main.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": "Marxia Café y Bocaditos",
+    "url": "https://marxia.example/",
+    "image": "https://marxia.example/assets/hero.jpg",
+    "servesCuisine": ["Breakfast", "Coffee", "Pastry"],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Guayaquil",
+      "addressCountry": "EC"
+    },
+    "sameAs": [
+      "https://www.instagram.com/marxiacafe"
+    ],
+    "telephone": "+593987654321"
+  }
+  </script>
 </head>
-
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand" data-en="Marxia Cafe y Bocaditos" data-es="Marxia Cafe y Bocaditos">Marxia Cafe y Bocaditos</div>
-      <div class="actions">
-        <button id="langBtn" class="toggle" aria-label="Toggle Language">ES</button>
-        <button id="themeBtn" class="toggle" aria-label="Toggle Theme">Dark</button>
-      </div>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <main class="page" id="mainContent">
+    <header class="hero" role="banner">
+      <h1>Marxia Café y Bocaditos</h1>
+      <p class="tagline">Breakfasts, pastries, and delivery throughout Guayaquil.</p>
+      <button id="orderButton" class="cta" type="button">Order now</button>
     </header>
 
-    <!-- PRODUCT CAROUSEL -->
-    <section class="carousel">
-      <div class="arrow left"><button id="prev" aria-label="Previous">‹</button></div>
-      <div class="arrow right"><button id="next" aria-label="Next">›</button></div>
-      <div id="track" class="track" aria-live="polite"></div>
+    <section class="highlights" aria-labelledby="highlights-title">
+      <h2 id="highlights-title">Why neighbors choose us</h2>
+      <article>
+        <h3>Fresh Ingredients</h3>
+        <p>Each order is prepared with locally sourced breads, fruits, and cheeses.</p>
+      </article>
+      <article>
+        <h3>Fast Delivery</h3>
+        <p>We deliver to Saucés, Alborada, Guayacanes, Tarazana, and Brisas del Río.</p>
+      </article>
+      <article>
+        <h3>Celebrate Every Moment</h3>
+        <p>Surprise someone special with customizable breakfast boxes and pastries.</p>
+      </article>
     </section>
 
-    <!-- DELIVERY NOTICE + ACCORDION -->
-    <section class="panel card">
-      <div class="muted text-center font-bold text-xl"
-           data-en="We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio"
-           data-es="Entregamos en: Saucés, Alborada, Guayacanes, Tarazana Brisas del Rio">
-        We deliver only: Sauces, Alborada, Guayacanes, Tarazana Brisas del Rio
-      </div>
-
-      <div id="zoneAcc" class="accordion">
-        <div class="acc-head" role="button" aria-expanded="false">
-          <span class="acc-icon" aria-hidden="true">▾</span>
-          <span class="menu-title" data-en="Our Menu" data-es="Nuestro Menú">Our Menu</span>
-          <span class="acc-icon" aria-hidden="true">▾</span>
-        </div>
-        <div class="acc-body">
-          <div class="acc-inner">
-            <div class="acc-grid">
-              <div class="ph">Photo A</div>
-              <div class="ph">Photo B</div>
-              <div class="ph">Photo C</div>
-            </div>
-            <div class="hr"></div>
-            <div class="muted" data-en="Add any description or conditions here."
-                 data-es="Agregue aquí cualquier descripción o condición.">Add any description or conditions here.</div>
-          </div>
-        </div>
-      </div>
+    <section class="contact" aria-labelledby="contact-title">
+      <h2 id="contact-title">Contact</h2>
+      <p>WhatsApp <a href="https://wa.me/593987654321">+593 98 765 4321</a></p>
+      <p>Email <a href="mailto:hola@marxia.com">hola@marxia.com</a></p>
+      <p>Instagram <a href="https://www.instagram.com/marxiacafe">@marxiacafe</a></p>
     </section>
+  </main>
 
-    <!-- BOTTOM SPLIT: KPIs LEFT + TOTALS RIGHT -->
-    <section class="split">
-      <div class="kpis">
-        <div class="card kpi" id="kpi1">
-          <h4 data-en="Customer Satisfaction" data-es="Satisfacción del cliente">Customer Satisfaction</h4>
-          <div class="csat">
-            <div class="csat-hero">
-              <div class="csat-hero-summary">
-                <div class="csat-face-wrap">
-                  <div class="csat-sentiment" role="status" aria-live="polite">
-                    <span id="csatSentiment"
-                          data-default-en="Select a rating"
-                          data-default-es="Seleccione una calificación"
-                          data-default-pattern="☆☆☆☆☆"
-                          aria-label="Select a rating">☆☆☆☆☆</span>
-                  </div>
-                  <div class="csat-rate-row">
-                    <div class="csat-rate-stars" role="group" aria-label="Rate customer satisfaction">
-                      <button type="button" class="csat-star-btn" aria-label="1 star" data-val="1">★</button>
-                      <button type="button" class="csat-star-btn" aria-label="2 stars" data-val="2">★</button>
-                      <button type="button" class="csat-star-btn" aria-label="3 stars" data-val="3">★</button>
-                      <button type="button" class="csat-star-btn" aria-label="4 stars" data-val="4">★</button>
-                      <button type="button" class="csat-star-btn" aria-label="5 stars" data-val="5">★</button>
-                    </div>
-                  </div>
-                  <div class="csat-rate-callout">
-                    <div class="csat-callout-stats" aria-live="polite">
-                      <div class="csat-average">
-                        <span id="csatAverageValue">0.00</span><span>/5</span>
-                      </div>
-                      <div class="csat-callout-meta">
-                        <span id="csatTotalVotes">0</span>
-                        <span id="csatVotesLabel" data-en="votes" data-es="votos">votes</span>
-                      </div>
-                    </div>
-                    <button class="btn" id="rateBtn" data-en="Rate" data-es="Calificar">Rate</button>
-                  </div>
-                  <p class="csat-rate-note" data-en="Share your experience to keep this score strong." data-es="Comparte tu experiencia.">
-                    Comparte tu experiencia.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div id="csatCounts" hidden></div>
-          </div>
-        </div>
-
-        <div class="card kpi" id="kpi2">
-          <h4 data-en="Visits" data-es="Visitas">Visits</h4>
-          <div class="counter">
-            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="visitsToday">—</span></div>
-            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="visitsMonth">—</span></div>
-            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="visitsYear">—</span></div>
-          </div>
-          <canvas id="visitsChart" width="180" height="80" aria-hidden="true"></canvas>
-          <div class="muted mt-8" data-en="Foot & site traffic." data-es="Tráfico en local y web.">Foot & site traffic.</div>
-        </div>
-
-        <div class="card kpi" id="kpi3">
-          <h4 data-en="Online Sales" data-es="Ventas en línea">Online Sales</h4>
-          <div class="counter">
-            <div><span data-en="Today" data-es="Hoy">Today</span>: <span id="salesToday">0</span></div>
-            <div><span data-en="This Month" data-es="Este Mes">This Month</span>: <span id="salesMonth">0</span></div>
-            <div><span data-en="Last Year" data-es="El año pasado">Last Year</span>: <span id="salesYear">0</span></div>
-          </div>
-          <canvas id="salesChart" width="180" height="80" aria-hidden="true"></canvas>
-          <div class="muted mt-8" data-en="Room to grow." data-es="Espacio para crecer.">Room to grow.</div>
-        </div>
-      </div>
-
-      <!-- TOTALS -->
-      <div class="card totals">
-        <div class="line"><span class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</span><strong id="t_sub">$0.00</strong></div>
-        <div class="line"><span class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</span><strong id="t_tax">$0.00</strong></div>
-        <div class="line"><span class="muted" data-en="Delivery 3.00" data-es="Entrega 3.00">Delivery 3.00</span><strong id="t_del">$0.00</strong></div>
-        <div class="line"><span class="muted" data-en="Total" data-es="Total">Total</span><strong id="t_total">$0.00</strong></div>
-
-        <div class="hr"></div>
-        <div class="row justify-center">
-          <button id="clearBtn" class="toggle" data-en="Clear Cart" data-es="Vaciar Carrito">Clear Cart</button>
-        </div>
-
-        <div class="hr"></div>
-        <div class="delivery-time">
-          <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
-          <strong id="t_deliveryTime" class="delivery-time-value" aria-live="polite">45 min</strong>
-        </div>
-        <div class="chips" id="delTimes">
-          <button class="chip sel" data-min="45">45 min</button>
-          <button class="chip" data-min="60">1 hr</button>
-          <button class="chip" data-min="90">1 hr 30 min</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- FABs for Chat and Pay -->
-  <div class="fab">
-    <a id="chatFab" href="https://wa.me/593958741463" target="_blank" rel="noopener noreferrer" data-en="Chat" data-es="Chat">Chat</a>
-    <button id="fabPay" class="btn alt" data-en="Pay" data-es="Pagar">Pay</button>
-  </div>
-
-  <dialog id="addressDlg">
-    <form id="addressForm" class="modal address-modal" novalidate>
-      <header>
-        <div class="brand" data-en="Delivery Address" data-es="Dirección de entrega">Delivery Address</div>
-        <button type="button" class="close" id="closeAddressDlg" aria-label="Close">×</button>
-      </header>
-      <main>
-        <p class="muted" data-en="Please accurately choose where do you want us to deliver to." data-es="Por favor elija con precisión dónde desea que entreguemos.">Please accurately choose where do you want us to deliver to.</p>
-        <div class="fields">
-          <label class="sr-only" for="addressSearchInput">Delivery address</label>
-          <input id="addressSearchInput" name="addressSearch" autocomplete="street-address" data-ph-en="Start typing your delivery address" data-ph-es="Escriba su dirección de entrega" placeholder="Start typing your delivery address" />
-        </div>
-        <p id="addressError" class="form-error" role="alert" hidden data-en="Please enter a delivery address before continuing." data-es="Ingrese una dirección de entrega antes de continuar.">Please enter a delivery address before continuing.</p>
-      </main>
-      <footer>
-        <div class="footer-actions">
-          <button type="button" class="toggle" id="addressCancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
-          <button type="submit" class="btn alt" id="addressAcceptBtn" data-en="Accept" data-es="Aceptar">Accept</button>
-        </div>
-      </footer>
-    </form>
-  </dialog>
-
-  <!-- ORDER MODAL -->
-  <dialog id="orderDlg">
-    <div class="modal">
-      <header>
-        <div class="brand" data-en="Order Review" data-es="Revisión de Pedido">Order Review</div>
-        <button class="close" id="closeDlg" aria-label="Close">×</button>
-      </header>
-      <main>
-        <section>
-          <div id="orderItems" class="items"></div>
-          <div class="hr"></div>
-          <div class="row justify-between">
-            <div class="muted delivery-label" data-en="Delivery Time" data-es="Tiempo de entrega">Delivery Time</div>
-            <strong id="m_deliveryTime" class="delivery-time-value">45 min</strong>
-          </div>
-          <div class="row justify-between"><div class="muted" data-en="Subtotal" data-es="Subtotal">Subtotal</div><strong id="m_sub">$0.00</strong></div>
-          <div class="row justify-between"><div class="muted" data-en="VAT 15%" data-es="IVA 15%">VAT 15%</div><strong id="m_tax">$0.00</strong></div>
-          <div class="row justify-between"><div class="muted" data-en="Delivery 3.00 (included)" data-es="Entrega 3.00 (incluida)">Delivery 3.00 (included)</div><strong id="m_del">$0.00</strong></div>
-          <div class="row justify-between"><div class="muted" data-en="Total" data-es="Total">Total</div><strong id="m_total">$0.00</strong></div>
-          <div id="locationReview" class="location-review" aria-live="polite" data-state="idle" data-en="We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”" data-es="Le pediremos autorizar y confirmar su ubicación de entrega después de presionar “Confirmar transacción”.">We will ask you to authorize and confirm your delivery location after you click “Confirm Transaction.”</div>
-        </section>
-
-        <div class="hr"></div>
-
-        <section>
-          <div class="muted" data-en="Instructions" data-es="Instrucciones">Instructions</div>
-          <textarea id="instructions" rows="3" data-ph-en="No onions, leave at gate, etc." data-ph-es="Sin cebolla, dejar en la puerta, etc." placeholder="No onions, leave at gate, etc."></textarea>
-        </section>
-
-        <div class="hr"></div>
-        <section>
-          <div class="muted" data-en="Customer Information" data-es="Información del Cliente">Información del Cliente</div>
-          <div class="fields">
-            <input id="firstName" required data-ph-en="Name" data-ph-es="Nombre" placeholder="Name" />
-            <input id="lastName" required data-ph-en="Last name" data-ph-es="Apellido" placeholder="Last name" />
-          </div>
-          <div class="fields">
-            <input id="idNumber" required data-ph-en="Céd / RUC" data-ph-es="Céd / RUC" placeholder="Céd / RUC" />
-            <input id="phone" required data-ph-en="+593 9xx xxx xxx" data-ph-es="+593 9xx xxx xxx" placeholder="+593 9xx xxx xxx" inputmode="tel" />
-          </div>
-          <div class="fields single-column">
-            <input id="email" required type="email" data-ph-en="Email" data-ph-es="Correo electrónico" placeholder="Email" />
-          </div>
-          <div class="fields single-column">
-            <input id="address" required class="min-w-0" data-ph-en="Address" data-ph-es="Dirección" placeholder="Address" />
-          </div>
-          <p class="muted location-hint" data-en="After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps." data-es="Después de revisar su pedido, haga clic en “Confirmar transacción” y le guiaremos para autorizar y confirmar su ubicación de entrega en Google Maps.">After you review your order, click “Confirm Transaction” and we will guide you to authorize and confirm your delivery location on Google Maps.</p>
-        </section>
-      </main>
-      <footer>
-        <div class="footer-actions">
-          <button class="toggle" id="cancelBtn" data-en="Cancel" data-es="Cancelar">Cancel</button>
-          <button class="toggle" id="clearReviewBtn" data-en="Clear order" data-es="Limpiar pedido">Clear order</button>
-          <button class="btn alt" id="confirmBtn" data-en="Confirm Transaction" data-es="Confirmar transacción">Confirm Transaction</button>
-        </div>
-        <div id="confirmDisclaimer" class="disclaimer" hidden aria-live="assertive"></div>
-      </footer>
-    </div>
-  </dialog>
-
-  <dialog id="locAuthDlg">
-    <div class="modal location-modal">
-      <header>
-        <div class="brand" data-en="Authorize Delivery Location" data-es="Autorizar ubicación de entrega">Authorize Delivery Location</div>
-        <button class="close" id="closeLocAuth" aria-label="Close">×</button>
-      </header>
-      <main>
-        <p class="muted" data-en="To protect your order we only request your delivery location once you choose to pay. Authorize access and we will open Google Maps so you can verify or adjust the pin." data-es="Para proteger su pedido solo solicitamos su ubicación de entrega cuando decide pagar. Autorice el acceso y abriremos Google Maps para que verifique o ajuste el punto.">To protect your order we only request your delivery location once you choose to pay. Authorize access and we will open Google Maps so you can verify or adjust the pin.</p>
-        <div id="locAuthStatus" class="map-status" aria-live="polite"></div>
-      </main>
-      <footer>
-        <div class="footer-actions">
-          <button class="toggle" id="locAuthCancel" data-en="Not now" data-es="Ahora no">Not now</button>
-          <button class="btn alt" id="authorizeLocationBtn" data-en="Authorize location" data-es="Autorizar ubicación">Authorize location</button>
-        </div>
-      </footer>
-    </div>
-  </dialog>
-
-  <dialog id="mapDlg">
-    <div class="modal location-modal">
-      <header>
-        <div class="brand" data-en="Confirm Delivery Location" data-es="Confirmar ubicación de entrega">Confirm Delivery Location</div>
-        <button class="close" id="closeMap" aria-label="Close">×</button>
-      </header>
-      <main>
-        <p class="muted" data-en="You must confirm your \"Order Delivery Location\" before we can send your order." data-es="Debe confirmar su \"Ubicación de Entrega\" antes de enviar su pedido.">You must confirm your "Order Delivery Location" before we can send your order.</p>
-        <div class="map-toggle" role="tablist">
-          <button type="button" class="chip sel" data-map-tab="desktop" aria-pressed="true" data-en="PC / Laptop map" data-es="Mapa PC / Laptop">PC / Laptop map</button>
-          <button type="button" class="chip" data-map-tab="mobile" aria-pressed="false" data-en="Mobile / Tablet map" data-es="Mapa móvil / Tablet">Mobile / Tablet map</button>
-        </div>
-        <div class="map-links">
-          <a
-            class="toggle disabled"
-            data-map-link="desktop"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-disabled="true"
-            data-en="Open desktop map in Google Maps"
-            data-es="Abrir mapa de escritorio en Google Maps"
-          >Open desktop map in Google Maps</a>
-          <a
-            class="toggle disabled"
-            data-map-link="mobile"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-disabled="true"
-            data-en="Open mobile/tablet map in Google Maps"
-            data-es="Abrir mapa móvil/tablet en Google Maps"
-          >Open mobile/tablet map in Google Maps</a>
-        </div>
-        <div class="map-frame-wrap">
-          <iframe id="mapFrame" class="map-frame" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div id="mapStatus" class="map-status" aria-live="polite"></div>
-      </main>
-      <footer>
-        <div class="footer-actions">
-          <button class="toggle" id="mapCancel" data-en="Cancel" data-es="Cancelar">Cancel</button>
-          <button class="btn alt" id="mapConfirm" data-en="Confirm Location" data-es="Confirmar ubicación">Confirm Location</button>
-        </div>
-      </footer>
-    </div>
-  </dialog>
-  <script type="module" src="main.js"></script>
-  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-HO8bU4GydgKZs+rrIIdge0BuEoK04fNookPoSv0/d3oSpzX4TsvZ6osmy5BgL52L" crossorigin="anonymous"></script>
+  <footer class="footer" role="contentinfo">
+    <small>© <span id="copyrightYear"></span> Marxia Café y Bocaditos. All rights reserved.</small>
+  </footer>
+  <script src="main.js" defer></script>
 </body>
 </html>

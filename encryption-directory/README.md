@@ -1,39 +1,23 @@
-# Encryption Utilities
+# Encryption Directory
 
-This directory contains standalone cryptographic helpers that can be shared by
-edge workers and other runtimes across the project.  The focus is on
-implementing modern, standards-aligned primitives without bundling sensitive
-material directly in the repository.  All guidance follows a blended approach
-derived from the NIST Cybersecurity Framework (CSF), CISA Cyber Essentials and
-PCI DSS requirements for data protection (Req. 3 & 4).
+This folder centralizes the cryptographic helpers and operational guidance for Marxia Café y Bocaditos. The goal is to ensure that any sensitive customer or order data is protected in flight and at rest in line with the OPS Cyber Sec Core Framework, NIST CSF, CISA Cyber Essentials, and PCI DSS requirements.
 
-## Design goals
+## Controls in Scope
+- **AES-256-GCM** for authenticated encryption.
+- **PBKDF2** key derivation with SHA-256 to stretch human-readable passphrases.
+- **Unique IVs** per encryption request with automatic reuse detection.
+- **Integrity tags** returned alongside ciphertext for tamper detection.
+- **Deterministic serialization** of payload metadata to avoid parsing ambiguity.
+- **Input validation** and zeroization of intermediate buffers where possible in JavaScript runtimes.
 
-- **Zero trust inputs** – every function treats external input as untrusted and
-  performs tight validation to prevent misuse or injection attacks.
-- **Strong encryption defaults** – AES-256-GCM is used for authenticated
-  encryption, with PBKDF2-HMAC-SHA-256 key derivation and 100k iterations by
-  default.  This aligns with NIST SP 800-132 guidance for password-based key
-  derivation.
-- **Secure randomness** – all randomness uses `crypto.getRandomValues` so the
-  output is safe for IV/salt material, satisfying PCI DSS Req. 3.6.1.
-- **Interoperability** – the utilities are authored as ES modules so they can be
-  imported by Cloudflare Workers or bundled client applications when needed.
-- **Observability** – helper functions surface structured errors to support
-  centralized logging and monitoring, consistent with PCI DSS Req. 10.
+## Implementation Files
+- `aes-gcm.js` – Small, dependency-free module for encrypting and decrypting JSON payloads with AES-256-GCM. The helper enforces minimum entropy for passphrases and refuses to operate if the runtime lacks the Web Crypto API.
 
-## Files
+## Operational Guidance
+1. **Key Management** – Store master secrets in an HSM, KMS, or Cloudflare Workers secret. Rotate at least every 90 days (PCI DSS Req.3) and immediately after any suspected exposure.
+2. **Derivation Policy** – Derive per-session keys via PBKDF2 with a minimum of 310,000 iterations and a 16-byte salt. Persist the salt adjacent to the ciphertext.
+3. **Transport Security** – Always transmit encrypted payloads over TLS 1.2+ with strong cipher suites (NIST SP 800-52r2).
+4. **Logging** – Never log plaintext. Audit logs should only retain high-level metadata (PCI DSS Req.10).
+5. **Incident Response** – Follow the documented IR plan (RS.RP). If compromise is suspected, revoke affected keys, re-encrypt data, and document lessons learned (RC.IM).
 
-- `aes-gcm.js` – core utility that exposes helpers for key derivation,
-  encryption and decryption using AES-GCM.
-
-## Operational controls
-
-- Store master secrets in an HSM/KMS or per-environment secret manager.
-- Rotate secrets on a 90-day cadence and immediately after any incident
-  involving credential exposure (NIST PR.AC, PCI DSS Req. 3.5).
-- Maintain audit logging for all encryption/decryption requests and monitor via
-  SIEM for anomaly detection (NIST DE.CM).
-- Couple these utilities with a formal incident response plan to ensure rapid
-  containment if a compromise is detected (NIST RS.RP, PCI DSS Req. 12).
-
+For integration examples see `workers-directory/encryption-gateway.js`.

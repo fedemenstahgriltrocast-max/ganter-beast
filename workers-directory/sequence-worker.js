@@ -1,182 +1,124 @@
-// workers-directory/sequence-worker.js
-// Hardened proxy for CSAT and visit signals. Validates payloads, enforces CORS
-// and forwards to the configured downstream service using HTTPS only.
-const JSON_LIMIT = 4096;
+import { encryptJSON } from '../encryption-directory/aes-gcm.js';
 
-export default {
-  async fetch(request, env) {
-    const method = request.method?.toUpperCase?.() || "GET";
-    const url = new URL(request.url);
-    const allowedOrigin = pickOrigin(env?.ALLOWED_ORIGIN);
-    const forwardBase = sanitizeForwardBase(env?.FORWARDER_BASE);
-
-    if (method === "OPTIONS") {
-      return cors(new Response(null, { status: 204 }), allowedOrigin);
-    }
-
-    if (!forwardBase) {
-      return cors(
-        json({ ok: false, error: "missing_forward_base" }, 500),
-        allowedOrigin,
-      );
-    }
-
-    try {
-      if (method === "GET" && url.pathname === "/") {
-        return cors(
-          json({
-            ok: true,
-            service: "sequence-worker",
-            routes: { csat: "POST /csat", visit: "POST /visit" },
-            forwardBase,
-          }),
-          allowedOrigin,
-        );
-      }
-
-      if (method === "POST" && url.pathname === "/csat") {
-        const body = await readJson(request, JSON_LIMIT);
-        const rating = toRating(body?.rating);
-        if (!rating) {
-          return cors(
-            json({ ok: false, error: "invalid_rating" }, 400),
-            allowedOrigin,
-          );
-        }
-
-        const payload = {
-          v: "v1",
-          ts: new Date().toISOString(),
-          rating,
-          lang: toLang(body?.lang),
-          uid: scrubId(body?.uid),
-          fp: scrubId(body?.fp),
-        };
-
-        const ok = await forward(`${forwardBase}/csat`, payload);
-        return cors(json({ ok }), allowedOrigin);
-      }
-
-      if (method === "POST" && url.pathname === "/visit") {
-        const body = await readJson(request, JSON_LIMIT);
-        const payload = {
-          v: "v1",
-          ts: new Date().toISOString(),
-          lang: toLang(body?.lang),
-          uid: scrubId(body?.uid),
-          fp: scrubId(body?.fp),
-          theme: toTheme(body?.theme),
-        };
-
-        const ok = await forward(`${forwardBase}/visit`, payload);
-        return cors(json({ ok }), allowedOrigin);
-      }
-
-      return cors(json({ ok: false, error: "not_found" }, 404), allowedOrigin);
-    } catch (err) {
-      return cors(
-        json({ ok: false, error: normalizeError(err) }, 500),
-        allowedOrigin,
-      );
-    }
-  },
-};
-
-/* ---------- helpers ---------- */
-function pickOrigin(value) {
-  if (typeof value !== "string") return "*";
-  try {
-    const url = new URL(value.trim());
-    return /^https?:$/i.test(url.protocol) ? url.origin : "*";
-  } catch {
-    return "*";
-  }
+function parseOrigins(env) {
+  if (!env.ALLOWED_ORIGINS) return [];
+  return env.ALLOWED_ORIGINS.split(',').map((value) => value.trim()).filter(Boolean);
 }
 
-function sanitizeForwardBase(value) {
-  if (typeof value !== "string" || !value.trim()) return "";
-  try {
-    const url = new URL(value.trim());
-    if (url.protocol !== "https:") return "";
-    url.search = "";
-    url.hash = "";
-    return url.toString().replace(/\/+$/, "");
-  } catch {
-    return "";
-  }
-}
-
-async function readJson(request, limit) {
-  const text = await request.text();
-  if (text.length > limit) throw new Error("payload_too_large");
-  if (!text) return {};
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error("invalid_json");
-  }
-}
-
-function toRating(value) {
-  const num = Number(value);
-  return Number.isFinite(num) && num >= 1 && num <= 5 ? Math.floor(num) : 0;
-}
-
-function toLang(value) {
-  return (
-    (typeof value === "string" ? value : "en")
-      .trim()
-      .slice(0, 5)
-      .toLowerCase() || "en"
-  );
-}
-
-function toTheme(value) {
-  return (typeof value === "string" ? value : "").trim().slice(0, 16);
-}
-
-function scrubId(value) {
-  if (typeof value !== "string") return "";
-  return value
-    .normalize("NFKC")
-    .replace(/\p{C}/gu, "")
-    .replace(/[^\w\-.@]/g, "")
-    .trim()
-    .slice(0, 64);
-}
-
-async function forward(url, body) {
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8" },
+function jsonResponse(body, init = {}) {
+  return new Response(JSON.stringify(body), {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+      ...init.headers,
+    },
+    status: init.status ?? 200,
   });
 }
 
-function cors(resp, origin = "*") {
-  const headers = new Headers(resp.headers);
-  headers.set("access-control-allow-origin", origin || "*");
-  headers.set("access-control-allow-methods", "GET,POST,OPTIONS");
-  headers.set("access-control-allow-headers", "content-type");
-  headers.set("access-control-max-age", "86400");
-  return new Response(resp.body, { status: resp.status, headers });
+function ensureOrigin(request, env) {
+  const origin = request.headers.get('Origin');
+  if (!origin) return null; // non-browser requests
+  const allowlist = parseOrigins(env);
+  if (allowlist.length > 0 && !allowlist.includes(origin)) {
+    throw Object.assign(new Error('Origin not allowed'), { status: 403 });
+  }
+  return origin;
 }
 
-function normalizeError(err) {
-  if (!err) return "unknown_error";
-  if (typeof err === "string") return err.slice(0, 128);
-  if (err instanceof Error) return (err.message || "error").slice(0, 128);
-  return "error";
+async function readJSON(request) {
+  const text = await request.text();
+  if (!text) throw Object.assign(new Error('Empty request body'), { status: 422 });
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    throw Object.assign(new Error('Malformed JSON payload'), { status: 400 });
+  }
+
+  const { orderId, customer, items } = data;
+  if (!orderId || typeof orderId !== 'string' || orderId.length < 8) {
+    throw Object.assign(new Error('Invalid orderId'), { status: 422 });
+  }
+  if (!customer?.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
+    throw Object.assign(new Error('Invalid customer.email'), { status: 422 });
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    throw Object.assign(new Error('Order items required'), { status: 422 });
+  }
+
+  return { orderId, customer, items };
 }
+
+async function forwardToAPI(env, payload) {
+  const target = new URL('/api/v1/orders', env.FORWARDER_BASE);
+  const response = await fetch(target, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${env.API_TOKEN}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw Object.assign(new Error('Upstream API error'), { status: response.status });
+  }
+
+  return response;
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method === 'OPTIONS') {
+      try {
+        const origin = ensureOrigin(request, env);
+        return new Response(null, {
+          headers: {
+            'Access-Control-Allow-Origin': origin || '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Idempotency-Key',
+            'Access-Control-Max-Age': '86400',
+          },
+          status: 204,
+        });
+      } catch (error) {
+        const status = error.status || 403;
+        return jsonResponse({ error: error.message }, { status });
+      }
+    }
+
+    if (request.method !== 'POST') {
+      return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
+    }
+
+    try {
+      const origin = ensureOrigin(request, env);
+      const idempotencyKey = request.headers.get('Idempotency-Key');
+      if (!idempotencyKey) {
+        throw Object.assign(new Error('Missing Idempotency-Key header'), { status: 428 });
+      }
+
+      const payload = await readJSON(request);
+
+      const encrypted = await encryptJSON({
+        passphrase: env.ENCRYPTION_SECRET,
+        data: { ...payload, receivedAt: new Date().toISOString() },
+      });
+
+      ctx.waitUntil(
+        forwardToAPI(env, {
+          origin,
+          idempotencyKey,
+          encrypted,
+        })
+      );
+
+      return jsonResponse({ status: 'queued' });
+    } catch (error) {
+      const status = error.status || 500;
+      return jsonResponse({ error: error.message || 'Unhandled error' }, { status });
+    }
+  },
+};
