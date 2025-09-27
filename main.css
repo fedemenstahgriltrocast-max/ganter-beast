@@ -718,7 +718,7 @@ body {
 }
 
 .contact a {
-  color: var(--accent);
+  color: var(--accent-strong);
   font-weight: 600;
   text-decoration: none;
 }
@@ -746,9 +746,9 @@ body {
 
 .fab,
 .fab-option {
-  background: var(--surface);
-  color: var(--text-main);
-  border: none;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #101319;
+  border: 1px solid rgba(16, 19, 25, 0.1);
   border-radius: 50%;
   width: 54px;
   height: 54px;
@@ -767,6 +767,13 @@ body {
   transform: translateY(-2px);
   filter: brightness(1.05);
   outline: none;
+}
+
+[data-theme="dark"] .fab,
+[data-theme="dark"] .fab-option {
+  background: var(--surface-strong);
+  color: var(--text-main);
+  border: 1px solid rgba(242, 245, 255, 0.08);
 }
 
 .fab[aria-pressed="true"] {
