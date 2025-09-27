@@ -41,33 +41,25 @@
     </div>
     <nav aria-label="Quick settings" class="topbar__toggles">
       <div class="toggle-group" role="group" aria-label="Language selection">
-        <button class="toggle" id="languageEn" type="button" data-action="language" data-lang="en" aria-pressed="true">EN</button>
-        <button class="toggle" id="languageEs" type="button" data-action="language" data-lang="es" aria-pressed="false">ES</button>
+        <button
+          class="toggle-button"
+          id="languageToggle"
+          type="button"
+          aria-pressed="false"
+          aria-label="Switch to Spanish"
+        >
+          ES
+        </button>
       </div>
       <div class="toggle-group" role="group" aria-label="Theme selection">
         <button
-          class="toggle"
-          id="themeLight"
+          class="toggle-button toggle-button--theme"
+          id="themeToggle"
           type="button"
-          data-action="theme"
-          data-theme="light"
-          aria-pressed="true"
-          aria-label="Use light theme"
-          title="Use light theme"
-        >
-          ☀️
-        </button>
-        <button
-          class="toggle"
-          id="themeDark"
-          type="button"
-          data-action="theme"
-          data-theme="dark"
           aria-pressed="false"
-          aria-label="Use dark theme"
-          title="Use dark theme"
+          aria-label="Switch to dark theme"
         >
-          🌙
+          Dark
         </button>
       </div>
     </nav>
