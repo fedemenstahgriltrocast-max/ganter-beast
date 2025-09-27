@@ -10,7 +10,9 @@
   const fabPay = document.querySelector('#fabPay');
   const fabMenus = Array.from(document.querySelectorAll('.fab-menu'));
   const drawers = Array.from(document.querySelectorAll('.drawer'));
-  const toggles = Array.from(document.querySelectorAll('[data-action="theme"], [data-action="language"]'));
+  const languageToggle = document.querySelector('#languageToggle');
+  const themeToggle = document.querySelector('#themeToggle');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   const translations = {
     en: {
@@ -105,24 +107,27 @@
     const nextTheme = theme === 'dark' ? 'dark' : 'light';
     html.dataset.theme = nextTheme;
     localStorage.setItem('marxia-theme', nextTheme);
-    toggles
-      .filter((toggle) => toggle.dataset.action === 'theme')
-      .forEach((toggle) => {
-        const isActive = toggle.dataset.theme === nextTheme;
-        toggle.setAttribute('aria-pressed', String(isActive));
-      });
+    if (themeToggle) {
+      const isDark = nextTheme === 'dark';
+      themeToggle.textContent = isDark ? 'Light' : 'Dark';
+      themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+    }
   };
 
   const applyLanguage = (lang) => {
     const nextLang = lang === 'es' ? 'es' : 'en';
     html.lang = nextLang;
     localStorage.setItem('marxia-lang', nextLang);
-    toggles
-      .filter((toggle) => toggle.dataset.action === 'language')
-      .forEach((toggle) => {
-        const isActive = toggle.dataset.lang === nextLang;
-        toggle.setAttribute('aria-pressed', String(isActive));
-      });
+    if (languageToggle) {
+      const isSpanish = nextLang === 'es';
+      languageToggle.textContent = isSpanish ? 'EN' : 'ES';
+      languageToggle.setAttribute(
+        'aria-label',
+        isSpanish ? 'Idioma: Español (cambiar a inglés)' : 'Language: English (switch to Spanish)'
+      );
+      languageToggle.setAttribute('aria-pressed', String(isSpanish));
+    }
 
     const dict = translations[nextLang];
     document.querySelectorAll('[data-i18n]').forEach((node) => {
@@ -151,6 +156,10 @@
     const savedLang = localStorage.getItem('marxia-lang');
     if (savedTheme) {
       applyTheme(savedTheme);
+    } else if (prefersDark) {
+      applyTheme('dark');
+    } else {
+      applyTheme('light');
     }
     if (savedLang) {
       applyLanguage(savedLang);
@@ -197,12 +206,14 @@
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
-    if (target.dataset.action === 'theme' && target.dataset.theme) {
-      applyTheme(target.dataset.theme);
+    if (target === themeToggle) {
+      const nextTheme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
     }
 
-    if (target.dataset.action === 'language' && target.dataset.lang) {
-      applyLanguage(target.dataset.lang);
+    if (target === languageToggle) {
+      const nextLang = html.lang === 'es' ? 'en' : 'es';
+      applyLanguage(nextLang);
     }
 
     if (target.matches('[data-close-drawer]')) {

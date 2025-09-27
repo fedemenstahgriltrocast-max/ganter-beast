@@ -13,30 +13,38 @@
   --surface-strong: rgba(255, 255, 255, 0.86);
   --text-main: #1f1b2c;
   --text-muted: #574f65;
-  --accent: #ff8b3d;
-  --accent-strong: #ff5b2e;
-  --background-top: #fff7e6;
-  --background-bottom: #ffe7f1;
+  --accent: #ffb347;
+  --accent-strong: #ff7f50;
+  --background-top: #fff4d4;
+  --background-middle: #ffe0f2;
+  --background-bottom: #dff6f0;
   --border-subtle: rgba(255, 255, 255, 0.6);
-  --chip-bg: rgba(255, 139, 61, 0.08);
-  --chip-text: #ff5b2e;
+  --chip-bg: rgba(255, 179, 71, 0.2);
+  --chip-text: #ff7f50;
+  --toggle-bg: rgba(255, 255, 255, 0.85);
+  --toggle-fg: var(--text-main);
+  --toggle-shadow: rgba(31, 27, 44, 0.18);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
   --shadow-soft: 0 24px 48px rgba(5, 6, 10, 0.65);
-  --surface: rgba(32, 34, 42, 0.9);
-  --surface-muted: rgba(17, 18, 23, 0.75);
-  --surface-strong: rgba(16, 17, 21, 0.95);
+  --surface: rgba(24, 25, 32, 0.92);
+  --surface-muted: rgba(12, 13, 18, 0.85);
+  --surface-strong: rgba(10, 11, 16, 0.95);
   --text-main: #f2f5ff;
   --text-muted: #b1b6cd;
   --accent: #4dd4ff;
   --accent-strong: #7ef3b3;
-  --background-top: #030509;
-  --background-bottom: #111827;
+  --background-top: #050508;
+  --background-middle: #0c0d11;
+  --background-bottom: #16171d;
   --border-subtle: rgba(126, 243, 179, 0.24);
   --chip-bg: rgba(126, 243, 179, 0.15);
   --chip-text: #7ef3b3;
+  --toggle-bg: rgba(12, 13, 18, 0.9);
+  --toggle-fg: var(--text-main);
+  --toggle-shadow: rgba(5, 6, 10, 0.55);
 }
 
 * {
@@ -46,19 +54,21 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at top right, rgba(255, 207, 160, 0.35), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(255, 157, 220, 0.35), transparent 45%),
-    linear-gradient(180deg, var(--background-top) 0%, var(--background-bottom) 100%);
+  background: radial-gradient(circle at 12% 18%, rgba(255, 193, 134, 0.32), transparent 42%),
+    radial-gradient(circle at 88% 22%, rgba(255, 179, 213, 0.28), transparent 46%),
+    radial-gradient(circle at 18% 82%, rgba(166, 227, 199, 0.34), transparent 48%),
+    linear-gradient(165deg, var(--background-top) 0%, var(--background-middle) 48%, var(--background-bottom) 100%);
   color: var(--text-main);
   display: flex;
   flex-direction: column;
   position: relative;
+  transition: background var(--transition), color var(--transition);
 }
 
 [data-theme="dark"] body {
-  background: radial-gradient(circle at top right, rgba(77, 212, 255, 0.15), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(126, 243, 179, 0.12), transparent 45%),
-    linear-gradient(180deg, var(--background-top) 0%, var(--background-bottom) 100%);
+  background: radial-gradient(circle at 10% 12%, rgba(77, 212, 255, 0.16), transparent 36%),
+    radial-gradient(circle at 90% 20%, rgba(126, 243, 179, 0.12), transparent 38%),
+    linear-gradient(175deg, var(--background-top) 0%, var(--background-middle) 40%, var(--background-bottom) 100%);
 }
 
 .skip-link {
@@ -139,38 +149,53 @@ body {
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem;
-  border-radius: 999px;
-  background: var(--surface-muted);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  gap: 0.5rem;
 }
 
-[data-theme="dark"] .toggle-group {
-  background: rgba(10, 11, 15, 0.6);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.toggle {
+.toggle-button {
+  appearance: none;
   border: none;
   border-radius: 999px;
-  padding: 0.5rem 0.85rem;
+  padding: 0.6rem 1.4rem;
+  background: var(--toggle-bg);
+  color: var(--toggle-fg);
+  font: inherit;
   font-weight: 600;
-  background: var(--chip-bg);
-  color: var(--chip-text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: background var(--transition), color var(--transition), transform var(--transition);
+  box-shadow: 0 10px 22px var(--toggle-shadow);
+  transition: transform var(--transition), box-shadow var(--transition),
+    background var(--transition), color var(--transition);
 }
 
-.toggle[aria-pressed="true"] {
-  background: var(--accent);
-  color: #101319;
+.toggle-button:hover {
   transform: translateY(-1px);
+  box-shadow: 0 14px 28px var(--toggle-shadow);
 }
 
-.toggle:focus-visible {
+.toggle-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 8px 18px var(--toggle-shadow);
+}
+
+.toggle-button[aria-pressed="true"] {
+  background: var(--accent-strong);
+  color: #ffffff;
+  box-shadow: 0 12px 26px rgba(255, 127, 80, 0.32);
+}
+
+[data-theme="dark"] .toggle-button[aria-pressed="true"] {
+  box-shadow: 0 12px 26px rgba(126, 243, 179, 0.24);
+}
+
+.toggle-button:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
+}
+
+.toggle-button--theme {
+  margin-left: 0.5rem;
 }
 
 .page {
