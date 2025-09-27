@@ -1,8 +1,0 @@
-name = "sequence-worker"
-main = "worker/sequence-worker.js"
-compatibility_date = "2024-06-28"
-workers_dev = true
-
-[vars]
-FORWARDER_BASE = "https://<your-sentiment-forwarder>.<your-subdomain>.workers.dev"
-
