@@ -42,6 +42,16 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
     return;
   }
 
+  const bindings = window.__appBindings || {};
+  const call = (fn, fallback)=>{
+    try{
+      return typeof fn === "function" ? fn() : fallback;
+    }catch(err){
+      console.warn("app binding failed", err);
+      return fallback;
+    }
+  };
+
   function sanitizeString(s){
     return typeof s === "string" ? s.normalize("NFKC").trim().replace(/\p{C}/gu, "") : "";
   }
@@ -58,12 +68,18 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
   }
 
   function collectOrder(){
-    const order = { items: [], totals: {}, deliveryMinutes: window.deliveryMinutes || 0 };
+    const order = {
+      items: [],
+      totals: {},
+      deliveryMinutes: call(bindings.getDeliveryMinutes, window.deliveryMinutes || 0)
+    };
     try{
-      const lang = window.lang || "en";
-      if(Array.isArray(window.PRODUCTS) && window.cart instanceof Map){
-        window.PRODUCTS.forEach(p => {
-          const qty = window.cart.get(p.id);
+      const lang = call(bindings.getLang, window.lang || "en");
+      const products = call(bindings.getProducts, window.PRODUCTS);
+      const cart = call(bindings.getCart, window.cart);
+      if(Array.isArray(products) && cart instanceof Map){
+        products.forEach(p => {
+          const qty = cart.get(p.id);
           if(qty > 0){
             order.items.push({
               id: p.id,
@@ -74,8 +90,9 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
           }
         });
       }
-      if(typeof window.totals === "function"){
-        order.totals = window.totals();
+      const totalsFn = bindings.getTotals || window.totals;
+      if(typeof totalsFn === "function"){
+        order.totals = totalsFn();
       }
     }catch(e){
       console.error("order collection failed", e);
@@ -83,8 +100,10 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
     return order;
   }
 
+  const isLocationConfirmed = ()=>Boolean(call(bindings.isLocationConfirmed, window.locationConfirmed));
+
   async function forwardPII(){
-    if(!window.locationConfirmed){
+    if(!isLocationConfirmed()){
       return false;
     }
     try{
@@ -105,10 +124,9 @@ VY2N64EbwRd0c8rwRnDX0rC1BURZ3d8y/5B1XpURmdigDHgmeq0vQ7ypMw==
           window.open(data.payUrl, "_blank", "noopener");
         }
         return true;
-      } else {
-        console.error("Worker responded with", res.status);
-        return false;
       }
+      console.error("Worker responded with", res.status);
+      return false;
     }catch(err){
       console.error("PII forward failed", err);
       throw err;
