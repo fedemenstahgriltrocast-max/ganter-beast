@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Marxia Café y Bocaditos - Secure Order Platform">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://*.cloudflareworkers.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'nonce-2726c7f26c'; frame-ancestors 'none'; base-uri 'none'; form-action 'self';">
+  <title>Marxia Café y Bocaditos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Marxia Café y Bocaditos</h1>
+    <button id="langBtn">ES</button>
+    <button id="themeBtn">Dark</button>
+  </header>
+  <main>
+    <section id="products">
+      <div id="track"></div>
+      <div class="nav-buttons">
+        <button id="prev">←</button>
+        <button id="next">→</button>
+      </div>
+    </section>
+
+    <section id="cart-summary">
+      <h2>Order Summary</h2>
+      <div id="totals">
+        <div>Subtotal: <span id="t_sub">—</span></div>
+        <div>VAT: <span id="t_tax">—</span></div>
+        <div>Delivery: <span id="t_del">—</span></div>
+        <div>Total: <strong id="t_total">—</strong></div>
+      </div>
+      <div class="controls">
+        <button id="fabPay">Confirmar</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </section>
+
+    <dialog id="orderDlg">
+      <form id="orderForm" method="dialog">
+        <h3>Confirm Order</h3>
+        <div id="orderItems"></div>
+        <div class="customer-info">
+          <input id="firstName" placeholder="First Name">
+          <input id="lastName" placeholder="Last Name">
+          <input id="idNumber" placeholder="Céd/RUC">
+          <input id="phone" placeholder="Phone">
+          <input id="email" placeholder="Email">
+          <input id="address" placeholder="Delivery Address">
+          <textarea id="instructions" placeholder="Instructions"></textarea>
+        </div>
+        <div id="locationReview" data-state="idle"></div>
+        <div id="confirmDisclaimer" hidden></div>
+        <div class="actions">
+          <button id="confirmBtn">Confirm Transaction</button>
+          <button id="cancelBtn" type="button">Cancel</button>
+          <button id="closeDlg" type="button">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="mapDlg">
+      <iframe id="mapFrame" title="Delivery Map"></iframe>
+      <div id="mapStatus"></div>
+      <div class="map-actions">
+        <button id="mapConfirm">Confirm Location</button>
+        <button id="mapCancel">Cancel</button>
+        <button id="closeMap">Close</button>
+      </div>
+    </dialog>
+
+    <dialog id="locAuthDlg">
+      <div id="locAuthStatus"></div>
+      <button id="authorizeLocationBtn">Authorize Location</button>
+      <button id="locAuthCancel">Cancel</button>
+      <button id="closeLocAuth">Close</button>
+    </dialog>
+
+    <dialog id="addressDlg">
+      <form id="addressForm">
+        <input id="addressSearchInput" placeholder="Enter Address">
+        <div id="addressError" hidden></div>
+        <div class="address-actions">
+          <button id="addressAcceptBtn" type="submit">Accept</button>
+          <button id="addressCancelBtn" type="button">Cancel</button>
+          <button id="closeAddressDlg" type="button">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <section id="csat">
+      <h3>Rate Your Experience</h3>
+      <div id="csatStars">
+        <button class="csat-star-btn" data-val="1">★</button>
+        <button class="csat-star-btn" data-val="2">★</button>
+        <button class="csat-star-btn" data-val="3">★</button>
+        <button class="csat-star-btn" data-val="4">★</button>
+        <button class="csat-star-btn" data-val="5">★</button>
+      </div>
+      <div id="csatSentiment" data-default-en="Select a rating" data-default-es="Seleccione una calificación" data-default-pattern="☆☆☆☆☆">☆☆☆☆☆</div>
+      <button id="rateBtn">Submit Rating</button>
+      <div id="csatSummary">
+        <span id="csatScore">—</span>
+        <div id="csatCounts">
+          <div class="csat-count" data-val="1"><span class="csat-count-stars"></span><span class="sentiment-score"></span></div>
+          <div class="csat-count" data-val="2"><span class="csat-count-stars"></span><span class="sentiment-score"></span></div>
+          <div class="csat-count" data-val="3"><span class="csat-count-stars"></span><span class="sentiment-score"></span></div>
+          <div class="csat-count" data-val="4"><span class="csat-count-stars"></span><span class="sentiment-score"></span></div>
+          <div class="csat-count" data-val="5"><span class="csat-count-stars"></span><span class="sentiment-score"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metrics">
+      <canvas id="salesChart" width="400" height="120"></canvas>
+      <div id="salesStats">
+        <div>Today: <span id="salesToday"></span></div>
+        <div>Month: <span id="salesMonth"></span></div>
+        <div>Year: <span id="salesYear"></span></div>
+      </div>
+    </section>
+
+  </main>
+  <footer>
+    <p>© 2025 Marxia Café y Bocaditos</p>
+  </footer>
+
+  <script nonce="2726c7f26c">
+    'use strict';
+
+    const BUSINESS={name:'Marxia Café y Bocaditos',country:'EC'};
+    const VAT=0.15;
+    const DELIVERY_FEE=1.50;
+    let deliveryMinutes=45;
+    const PRODUCTS=[
+      {id:'cafe',name_en:'Coffee',name_es:'Café',desc_en:'Hot brewed coffee',desc_es:'Café caliente',price:1.50},
+      {id:'tortilla',name_en:'Green Banana Tortilla',name_es:'Tortilla de Verde',desc_en:'Ecuadorian tortilla',desc_es:'Tortilla ecuatoriana',price:2.00},
+      {id:'chorizo',name_en:'Sausage',name_es:'Chorizo',desc_en:'Savory sausage',desc_es:'Chorizo sabroso',price:1.75},
+      {id:'egg',name_en:'Egg',name_es:'Huevo',desc_en:'Fried egg',desc_es:'Huevo frito',price:1.00}
+    ];
+
+    const WHATSAPP_NUMBER='593999999999';
+    const APPS_SCRIPT_URL=env.APPS_SCRIPT_URL||'';
+    const CLOUDFLARE_WORKER_URL=env.CLOUDFLARE_WORKER_URL||'';
+    let lang=localStorage.getItem('lang')||'en';
+    let theme=localStorage.getItem('theme')||'light';
+
+    const cart=new Map();
+    const track=document.getElementById('track');
+    const fmt=v=>'$'+v.toFixed(2);
+
+    const gps={lat:null,lng:null,confirmedAt:null};
+    const manualAddress={value:'',confirmedAt:null};
+    let locationStatus='idle';
+    let locationConfirmed=false;
+
+    const highlightTimers=new Map();
+
+    function t(en,es){return lang==='es'?es:en;}
+    function $(sel){return document.querySelector(sel);}
+    function setPh(input){
+      const ph=lang==='en'?(input.dataset.phEn||input.placeholder):(input.dataset.phEs||input.placeholder);
+      input.placeholder=ph;
+    }
+
+    function formatDeliveryTime(min){
+      const now=new Date();
+      const est=new Date(now.getTime()+min*60000);
+      const opts={hour:'2-digit',minute:'2-digit',hour12:false};
+      const local=est.toLocaleTimeString(lang==='en'?'en-US':'es-EC',opts);
+      return `${min} min (${local})`;
+    }
+
+    function detectDefaultMapMode(){
+      const ua=navigator.userAgent.toLowerCase();
+      return /mobile|android|iphone/.test(ua)?'mobile':'desktop';
+    }
+    /* Delivery time updates */
+    function updateDeliveryTimeDisplays(){
+      const label=t('Estimated delivery','Entrega estimada');
+      const val=formatDeliveryTime(deliveryMinutes);
+      const el=$('#m_deliveryTime');
+      if(el){
+        el.textContent=val;
+        el.previousElementSibling.textContent=label;
+      }
+      const mainLabel=document.querySelector('#t_deliveryTime');
+      if(mainLabel) mainLabel.textContent=val;
+    }
+
+    /* Map and address controls */
+    const orderDlg=$('#orderDlg');
+    const mapDlg=$('#mapDlg');
+    const mapFrame=$('#mapFrame');
+    const mapStatusEl=$('#mapStatus');
+    const locAuthDlg=$('#locAuthDlg');
+    const locAuthStatusEl=$('#locAuthStatus');
+    const authorizeLocationBtn=$('#authorizeLocationBtn');
+    const locAuthCancelBtn=$('#locAuthCancel');
+    const closeLocAuthBtn=$('#closeLocAuth');
+    const confirmDisclaimer=$('#confirmDisclaimer');
+    const locationReviewEl=$('#locationReview');
+    const clearReviewBtn=$('#clearReviewBtn');
+    const confirmBtnEl=$('#confirmBtn');
+    const mapModeButtons=document.querySelectorAll('[data-map-tab]');
+    const mapShareLinks=document.querySelectorAll('[data-map-link]');
+    const addressDlg=$('#addressDlg');
+    const addressForm=$('#addressForm');
+    const addressInput=$('#addressSearchInput');
+    const addressErrorEl=$('#addressError');
+    const addressCancelBtn=$('#addressCancelBtn');
+    const addressAcceptBtn=$('#addressAcceptBtn');
+    const closeAddressDlgBtn=$('#closeAddressDlg');
+    const addressField=$('#address');
+
+    let locAuthStatusKey='idle';
+    let autoOpenMapAfterAuth=true;
+    let mapMode=detectDefaultMapMode();
+    let suppressAddressFieldListener=false;
+
+    function normalizedManualAddress(){
+      return manualAddress.value?manualAddress.value.trim():'';
+    }
+    function hasManualAddress(){
+      return normalizedManualAddress().length>0;
+    }
+    function hasCoordinateLocation(){
+      return typeof gps.lat==='number'&&typeof gps.lng==='number';
+    }
+    function hasMapLocation(){
+      return hasCoordinateLocation()||hasManualAddress();
+    }
+    function setAddressError(visible){
+      if(!addressErrorEl) return;
+      if(visible){
+        addressErrorEl.hidden=false;
+        addressErrorEl.textContent=t('Please enter a delivery address before continuing.','Ingrese una dirección de entrega antes de continuar.');
+      }else{
+        addressErrorEl.hidden=true;
+      }
+    }
+    function showAddressDialog(){
+      if(!addressDlg||typeof addressDlg.showModal!=='function'){
+        const initialValue=normalizedManualAddress()||(addressField?addressField.value.trim():'');
+        const response=prompt(t('Please accurately choose where do you want us to deliver to.','Por favor elija con precisión dónde desea que entreguemos.'),initialValue||'');
+        const sanitized=response?response.trim().replace(/\s+/g,' '):'';
+        if(sanitized){
+          manualAddress.value=sanitized;
+          manualAddress.confirmedAt=new Date().toISOString();
+          gps.lat=null;gps.lng=null;gps.confirmedAt=null;
+          locationStatus='confirmed';
+          setLocationConfirmed(true);
+          if(addressField){
+            suppressAddressFieldListener=true;
+            addressField.value=sanitized;
+            suppressAddressFieldListener=false;
+          }
+          updateLocationReview();
+          updateMapLinks();
+          updateMapView();
+        }
+        openPay();
+        return;
+      }
+      setAddressError(false);
+      if(addressInput){
+        const current=normalizedManualAddress()||(addressField?addressField.value.trim():'');
+        addressInput.value=current;
+        setPh(addressInput);
+        setTimeout(()=>addressInput.focus(),120);
+      }
+      addressDlg.showModal();
+    }
+
+    function handleAddressSubmit(e){
+      if(e) e.preventDefault();
+      if(!addressInput){
+        if(addressDlg&&addressDlg.open) addressDlg.close();
+        openPay();
+        return;
+      }
+      const raw=addressInput.value.trim();
+      if(!raw){
+        setAddressError(true);
+        addressInput.focus();
+        return;
+      }
+      const sanitized=raw.replace(/\s+/g,' ').trim();
+      manualAddress.value=sanitized;
+      manualAddress.confirmedAt=new Date().toISOString();
+      gps.lat=null;gps.lng=null;gps.confirmedAt=null;
+      locationStatus='confirmed';
+      setLocationConfirmed(true);
+      if(addressDlg&&addressDlg.open) addressDlg.close();
+      if(addressField){
+        suppressAddressFieldListener=true;
+        addressField.value=sanitized;
+        suppressAddressFieldListener=false;
+      }
+      updateLocationReview();
+      updateMapLinks();
+      updateMapView();
+      openPay();
+    }
+
+    function highlightMapTabs(){
+      mapModeButtons.forEach(btn=>{
+        const selected=btn.dataset.mapTab===mapMode;
+        btn.classList.toggle('sel',selected);
+        btn.setAttribute('aria-pressed',selected?'true':'false');
+      });
+    }
+    function updateMapLinks(){
+      mapShareLinks.forEach(link=>{
+        const mode=link.dataset.mapLink;
+        const active=mode===mapMode;
+        link.dataset.active=active?'true':'false';
+        link.classList.toggle('active',active);
+        const url=buildMapShareUrl(mode);
+        if(url){
+          link.href=url;
+          link.classList.remove('disabled');
+          link.removeAttribute('aria-disabled');
+        }else{
+          link.removeAttribute('href');
+          link.classList.add('disabled');
+          link.setAttribute('aria-disabled','true');
+        }
+      });
+    }
+    function setMapMode(mode){
+      if(!mode) return;
+      mapMode=mode;
+      highlightMapTabs();
+      updateMapView();
+      updateMapLinks();
+    }
+
+    function renderLocAuthStatus(){
+      if(!locAuthStatusEl) return;
+      let message='';
+      let alert=false;
+      switch(locAuthStatusKey){
+        case 'requesting':
+          message=t('Requesting secure GPS access…','Solicitando acceso seguro al GPS…');
+          break;
+        case 'error':
+          message=t('We could not confirm your delivery location. Enable GPS or adjust permissions, then try again.','No pudimos confirmar su ubicación de entrega. Active el GPS o ajuste los permisos y vuelva a intentarlo.');
+          alert=true;
+          break;
+        case 'success':
+          message=t('Location detected. Opening map for confirmation.','Ubicación detectada. Abriendo mapa para confirmación.');
+          break;
+        case 'ready':
+          message=t('We already have a saved location.','Ya tenemos una ubicación guardada.');
+          break;
+        default:
+          message='';
+      }
+      locAuthStatusEl.textContent=message;
+      locAuthStatusEl.classList.toggle('alert',alert);
+    }
+
+    function resetLocAuthStatus(){
+      if(locationStatus==='error'){
+        locAuthStatusKey='error';
+      }else if(hasMapLocation()){
+        locAuthStatusKey='ready';
+      }else{
+        locAuthStatusKey='idle';
+      }
+      renderLocAuthStatus();
+    }
+
+    function setLocationConfirmed(val){
+      const prev=locationConfirmed;
+      locationConfirmed=!!val;
+      window.locationConfirmed=locationConfirmed;
+      updateLocationReview();
+      if(locationConfirmed&&!prev){
+        document.dispatchEvent(new CustomEvent('delivery-location-confirmed'));
+      }
+    }
+
+    function openMapForConfirmation(){
+      if(mapDlg&&typeof mapDlg.showModal==='function'){
+        updateMapView();
+        if(!mapDlg.open){
+          mapDlg.showModal();
+        }
+      }else if(hasMapLocation()){
+        const shareUrl=buildMapShareUrl(mapMode)||buildMapShareUrl('desktop')||buildMapShareUrl('mobile');
+        if(shareUrl){
+          const mapWindow=window.open(shareUrl,'_blank');
+          if(mapWindow) mapWindow.opener=null;
+        }
+        alert(t('The map opened in a new tab.','El mapa se abrió en una nueva pestaña.'));
+      }else{
+        alert(t('We still need your address before map loads.','Aún necesitamos su dirección antes de cargar el mapa.'));
+      }
+    }
+
+    function showLocationAuthorization(shouldOpenMap=true){
+      autoOpenMapAfterAuth=shouldOpenMap!==false;
+      if(locAuthDlg&&typeof locAuthDlg.showModal==='function'){
+        resetLocAuthStatus();
+        locAuthDlg.showModal();
+      }else{
+        handleAuthorizeLocation();
+      }
+    }
+
+    async function handleAuthorizeLocation(){
+      if(hasMapLocation()){
+        if(locAuthDlg&&locAuthDlg.open) locAuthDlg.close();
+        if(autoOpenMapAfterAuth) openMapForConfirmation();
+        return;
+      }
+      locAuthStatusKey='requesting';
+      renderLocAuthStatus();
+      if(authorizeLocationBtn){
+        authorizeLocationBtn.disabled=true;
+        authorizeLocationBtn.setAttribute('aria-busy','true');
+      }
+      let ok=false;
+      try{
+        ok=await requestLocation(false);
+      }finally{
+        if(authorizeLocationBtn){
+          authorizeLocationBtn.disabled=false;
+          authorizeLocationBtn.removeAttribute('aria-busy');
+        }
+      }
+      if(ok){
+        locAuthStatusKey='success';
+        renderLocAuthStatus();
+        if(locAuthDlg&&locAuthDlg.open) locAuthDlg.close();
+        if(autoOpenMapAfterAuth) openMapForConfirmation();
+      }else{
+        locAuthStatusKey='error';
+        renderLocAuthStatus();
+        if(mapDlg&&mapDlg.open){
+          setMapStatus(t('We could not confirm your location. Enable GPS or permissions.','No pudimos confirmar su ubicación. Active GPS o permisos.'),true);
+        }
+      }
+    }
+    async function ensureDeliveryLocationConfirmation(){
+      if(locationConfirmed){
+        return true;
+      }
+      return new Promise(resolve=>{
+        let settled=false;
+        const finish=result=>{
+          if(settled) return;
+          settled=true;
+          document.removeEventListener('delivery-location-confirmed',onConfirmed);
+          if(mapDlg) mapDlg.removeEventListener('close',onClosed);
+          if(locAuthDlg) locAuthDlg.removeEventListener('close',onClosed);
+          resolve(result);
+        };
+        const onConfirmed=()=>finish(true);
+        const onClosed=()=>finish(locationConfirmed);
+        document.addEventListener('delivery-location-confirmed',onConfirmed);
+        if(mapDlg) mapDlg.addEventListener('close',onClosed);
+        if(locAuthDlg) locAuthDlg.addEventListener('close',onClosed);
+        showLocationAuthorization(true);
+      });
+    }
+
+    async function ensurePaymentConfirmed(payload){
+      if(typeof window.requestPaymentConfirmation==='function'){
+        try{
+          const result=await window.requestPaymentConfirmation(payload);
+          return result===true;
+        }catch(err){
+          console.error('Payment confirmation callback failed',err);
+          return false;
+        }
+      }
+      return confirm(t('Has the payment been confirmed successfully?','¿Se confirmó el pago correctamente?'));
+    }
+
+    function formatTimestamp(ts){
+      if(!ts) return '';
+      const locale=lang==='en'?'en-US':'es-EC';
+      try{
+        return new Date(ts).toLocaleString(locale,{hour12:false});
+      }catch{
+        return ts;
+      }
+    }
+
+    function formatCoords(){
+      if(typeof gps.lat!=='number'||typeof gps.lng!=='number') return '';
+      return `${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`;
+    }
+
+    function buildLocationReview(){
+      const coords=formatCoords();
+      const when=formatTimestamp(gps.confirmedAt);
+      const manual=normalizedManualAddress();
+      const manualWhen=formatTimestamp(manualAddress.confirmedAt);
+      switch(locationStatus){
+        case 'pending':
+          return {review:t('Requesting your delivery location… please allow secure access.','Solicitando su ubicación de entrega…'),state:'pending'};
+        case 'acquired':
+          return {review:coords?t(`Location detected (${coords}). Confirm the map.`,`Ubicación detectada (${coords}). Confirme el mapa.`):t('Location detected. Confirm the map.','Ubicación detectada. Confirme el mapa.'),state:'acquired'};
+        case 'confirmed':
+          if(manual){
+            const base=t(`Confirmed address: ${manual}.`,`Dirección confirmada: ${manual}.`);
+            const whenLine=manualWhen?t(`Confirmed on ${manualWhen}.`,`Confirmado el ${manualWhen}.`):'';
+            return {review:whenLine?`${base} ${whenLine}`:base,state:'confirmed'};
+          }
+          const coordLine=coords?t(`Confirmed coordinates: ${coords}.`,`Coordenadas confirmadas: ${coords}.`):t('Delivery location confirmed.','Ubicación de entrega confirmada.');
+          const whenLine=when?t(`Confirmed on ${when}.`,`Confirmado el ${when}.`):'';
+          return {review:whenLine?`${coordLine} ${whenLine}`:coordLine,state:'confirmed'};
+        case 'error':
+          return {review:t('We could not confirm your location.','No pudimos confirmar su ubicación.'),state:'error'};
+        default:
+          return {review:t('You will confirm location after clicking "Confirm Transaction".','Confirmará la ubicación tras presionar “Confirmar transacción”.'),state:'idle'};
+      }
+    }
+
+    function updateLocationReview(){
+      if(!locationReviewEl) return;
+      const {review,state}=buildLocationReview();
+      locationReviewEl.textContent=review;
+      locationReviewEl.dataset.state=state;
+    }
+
+    function disclaimerMessage(key='default'){
+      switch(key){
+        case 'location': return t('Authorize and confirm your delivery location to continue.','Autorice y confirme su ubicación.');
+        default: return t('You must confirm your "Order Delivery Location".','Debe confirmar su "Ubicación de Entrega".');
+      }
+    }
+
+    function showDisclaimer(message,key='default'){
+      if(!confirmDisclaimer) return;
+      const msg=message??disclaimerMessage(key);
+      confirmDisclaimer.hidden=false;
+      confirmDisclaimer.dataset.key=key;
+      confirmDisclaimer.textContent=msg;
+    }
+    function hideDisclaimer(){
+      if(!confirmDisclaimer) return;
+      confirmDisclaimer.hidden=true;
+      confirmDisclaimer.textContent='';
+      delete confirmDisclaimer.dataset.key;
+    }
+
+    function setMapStatus(message,isAlert=false){
+      if(!mapStatusEl) return;
+      mapStatusEl.textContent=message;
+      mapStatusEl.classList.toggle('alert',!!isAlert);
+    }
+
+    function updateMapView(){
+      if(!mapDlg) return;
+      if(mapFrame){
+        const baseTitle=t('Delivery location map','Mapa de entrega');
+        mapFrame.setAttribute('title',`${baseTitle} – ${mapModeLabel(mapMode)}`);
+      }
+      const url=buildMapEmbedUrl(mapMode);
+      if(url){
+        if(mapFrame&&mapFrame.src!==url) mapFrame.src=url;
+        if(hasManualAddress()&&!hasCoordinateLocation()){
+          setMapStatus(t('Review map and confirm address.','Revise el mapa y confirme la dirección.'),false);
+        }else{
+          setMapStatus(t('Drag map if needed, then confirm.','Ajuste el mapa si es necesario y confirme.'),false);
+        }
+      }else{
+        if(mapFrame) mapFrame.removeAttribute('src');
+        if(locationStatus==='error'){
+          setMapStatus(t('Unable to confirm location. Enable GPS.','No se pudo confirmar ubicación.'),true);
+        }else{
+          setMapStatus(t('Waiting for GPS location.','Esperando ubicación GPS.'),true);
+        }
+      }
+      updateMapLinks();
+    }
+
+    let locationRequestPromise=null;
+    async function requestLocation(auto=false){
+      if(!navigator.geolocation){
+        locationStatus='error';
+        updateLocationReview();
+        if(!auto) alert(t('Geolocation not supported','Geolocalización no soportada'));
+        return false;
+      }
+      if(locationRequestPromise) return locationRequestPromise;
+      locationStatus='pending';
+      updateLocationReview();
+      if(mapDlg&&mapDlg.open) setMapStatus(t('Requesting location...','Solicitando ubicación...'),false);
+      locationRequestPromise=new Promise(resolve=>{
+        const onSuccess=pos=>{
+          locationRequestPromise=null;
+          gps.lat=pos.coords.latitude;gps.lng=pos.coords.longitude;gps.confirmedAt=null;
+          setLocationConfirmed(false);
+          locationStatus='acquired';
+          updateLocationReview();
+          updateMapView();
+          resolve(true);
+        };
+        const onError=err=>{
+          locationRequestPromise=null;
+          gps.lat=null;gps.lng=null;gps.confirmedAt=null;
+          setLocationConfirmed(false);
+          locationStatus='error';
+          updateLocationReview();
+          updateMapView();
+          if(err&&err.code===1) alert(t('Location permission required.','Se requiere permiso.'));
+          else if(!auto) alert(t('Could not get location','No se pudo obtener ubicación'));
+          resolve(false);
+        };
+        const trigger=()=>navigator.geolocation.getCurrentPosition(onSuccess,onError,{enableHighAccuracy:true,timeout:10000});
+        if(navigator.permissions){
+          navigator.permissions.query({name:'geolocation'}).then(p=>{
+            if(p.state==='denied') onError({code:1}); else trigger();
+          }).catch(()=>trigger());
+        }else{
+          trigger();
+        }
+      });
+      return locationRequestPromise;
+    }
+
+    function resetOrderReview(closeDialog=true){
+      cart.clear();
+      renderProducts();
+      renderModal();
+      recalc();
+      ['instructions','firstName','lastName','idNumber','phone','email','address'].forEach(id=>{
+        const field=$('#'+id);
+        if(field) field.value='';
+      });
+      deliveryMinutes=45;
+      document.querySelectorAll('#delTimes .chip').forEach((chip,idx)=>chip.classList.toggle('sel',idx===0));
+      updateDeliveryTimeDisplays();
+      gps.lat=null;gps.lng=null;gps.confirmedAt=null;
+      manualAddress.value='';manualAddress.confirmedAt=null;
+      locationStatus='idle';
+      hideDisclaimer();
+      setLocationConfirmed(false);
+      updateMapView();
+      if(mapStatusEl) setMapStatus('',false);
+      if(mapDlg&&mapDlg.open) mapDlg.close();
+      if(locAuthDlg&&locAuthDlg.open) locAuthDlg.close();
+      if(closeDialog) $('#orderDlg')?.close();
+    }
+
+    function renderProducts(){
+      track.innerHTML='';
+      PRODUCTS.forEach(p=>{
+        const nm=(lang==='en'?p.name_en:p.name_es);
+        const ds=(lang==='en'?p.desc_en:p.desc_es);
+        const el=document.createElement('article');
+        el.className='product card';
+        el.innerHTML=`
+          <div class="product-image">Product Image</div>
+          <div class="product-title">${nm}</div>
+          <div class="product-desc">${ds}</div>
+          <div class="product-price">${fmt(p.price)}</div>
+          <div class="qty" aria-label="${t('Quantity','Cantidad')} ${nm}">
+            <button type="button" aria-label="${t('Decrease','Disminuir')}">−</button>
+            <input type="text" inputmode="numeric" value="${cart.get(p.id)||0}" aria-label="${t('Quantity','Cantidad')}" />
+            <button type="button" aria-label="${t('Increase','Aumentar')}">+</button>
+          </div>`;
+        const [minus,input,plus]=el.querySelectorAll('.qty>*');
+        plus.addEventListener('click',()=>{cart.set(p.id,(cart.get(p.id)||0)+1);input.value=cart.get(p.id);recalc();});
+        minus.addEventListener('click',()=>{cart.set(p.id,Math.max(0,(cart.get(p.id)||0)-1));input.value=cart.get(p.id);recalc();});
+        input.addEventListener('input',()=>{const v=Math.max(0,Math.min(999,parseInt(input.value.replace(/\D/g,''))||0));cart.set(p.id,v);input.value=v;recalc();});
+        track.appendChild(el);
+      });
+    }
+    function totals(){
+      let sub=0;PRODUCTS.forEach(p=>sub+=p.price*(cart.get(p.id)||0));
+      const tax=sub*VAT,del=sub>0?DELIVERY_FEE:0,total=sub+tax+del;
+      return{sub,tax,del,total};
+    }
+
+    function recalc(){
+      const{sub,tax,del,total}=totals();
+      $('#t_sub').textContent=fmt(sub);
+      $('#t_tax').textContent=fmt(tax);
+      $('#t_del').textContent=fmt(del);
+      $('#t_total').textContent=fmt(total);
+    }
+
+    function syncLang(){
+      document.querySelectorAll('[data-en]').forEach(el=>{
+        const next=el.getAttribute(lang==='en'?'data-en':'data-es');
+        if(next!==null)el.textContent=next;
+      });
+      document.querySelectorAll('[data-ph-en],[data-ph-es]').forEach(setPh);
+      $('#langBtn').textContent=lang==='en'?'ES':'EN';
+      renderProducts();recalc();
+      updateDeliveryTimeDisplays();
+      $('#m_deliveryTime').previousElementSibling.textContent=t('Delivery Time','Tiempo de entrega');
+      if(confirmDisclaimer&&!confirmDisclaimer.hidden){
+        const key=confirmDisclaimer.dataset.key||'default';
+        showDisclaimer(undefined,key);
+      }
+      updateLocationReview();
+      renderLocAuthStatus();
+      if(mapDlg&&mapDlg.open)updateMapView();
+      if(typeof window.updateCsatSentimentLabel==='function')window.updateCsatSentimentLabel();
+      if(typeof window.updateCsatCountsUI==='function')window.updateCsatCountsUI();
+      if(window._latestCsatStats)updateCsatSummary(window._latestCsatStats);
+    }
+
+    function syncTheme(){
+      document.documentElement.setAttribute('data-theme',theme);
+      $('#themeBtn').textContent=theme==='light'?t('Dark','Oscuro'):t('Light','Claro');
+    }
+
+    function scrollByCards(d){
+      const c=track.querySelector('.product');
+      const dx=c?(c.getBoundingClientRect().width+16):300;
+      track.scrollBy({left:d*dx,behavior:'smooth'});
+    }
+
+    (function(){
+      const head=document.querySelector('#zoneAcc .acc-head');
+      const body=document.querySelector('#zoneAcc .acc-body');
+      head.addEventListener('click',()=>{
+        const open=head.classList.toggle('open');
+        head.setAttribute('aria-expanded',open?'true':'false');
+        body.style.maxHeight=open?body.scrollHeight+'px':'0px';
+      });
+      new ResizeObserver(()=>{if(head.classList.contains('open'))body.style.maxHeight=body.scrollHeight+'px';}).observe(body);
+    })();
+
+    function renderModal(){
+      const box=$('#orderItems');box.innerHTML='';
+      PRODUCTS.forEach(p=>{
+        const q=cart.get(p.id)||0;if(!q)return;
+        const row=document.createElement('div');row.className='item-row';
+        row.innerHTML=`<div><strong>${lang==='en'?p.name_en:p.name_es}</strong>
+          <div class="muted text-sm">${lang==='en'?p.desc_en:p.desc_es}</div></div>
+          <div class="inline-qty" data-id="${p.id}">
+            <button aria-label="${t('Remove','Quitar')}">−</button><span>${q}</span>
+            <button aria-label="${t('Add','Agregar')}">+</button></div>`;
+        box.appendChild(row);
+      });
+      box.addEventListener('click',modalQtyHandler,{once:true});
+      const{sub,tax,del,total}=totals();
+      updateDeliveryTimeDisplays();
+      $('#m_sub').textContent=fmt(sub);
+      $('#m_tax').textContent=fmt(tax);
+      $('#m_del').textContent=fmt(del);
+      $('#m_total').textContent=fmt(total);
+      updateLocationReview();
+    }
+
+    function modalQtyHandler(e){
+      const box=e.target.closest('.inline-qty');
+      if(!box)return;
+      const id=box.dataset.id;
+      const span=box.querySelector('span');
+      if(e.target.textContent==='＋'||e.target.textContent==='+')cart.set(id,(cart.get(id)||0)+1);
+      else if(e.target.textContent==='−'||e.target.textContent==='-')cart.set(id,Math.max(0,(cart.get(id)||0)-1));
+      else return;
+      span.textContent=cart.get(id)||0;recalc();renderModal();
+    }
+
+    const ensureCsatStars=source=>{
+      const defaults={1:0,2:0,3:0,4:0,5:0};
+      if(!source||typeof source!=='object')return defaults;
+      const stars={...defaults};
+      Object.keys(defaults).forEach(key=>{
+        const value=Number(source[key]);
+        stars[key]=Number.isFinite(value)&&value>0?value:0;
+      });
+      return stars;
+    };
+
+    const toCsatStats=payload=>{
+      if(!payload||typeof payload!=='object')return null;
+      const base=(payload.stats&&typeof payload.stats==='object')?payload.stats:payload;
+      const averageRaw=base.average??base.avg;
+      const totalRaw=base.total??base.count;
+      if(averageRaw===undefined&&totalRaw===undefined)return null;
+      const averageNum=Number(averageRaw);
+      const totalNum=Number(totalRaw);
+      const average=Number.isFinite(averageNum)?averageNum:0;
+      const total=Math.max(0,Number.isFinite(totalNum)?Math.round(totalNum):0);
+      const sumCandidate=base.sum??(average*total);
+      const sumNum=Number(sumCandidate);
+      const sum=Number.isFinite(sumNum)?sumNum:Math.round(average*total)||0;
+      const stats={average,total,sum,stars:ensureCsatStars(base.stars)};
+      if(base.updatedAt!==undefined){
+        const ts=Number(base.updatedAt);
+        if(Number.isFinite(ts))stats.updatedAt=ts;
+      }
+      ['today','month','year'].forEach(key=>{
+        if(base[key]!==undefined){
+          const val=Number(base[key]);
+          stats[key]=Number.isFinite(val)?val:0;
+        }
+      });
+      return stats;
+    };
+
+    function updateCsatSummary(stats){
+      const summaryEl=document.getElementById('csatScore');
+      if(!summaryEl)return;
+      const normalized=toCsatStats(stats);
+      if(!normalized||!(Number(normalized.total)>0)){
+        summaryEl.textContent='—';
+        summaryEl.hidden=true;
+        return;
+      }
+      const total=Number(normalized.total)||0;
+      const average=Number(normalized.average)||0;
+      const votesLabel=total===1?t('vote','voto'):t('votes','votos');
+      summaryEl.textContent=`${average.toFixed(2)}/5 • ${total.toLocaleString()} ${votesLabel}`;
+      summaryEl.hidden=false;
+    }
+
+    function showCsatStats(raw){
+      const stats=toCsatStats(raw);
+      if(!stats)return;
+      window._latestCsatStats=stats;
+      const avgEl=document.getElementById('csatAverageValue');
+      if(avgEl)avgEl.textContent=stats.average.toFixed(2);
+      const totalEl=document.getElementById('csatTotalVotes');
+      if(totalEl)totalEl.textContent=(stats.total||0).toLocaleString();
+      const votesLabel=document.getElementById('csatVotesLabel');
+      if(votesLabel){
+        const label=lang==='es'?(votesLabel.dataset.es||votesLabel.dataset.en||votesLabel.textContent):(votesLabel.dataset.en||votesLabel.textContent);
+        votesLabel.textContent=label;
+      }
+      updateCsatSummary(stats);
+    }
+
+    async function logCsatVisit(){
+      if(!CSAT_VISIT_ENDPOINT||typeof window._csatGetIds!=='function')return;
+      try{
+        const{uid,fp}=await window._csatGetIds();
+        await fetch(CSAT_VISIT_ENDPOINT,{
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({uid,fp,lang,theme:theme||'dark'})
+        });
+      }catch(err){
+        console.warn('Unable to record CSAT visit.',err);
+      }
+    }
+
+    function initCsat(){
+      let rating=0;
+      const stars=Array.from(document.querySelectorAll('.csat-star-btn'));
+      const sentimentLabel=document.getElementById('csatSentiment');
+      const sentimentMap={
+        en:[{label:'Frustrated'},{label:'Unhappy'},{label:'Neutral'},{label:'Happy'},{label:'Delighted'}],
+        es:[{label:'Frustrado'},{label:'Descontento'},{label:'Neutral'},{label:'Feliz'},{label:'Encantado'}]
+      };
+      const sentimentStars=['★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'];
+      const sentimentDefaults={en:sentimentLabel?.dataset.defaultEn||'Select a rating',es:sentimentLabel?.dataset.defaultEs||'Seleccione una calificación'};
+      const defaultPattern=sentimentLabel?.dataset.defaultPattern||'☆☆☆☆☆';
+      let lastSentimentVal=0;
+      const countWrap=document.getElementById('csatCounts');
+      let countNodes=countWrap?Array.from(countWrap.querySelectorAll('.csat-count')):[];
+      let counts=[0,0,0,0,0];
+      const STORAGE_KEY='csatCounts';
+
+      const safeParse=(key,fallback)=>{
+        try{
+          const raw=localStorage.getItem(key);
+          if(!raw)return fallback;
+          const parsed=JSON.parse(raw);
+          return parsed??fallback;
+        }catch(err){
+          console.warn(`Unable to read ${key}`,err);
+          return fallback;
+        }
+      };
+      if(countNodes.length===counts.length||!countWrap){
+        const saved=safeParse(STORAGE_KEY,[]);
+        if(Array.isArray(saved)){
+          counts=counts.map((n,i)=>{
+            const v=Number(saved[i]);
+            return Number.isFinite(v)&&v>=0?Math.floor(v):0;
+          });
+        }
+      }
+
+      const getLeaderRating=()=>{
+        let bestIdx=-1;
+        let bestVal=-1;
+        counts.forEach((val,idx)=>{
+          if(val>bestVal||(val===bestVal&&idx>bestIdx)){
+            bestVal=val;
+            bestIdx=idx;
+          }
+        });
+        return bestVal>0?bestIdx+1:0;
+      };
+
+      const updateCountsUI=()=>{
+        if(countWrap){
+          countNodes=Array.from(countWrap.querySelectorAll('.csat-count'));
+          countNodes.forEach((node)=>{
+            const ratingIdx=(Number(node.dataset.val)||0)-1;
+            const val=counts[ratingIdx]||0;
+            const fallbackLabel=lang==='en'?'Rating':'Calificación';
+            const label=lang==='en'?(node.dataset.labelEn||''):(node.dataset.labelEs||node.dataset.labelEn||'');
+            const safeLabel=label||fallbackLabel;
+            const text=safeLabel?`${safeLabel}: ${val}`:`${val} ${t('ratings','calificaciones')}`;
+            node.setAttribute('aria-label',text);
+            node.setAttribute('title',text);
+            node.dataset.count=String(val);
+            const starDisplay=node.querySelector('.csat-count-stars');
+            if(starDisplay){
+              const ratingVal=Math.max(1,Math.min(5,Number(node.dataset.val)||0));
+              const pattern='★'.repeat(ratingVal)+'☆'.repeat(5-ratingVal);
+              starDisplay.textContent=pattern;
+            }
+            const hiddenLabel=node.querySelector('.csat-count-label');
+            if(hiddenLabel){
+              hiddenLabel.textContent=safeLabel;
+            }
+            const score=node.querySelector('.sentiment-score');
+            if(score){
+              score.textContent=val.toLocaleString();
+              score.classList.add('visible');
+              score.classList.toggle('zero',val===0);
+            }
+            const avgDisplay=node.querySelector('.csat-count-average');
+            if(avgDisplay){
+              const ratingVal=Math.max(0,Math.min(5,Number(node.dataset.val)||0));
+              avgDisplay.textContent=(val>0?ratingVal:0).toFixed(2);
+            }
+            const totalDisplay=node.querySelector('.csat-count-total');
+            if(totalDisplay){
+              totalDisplay.textContent=val.toLocaleString();
+            }
+            const votesLabelEl=node.querySelector('.csat-count-votes-label');
+            if(votesLabelEl){
+              const labelText=lang==='es'?(votesLabelEl.dataset.es||votesLabelEl.dataset.en||votesLabelEl.textContent):(votesLabelEl.dataset.en||votesLabelEl.textContent);
+              votesLabelEl.textContent=labelText;
+            }
+          });
+          const sorted=[...countNodes].sort((a,b)=>{
+            const valA=Number(a.dataset.count)||0;
+            const valB=Number(b.dataset.count)||0;
+            if(valA===valB){
+              return (Number(b.dataset.val)||0)-(Number(a.dataset.val)||0);
+            }
+            return valB-valA;
+          });
+          sorted.forEach((node,idx)=>{
+            node.classList.toggle('leader',idx===0&&(Number(node.dataset.count)||0)>0);
+            countWrap.appendChild(node);
+          });
+          countNodes=sorted;
+        }
+        const totalVotes=counts.reduce((sum,val)=>sum+val,0);
+        const avg=totalVotes?counts.reduce((sum,val,idx)=>sum+val*(idx+1),0)/totalVotes:0;
+        const avgEl=document.getElementById('csatAverageValue');
+        if(avgEl)avgEl.textContent=avg.toFixed(2);
+        const totalEl=document.getElementById('csatTotalVotes');
+        if(totalEl)totalEl.textContent=totalVotes.toLocaleString();
+        const votesLabel=document.getElementById('csatVotesLabel');
+        if(votesLabel){
+          const label=lang==='es'?(votesLabel.dataset.es||votesLabel.dataset.en||votesLabel.textContent):(votesLabel.dataset.en||votesLabel.textContent);
+          votesLabel.textContent=label;
+        }
+        if(!rating)paint(0);
+      };
+
+      window.updateCsatCountsUI=updateCountsUI;
+
+      const persistCounts=()=>{
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(counts));}
+        catch(err){console.warn('Unable to persist CSAT counts.',err);}
+      };
+
+      const updateCounts=(val)=>{
+        if(val<1||val>counts.length)return;
+        counts[val-1]=(counts[val-1]||0)+1;
+        updateCountsUI();
+        persistCounts();
+      };
+
+      const setSentiment=val=>{
+        lastSentimentVal=val>0?val:0;
+        if(!sentimentLabel)return;
+        const labels=sentimentMap[lang]||sentimentMap.en;
+        const fallback=sentimentMap.en;
+        const defaultText=sentimentDefaults[lang]||sentimentDefaults.en;
+        if(lastSentimentVal>0){
+          const idx=Math.max(0,Math.min(labels.length-1,lastSentimentVal-1));
+          const entry=labels[idx]||fallback[idx]||fallback[fallback.length-1]||fallback[0];
+          const midIdx=Math.floor(fallback.length/2);
+          const labelText=entry?.label||fallback[idx]?.label||fallback[midIdx]?.label||fallback[0]?.label||defaultText;
+          sentimentLabel.textContent=sentimentStars[idx]||sentimentStars[sentimentStars.length-1];
+          sentimentLabel.setAttribute('aria-label',labelText);
+        }else{
+          sentimentLabel.textContent=defaultPattern;
+          sentimentLabel.setAttribute('aria-label',defaultText);
+        }
+      };
+
+      window.updateCsatSentimentLabel=()=>setSentiment(lastSentimentVal);
+
+      const paint=val=>{
+        const selectedVal=val>0?val:0;
+        const displayVal=selectedVal||getLeaderRating();
+        stars.forEach(btn=>{
+          const btnVal=Number(btn.dataset.val)||0;
+          const isFilled=displayVal>0&&btnVal<=displayVal;
+          btn.classList.toggle('active',isFilled);
+          btn.setAttribute('aria-pressed',btnVal===selectedVal?'true':'false');
+        });
+        setSentiment(displayVal);
+      };
+
+      const CSAT_ENDPOINT_PREF_KEY='csatEndpointPref';
+      let preferredEndpoint=null;
+      try{
+        const stored=localStorage.getItem(CSAT_ENDPOINT_PREF_KEY);
+        if(stored&&WORKER_CSAT_ENDPOINTS.includes(stored)){
+          preferredEndpoint=stored;
+        }
+      }catch(err){
+        console.warn('Unable to read CSAT endpoint preference.',err);
+      }
+
+      const rememberEndpoint=url=>{
+        if(!url)return;
+        preferredEndpoint=url;
+        try{localStorage.setItem(CSAT_ENDPOINT_PREF_KEY,url);}catch(err){
+          console.warn('Unable to persist CSAT endpoint preference.',err);
+        }
+      };
+
+      const orderedEndpoints=()=>{
+        if(!WORKER_CSAT_ENDPOINTS.length)return[];
+        const list=[...WORKER_CSAT_ENDPOINTS];
+        if(preferredEndpoint){
+          const idx=list.indexOf(preferredEndpoint);
+          if(idx>0){
+            list.splice(idx,1);
+            list.unshift(preferredEndpoint);
+          }else if(idx===-1){
+            list.unshift(preferredEndpoint);
+          }
+        }
+        return list;
+      };
+
+      const attemptWorkerRequest=async(endpoint,options={})=>{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),options.timeout||6000);
+        try{
+          const res=await fetch(endpoint,{
+            mode:'cors',
+            credentials:'omit',
+            ...options,
+            signal:controller.signal
+          });
+          let data=null;
+          let parsed=false;
+          try{data=await res.json();parsed=true;}catch{data=null;}
+          const explicitFail=parsed&&data&&typeof data==='object'&&(data.ok===false||data.success===false);
+          if(!res.ok||explicitFail){
+            const message=data&&typeof data==='object'&&(data.error||data.message)?data.error||data.message:`csat_http_${res.status}`;
+            const error=new Error(message);
+            error.code='server';
+            error.status=res.status;
+            error.endpoint=endpoint;
+            throw error;
+          }
+          rememberEndpoint(endpoint);
+          if(!parsed||data==null){
+            return{ok:true};
+          }
+          if(typeof data==='object'&&data.ok===undefined&&data.success===undefined){
+            data.ok=true;
+          }
+          return data;
+        }finally{
+          clearTimeout(timer);
+        }
+      };
+      const sendToWorker=async(entry)=>{
+        const endpoints=orderedEndpoints();
+        if(!endpoints.length)throw new Error('csat_endpoint_missing');
+        const submission={
+          rating:entry?.rating,
+          lang:entry?.lang
+        };
+        if(entry&&entry.uid!==undefined&&entry.uid!==null)submission.uid=entry.uid;
+        if(entry&&entry.fp!==undefined&&entry.fp!==null)submission.fp=entry.fp;
+        let lastErr=null;
+        for(const endpoint of endpoints){
+          try{
+            const postUrl=deriveCsatPostUrl(endpoint);
+            if(!postUrl)continue;
+            return await attemptWorkerRequest(postUrl,{
+              method:'POST',
+              headers:{'content-type':'application/json'},
+              body:JSON.stringify(submission)
+            });
+          }catch(err){
+            if(err.name==='AbortError'){
+              err=new Error('csat_timeout');
+              err.code='timeout';
+            }
+            err.endpoint=err.endpoint||endpoint;
+            lastErr=err;
+            if(classifyNetworkError(err))break;
+            continue;
+          }
+        }
+        throw lastErr||new Error('csat_unreachable');
+      };
+
+      const classifyNetworkError=err=>{
+        if(!err)return false;
+        if(err.name==='AbortError')return true;
+        if(err.code==='timeout')return true;
+        if(err.code==='server'){
+          const status=Number(err.status)||0;
+          if(status===429)return true;
+          if(status>=500&&status<600)return true;
+          return false;
+        }
+        const msg=(err.message||'').toLowerCase();
+        return msg.includes('failed to fetch')||msg.includes('network');
+      };
+
+      const queuePending=entry=>{
+        pending.push(entry);
+        if(pending.length>MAX_PENDING)pending=pending.slice(-MAX_PENDING);
+        persistPending();
+      };
+
+      const flushPending=async()=>{
+        if(!pending.length)return;
+        const queue=[...pending];
+        pending=[];
+        persistPending();
+        let latestStats=null;
+        for(const entry of queue){
+          try{
+            const data=await sendToWorker(entry);
+            updateCounts(entry.rating);
+            const stats=toCsatStats(data);
+            if(stats)latestStats=stats;
+          }catch(err){
+            if(classifyNetworkError(err)){
+              pending.push(entry);
+            }else{
+              console.warn('Dropping CSAT vote due to non-retriable error.',err);
+            }
+          }
+        }
+        if(pending.length)persistPending();
+        if(latestStats)showCsatStats(latestStats);
+      };
+
+      updateCountsUI();
+
+      stars.forEach((btn,i)=>{
+        const val=Number(btn.dataset.val)||i+1;
+        btn.addEventListener('mouseenter',()=>paint(val));
+        btn.addEventListener('focus',()=>paint(val));
+        btn.addEventListener('mouseleave',()=>paint(rating));
+        btn.addEventListener('blur',()=>paint(rating));
+        btn.addEventListener('click',()=>{rating=val;paint(rating);});
+      });
+
+      const rateBtn=document.getElementById('rateBtn');
+      const setRateBtnBusy=busy=>{
+        if(!rateBtn)return;
+        rateBtn.disabled=!!busy;
+        rateBtn.setAttribute('aria-busy',busy?'true':'false');
+        rateBtn.classList.toggle('is-busy',!!busy);
+      };
+      rateBtn?.addEventListener('click',async()=>{
+        if(!rating){
+          alert(t('Please select a rating first.','Seleccione una calificación.'));
+          return;
+        }
+        if(rateBtn?.disabled)return;
+        setRateBtnBusy(true);
+        let uid;
+        let fp;
+        if(typeof window._csatGetIds==='function'){
+          try{
+            const ids=await window._csatGetIds();
+            uid=ids?.uid;
+            fp=ids?.fp;
+          }catch(err){
+            console.warn('Unable to resolve CSAT identifiers.',err);
+          }
+        }
+        const entry={rating,lang,uid,fp,ts:Date.now()};
+        try{
+          const data=await sendToWorker(entry);
+          updateCounts(rating);
+          const stats=toCsatStats(data);
+          if(stats)showCsatStats(stats);
+          alert(t('Thanks for rating!','¡Gracias por calificar!'));
+          await flushPending();
+        }catch(err){
+          console.error('CSAT submission failed',err);
+          if(classifyNetworkError(err)){
+            queuePending(entry);
+            alert(t('We saved your rating and will retry as soon as we reconnect.','Guardamos tu calificación y la enviaremos cuando recuperemos la conexión.'));
+          }else{
+            const fallbackMsg=t('Could not send your rating. Please try again.','No se pudo enviar su calificación. Inténtelo de nuevo.');
+            const errMsg=(err&&err.message&&typeof err.message==='string'&&!/^csat_/i.test(err.message))?err.message:fallbackMsg;
+            alert(errMsg);
+          }
+        }
+        finally{
+          setRateBtnBusy(false);
+        }
+      });
+
+      paint(0);
+      updateCountsUI();
+
+      (async()=>{
+        const tried=new Set();
+        const candidates=[];
+        CSAT_STATS_ENDPOINTS.forEach(endpoint=>{if(endpoint)candidates.push(endpoint);});
+        orderedEndpoints().forEach(endpoint=>{
+          if(endpoint)candidates.push(endpoint);
+        });
+        for(const endpoint of candidates){
+          if(!endpoint||tried.has(endpoint))continue;
+          tried.add(endpoint);
+          try{
+            const data=await attemptWorkerRequest(endpoint,{method:'GET'});
+            const stats=toCsatStats(data);
+            if(stats){
+              showCsatStats(stats);
+              return;
+            }
+            if(data&&data.ok)continue;
+          }catch(err){
+            if(err.name==='AbortError'){
+              err.code='timeout';
+            }
+            if(classifyNetworkError(err)){
+              console.warn('CSAT stats unavailable (network)',err);
+              break;
+            }
+            continue;
+          }
+        }
+      })();
+
+      flushPending();
+      window.addEventListener('online',flushPending,{once:false});
+    }
+    /* Simple charts */
+    function drawBarChart(id,data){
+      const c=document.getElementById(id); if(!c) return;
+      const ctx=c.getContext('2d'); const w=c.width,h=c.height;
+      ctx.clearRect(0,0,w,h);
+      if(!Array.isArray(data) || !data.length) return;
+      const safe=data.map(v=>Math.max(0,Number.isFinite(v)?v:Number(v)||0));
+      if(!safe.some(v=>v>0)) return;
+      const max=Math.max(...safe);
+      const barW=w/safe.length-10;
+      const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      safe.forEach((v,i)=>{
+        const x=i*(barW+10)+5; const bh=max>0?(v/max)*h:0;
+        ctx.fillStyle=color; ctx.fillRect(x,h-bh,barW,bh);
+      });
+    }
+
+    function drawLineChart(id,data){
+      const c=document.getElementById(id); if(!c) return;
+      const ctx=c.getContext('2d'); const w=c.width,h=c.height;
+      ctx.clearRect(0,0,w,h);
+      if(!Array.isArray(data) || data.length<2) return;
+      const safe=data.map(v=>Math.max(0,Number.isFinite(v)?v:Number(v)||0));
+      if(!safe.some(v=>v>0)) return;
+      const max=Math.max(...safe);
+      const step=w/(safe.length-1);
+      const color=getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+      safe.forEach((v,i)=>{
+        const x=i*step; const y=h-(max>0?(v/max)*h:0); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke(); ctx.fillStyle=color;
+      safe.forEach((v,i)=>{
+        const x=i*step; const y=h-(max>0?(v/max)*h:0); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+      });
+    }
+
+    /* INIT */
+    renderProducts(); recalc(); syncLang(); syncTheme();
+    highlightMapTabs();
+    updateMapLinks();
+    initCsat();
+    logCsatVisit();
+    async function loadVisitMetrics(){
+      ['visitsToday','visitsMonth','visitsYear'].forEach(id=>updateVisitMetric(id));
+      const hadCache=restoreVisitMetricsFromCache();
+      if(!metricsBase || !VISIT_METRIC_ENDPOINTS.length){
+        if(!hadCache) applyVisitFallback('fallback');
+        return;
+      }
+      for(const endpoint of VISIT_METRIC_ENDPOINTS){
+        if(!endpoint) continue;
+        const supportsAbort=typeof AbortController!=='undefined';
+        let controller=null;
+        let timeout=null;
+        try{
+          if(supportsAbort){
+            controller=new AbortController();
+            timeout=setTimeout(()=>controller.abort(),8000);
+          }
+          const response=await fetch(endpoint,{
+            mode:'cors',
+            credentials:'omit',
+            headers:{'Accept':'application/json'},
+            signal:controller?.signal,
+          });
+          if(timeout) clearTimeout(timeout);
+          if(!response.ok){
+            if(response.status>=500){
+              console.warn('Visit metrics endpoint returned server error.',response.status,endpoint);
+              continue;
+            }
+            throw new Error(`bad_status_${response.status}`);
+          }
+          const payload=await response.json().catch(()=>null);
+          const visits=payload?.visits ?? payload;
+          if(!visits){
+            console.warn('Visit metrics response missing data.',endpoint,payload);
+            continue;
+          }
+          if(!coerceVisitMetrics(visits)){
+            console.warn('Visit metrics response contained invalid values.',endpoint,payload);
+            continue;
+          }
+          applyVisitMetrics(visits,'live');
+          return;
+        }catch(err){
+          if(timeout){
+            try{clearTimeout(timeout);}catch{}
+          }
+          if(err?.name==='AbortError'){
+            console.warn('Visit metrics request timed out.',endpoint);
+            continue;
+          }
+          if(classifyNetworkError && classifyNetworkError(err)){
+            console.warn('Visit metrics request failed (network).',endpoint,err);
+            continue;
+          }
+          console.warn('Unable to load visit metrics.',endpoint,err);
+        }
+      }
+      if(!hadCache) applyVisitFallback('fallback');
+    }
+
+    loadVisitMetrics();
+
+    const salesCounts={today:12,month:320,year:2800};
+    $('#salesToday').textContent=salesCounts.today;
+    $('#salesMonth').textContent=salesCounts.month;
+    $('#salesYear').textContent=salesCounts.year;
+    drawLineChart('salesChart',[salesCounts.today,salesCounts.month,salesCounts.year]);
+
+    $('#prev').addEventListener('click',()=>scrollByCards(-1));
+    $('#next').addEventListener('click',()=>scrollByCards(1));
+    $('#langBtn').addEventListener('click',()=>{lang=(lang==='en'?'es':'en');localStorage.setItem('lang',lang);syncLang();});
+    $('#themeBtn').addEventListener('click',()=>{theme=(theme==='dark'?'light':'dark');localStorage.setItem('theme',theme);syncTheme();});
+    $('#clearBtn').addEventListener('click',e=>{e.preventDefault();cart.clear();renderProducts();recalc();});
+    $('#delTimes').addEventListener('click',e=>{
+      if(!e.target.classList.contains('chip')) return;
+      [...document.querySelectorAll('#delTimes .chip')].forEach(c=>c.classList.remove('sel'));
+      e.target.classList.add('sel'); deliveryMinutes=+e.target.dataset.min;
+      updateDeliveryTimeDisplays();
+    });
+
+    const openPay=()=>{
+      renderModal();
+      hideDisclaimer();
+      mapMode=detectDefaultMapMode();
+      highlightMapTabs();
+      if(hasManualAddress()){
+        locationStatus='confirmed';
+        if(!manualAddress.confirmedAt){
+          manualAddress.confirmedAt=new Date().toISOString();
+        }
+        setLocationConfirmed(true);
+      }else if(locationConfirmed && hasCoordinateLocation()){
+        locationStatus='confirmed';
+      }else if(hasCoordinateLocation()){
+        locationStatus='acquired';
+        setLocationConfirmed(false);
+      }else{
+        locationStatus='idle';
+        setLocationConfirmed(false);
+      }
+      updateLocationReview();
+      updateMapView();
+      updateMapLinks();
+      orderDlg?.showModal();
+    };
+    $('#fabPay').addEventListener('click',showAddressDialog);
+    $('#closeDlg').addEventListener('click',()=>orderDlg?.close());
+    $('#cancelBtn').addEventListener('click',()=>orderDlg?.close());
+    addressForm?.addEventListener('submit',handleAddressSubmit);
+    addressInput?.addEventListener('input',()=>setAddressError(false));
+    addressCancelBtn?.addEventListener('click',()=>addressDlg?.close());
+    closeAddressDlgBtn?.addEventListener('click',()=>addressDlg?.close());
+    if(addressDlg){
+      addressDlg.addEventListener('cancel',e=>{ e.preventDefault(); addressDlg.close(); });
+      addressDlg.addEventListener('close',()=>{
+        setAddressError(false);
+        if(addressInput){ addressInput.value=''; }
+      });
+    }
+    clearReviewBtn?.addEventListener('click',()=>{
+      const confirmReset=confirm(t('Do you want to clear this order review?','¿Desea limpiar esta revisión del pedido?'));
+      if(!confirmReset) return;
+      resetOrderReview(true);
+    });
+    orderDlg?.addEventListener('close',()=>{
+      hideDisclaimer();
+      if(mapDlg && mapDlg.open) mapDlg.close();
+      if(locAuthDlg && locAuthDlg.open) locAuthDlg.close();
+      setTimeout(()=>{
+        setLocationConfirmed(false);
+        gps.confirmedAt=null;
+        locationStatus=(gps.lat!=null&&gps.lng!=null)?'acquired':'idle';
+        updateLocationReview();
+      },120);
+    });
+
+    if(mapDlg){
+      const closeMap=()=>{ mapDlg.close(); };
+      $('#closeMap')?.addEventListener('click',closeMap);
+      $('#mapCancel')?.addEventListener('click',closeMap);
+      mapDlg.addEventListener('cancel',e=>{ e.preventDefault(); mapDlg.close(); });
+      mapDlg.addEventListener('close',()=>{
+        if(mapFrame) mapFrame.removeAttribute('src');
+        setMapStatus('',false);
+        if(confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
+        }
+      });
+      $('#mapConfirm')?.addEventListener('click',async ()=>{
+        if(!hasCoordinateLocation() && !hasManualAddress()){
+          setMapStatus(t('We still do not have your delivery address or GPS coordinates. Please authorize location or enter your address, then try again.','Aún no tenemos su dirección de entrega ni coordenadas GPS. Autorice la ubicación o ingrese su dirección y vuelva a intentarlo.'),true);
+          await requestLocation(false);
+          updateMapView();
+          return;
+        }
+        if(hasManualAddress() && !hasCoordinateLocation()){
+          manualAddress.confirmedAt=new Date().toISOString();
+        }else{
+          gps.confirmedAt=new Date().toISOString();
+        }
+        locationStatus='confirmed';
+        setLocationConfirmed(true);
+        hideDisclaimer();
+        setMapStatus(t('Delivery location confirmed.','Ubicación de entrega confirmada.'),false);
+        mapDlg.close();
+        if(confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
+        }
+      });
+    }
+
+    if(locAuthDlg){
+      const closeLocAuth=()=>{ locAuthDlg.close(); };
+      closeLocAuthBtn?.addEventListener('click',closeLocAuth);
+      locAuthCancelBtn?.addEventListener('click',closeLocAuth);
+      authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
+      locAuthDlg.addEventListener('cancel',e=>{ e.preventDefault(); locAuthDlg.close(); });
+      locAuthDlg.addEventListener('close',()=>{
+        locAuthStatusKey='idle';
+        renderLocAuthStatus();
+        if(authorizeLocationBtn){
+          authorizeLocationBtn.disabled=false;
+          authorizeLocationBtn.removeAttribute('aria-busy');
+        }
+        if(orderDlg && orderDlg.open && confirmBtnEl){
+          setTimeout(()=>{ confirmBtnEl.focus(); },120);
+        }
+      });
+    }else{
+      authorizeLocationBtn?.addEventListener('click',()=>{ handleAuthorizeLocation(); });
+    }
+
+    if(addressField){
+      addressField.addEventListener('input',()=>{
+        if(suppressAddressFieldListener) return;
+        const manualCurrent=normalizedManualAddress();
+        if(!manualCurrent) return;
+        const currentValue=addressField.value.trim();
+        if(currentValue===manualCurrent) return;
+        manualAddress.value='';
+        manualAddress.confirmedAt=null;
+        if(!hasCoordinateLocation()){
+          locationStatus='idle';
+          if(locationConfirmed){
+            setLocationConfirmed(false);
+          }else{
+            updateLocationReview();
+          }
+          updateMapLinks();
+          updateMapView();
+        }
+      });
+    }
+
+    mapModeButtons.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const mode=btn.dataset.mapTab;
+        if(mode) setMapMode(mode);
+      });
+    });
+    mapShareLinks.forEach(link=>{
+      link.addEventListener('click',()=>{
+        const mode=link.dataset.mapLink;
+        if(mode) setMapMode(mode);
+      });
+    });
+
+    // Submit to backend + WhatsApp
+    $('#confirmBtn').addEventListener('click', async e=>{
+      e.preventDefault();
+
+      hideDisclaimer();
+
+      const firstName=$('#firstName').value.trim();
+      const lastName=$('#lastName').value.trim();
+      const idNumber=$('#idNumber').value.trim();
+      const phone=$('#phone').value.trim();
+      const email=$('#email').value.trim();
+      const address=$('#address').value.trim();
+      const instructions=$('#instructions').value.trim();
+      const emailOK=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const phoneOK=/^\+?593\d{9,10}$/.test(phone)||/^0\d{8,9}$/.test(phone);
+      if(!firstName||!lastName||!idNumber||!phoneOK||!emailOK||!address){
+        alert(t('Please fill all fields with valid data (Name, Last name, Céd/RUC, EC phone, Email, Address).',
+                'Complete todos los campos con datos válidos (Nombre, Apellido, Céd/RUC, teléfono EC, Correo, Dirección).')); return;
+      }
+      const items=PRODUCTS.map(p=>({id:p.id,name:(lang==='en'?p.name_en:p.name_es),desc:(lang==='en'?p.desc_en:p.desc_es),qty:(cart.get(p.id)||0),unit:p.price})).filter(i=>i.qty>0);
+      if(!items.length){ alert(t('Your cart is empty.','Su carrito está vacío.')); return; }
+      const {sub,tax,del,total}=totals();
+      const deliveryDisplay=formatDeliveryTime(deliveryMinutes);
+
+      const locationReady = await ensureDeliveryLocationConfirmation();
+      const hasDeliveryLocation = locationConfirmed && (hasCoordinateLocation() || hasManualAddress());
+      if(!locationReady || !hasDeliveryLocation){
+        showDisclaimer(undefined,'location');
+        return;
+      }
+
+      const timestamp=new Date().toISOString();
+      const desktopMapLink=buildMapShareUrl('desktop');
+      const mobileMapLink=buildMapShareUrl('mobile');
+      const mapLinks={desktop:desktopMapLink||null,mobile:mobileMapLink||null};
+      const gpsData={lat:gps.lat,lng:gps.lng,confirmedAt:gps.confirmedAt};
+      if(manualAddress.value){
+        gpsData.addressQuery=manualAddress.value;
+        gpsData.confirmedAt=manualAddress.confirmedAt||gps.confirmedAt;
+      }
+      const orderPayload={
+        lang,
+        timestamp,
+        business:BUSINESS,
+        customer:{firstName,lastName,idNumber,phone,email,address,gps:gpsData,locationConfirmed,city:"",mapLinks},
+        delivery:{minutes:deliveryMinutes,fee:DELIVERY_FEE,included:true,display:deliveryDisplay},
+        cart:{items,subtotal:sub,vat:tax,delivery:del,total,instructions}
+      };
+      if(!mapLinks.desktop && !mapLinks.mobile){
+        delete orderPayload.customer.mapLinks;
+      }
+      const paymentPayload={
+        lang,
+        timestamp,
+        business:BUSINESS,
+        customer:{firstName,lastName,address},
+        delivery:orderPayload.delivery,
+        cart:{items,subtotal:sub,vat:tax,delivery:del,total}
+      };
+
+      const paymentConfirmed = await ensurePaymentConfirmed(paymentPayload);
+      if(!paymentConfirmed){
+        alert(t('We will wait for the payment confirmation before sending the order.','Esperaremos la confirmación del pago antes de enviar el pedido.'));
+        return;
+      }
+
+      let workerInitToken = '';
+      if(typeof window.initializeWorkerTransaction==='function'){
+        try{
+          const workerResult = await window.initializeWorkerTransaction(orderPayload,{ policy:'OPS' });
+          if(workerResult && workerResult.ok && workerResult.token){
+            workerInitToken = String(workerResult.token);
+          }else if(workerResult && workerResult.error){
+            console.warn('Worker initialization error:', workerResult.error);
+          }
+        }catch(err){
+          console.error('Unable to initialize encrypted worker transaction.',err);
+        }
+      }
+
+      if(typeof window.forwardPIIToWorker==='function'){
+        try{
+          await window.forwardPIIToWorker();
+        }catch(err){
+          console.error('Secure PII forwarding failed.',err);
+        }
+      }
+
+      try{
+        if(CLOUDFLARE_WORKER_URL){
+          await fetch(CLOUDFLARE_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...orderPayload,apps_script_url:APPS_SCRIPT_URL})});
+        }else if(APPS_SCRIPT_URL){
+          await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(orderPayload)});
+        }
+      }
+
+      catch(e){ console.warn("Backend request failed:",e); }
+      let maps='';
+      if(locationConfirmed){
+        const mapLines=[];
+        if(desktopMapLink){
+          mapLines.push(`${t('Map (PC/Laptop)','Mapa (PC/Portátil)')}: ${desktopMapLink}`);
+        }
+        if(mobileMapLink){
+          mapLines.push(`${t('Map (Mobile/Tablet)','Mapa (Móvil/Tablet)')}: ${mobileMapLink}`);
+        }
+        if(mapLines.length){
+          maps=`\n${mapLines.join('\n')}`;
+        }
+      }
+      let confirmationLine;
+      if(locationConfirmed){
+        if(manualAddress.value){
+          const ts=formatTimestamp(manualAddress.confirmedAt||gps.confirmedAt);
+          confirmationLine = ts
+            ? `${t('Address confirmed at','Dirección confirmada el')} ${ts}`
+            : t('Delivery address confirmed','Dirección de entrega confirmada');
+        }else if(gps.confirmedAt){
+          confirmationLine = `${t('Location confirmed at','Ubicación confirmada el')} ${formatTimestamp(gps.confirmedAt)}`;
+        }else{
+          confirmationLine = t('Delivery location confirmed','Ubicación de entrega confirmada');
+        }
+      }else{
+        confirmationLine = t('Location confirmation pending','Confirmación de ubicación pendiente');
+      }
+      const lines=items.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.qty*i.unit)}`).join("\n");
+      const msg=`${t('Order','Pedido')} – ${BUSINESS.name}\n\n${t('Customer','Cliente')}: ${firstName} ${lastName}\nID: ${idNumber}\nTel: ${phone}\nEmail: ${email}\nDir: ${address}${maps}\n${confirmationLine}\n\n${t('Items Purchased','Artículos')}\n${lines}\n\n${t('Delivery Time','Tiempo de entrega')}: ${deliveryDisplay}\nSubtotal: ${fmt(sub)}\n${t('VAT 15%','IVA 15%')}: ${fmt(tax)}\n${t('Delivery','Entrega')}: ${fmt(del)}\n${t('Total','Total')}: ${fmt(total)}\n\n${t('Instructions','Instrucciones')}: ${instructions||'-'}`;
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
+      $('#orderDlg').close();
+      const tokenLine = workerInitToken
+        ? `\n${t('Transaction token','Token de transacción')}: ${workerInitToken}`
+        : '';
+      alert(`${t('Order sent. We also opened WhatsApp with the details.','Pedido enviado. También abrimos WhatsApp con los detalles.')}${tokenLine}`);
+    });
+
+    document.addEventListener('click',e=>{
+      const interactive=e.target.closest('button, a');
+      if(!interactive) return;
+      interactive.classList.add('click-highlight');
+      if(highlightTimers.has(interactive)) clearTimeout(highlightTimers.get(interactive));
+      const timer=setTimeout(()=>{
+        interactive.classList.remove('click-highlight');
+        highlightTimers.delete(interactive);
+      },3000);
+      highlightTimers.set(interactive,timer);
+    });
+
+    // Keyboard arrows for carousel
+    document.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')scrollByCards(-1); if(e.key==='ArrowRight')scrollByCards(1); });
+  </script>
+  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-b4JG5hRjWpB79Dlz01+p4q0doRvkcuwc+rOWmYSpSRS/zAI1hQjP/GusdgvMUo5p" crossorigin="anonymous"></script>
+</body>
+</html>
