@@ -518,6 +518,24 @@
       || ''
   );
 
+  const DEFAULT_BUSINESS = Object.freeze({
+    name: "Marxia Café y Bocaditos",
+    address: "Av. Principal y Calle A",
+    city: "Guayaquil",
+    contact: "+593 99 999 9999",
+    logo_url: ""
+  });
+
+  const getAppBindings = ()=> window.__appBindings || {};
+  const callBinding = (fn, fallback)=>{
+    try{
+      return typeof fn === 'function' ? fn() : fallback;
+    }catch(err){
+      console.warn('app binding invocation failed', err);
+      return fallback;
+    }
+  };
+
   function normalizeEndpoint(value){
     if(typeof value !== 'string') return '';
     try{
@@ -609,9 +627,47 @@
     if(!orderPayload || typeof orderPayload!=='object'){
       throw new TypeError('orderPayload must be an object');
     }
+    const context = options && typeof options==='object' && options.context && typeof options.context==='object'
+      ? options.context
+      : {};
+    const bindings = getAppBindings();
     const policy = typeof options.policy==='string' && options.policy.trim()
       ? options.policy.trim()
       : 'OPS';
+    const resolvedLang = sanitizeText(
+      orderPayload.lang
+      || context.lang
+      || callBinding(bindings.getLang, '')
+      || 'es'
+    ) || 'es';
+    const resolvedBusiness = orderPayload.business
+      || context.business
+      || callBinding(bindings.getBusiness, DEFAULT_BUSINESS)
+      || DEFAULT_BUSINESS;
+    const sanitizedBusiness = (!resolvedBusiness || typeof resolvedBusiness!=='object')
+      ? DEFAULT_BUSINESS
+      : {
+          name: sanitizeText(resolvedBusiness.name) || DEFAULT_BUSINESS.name,
+          address: sanitizeText(resolvedBusiness.address) || DEFAULT_BUSINESS.address,
+          city: sanitizeText(resolvedBusiness.city) || DEFAULT_BUSINESS.city,
+          contact: sanitizeText(resolvedBusiness.contact) || DEFAULT_BUSINESS.contact,
+          logo_url: sanitizeText(resolvedBusiness.logo_url || resolvedBusiness.logoURL || DEFAULT_BUSINESS.logo_url)
+        };
+
+    const deliverySource = orderPayload.delivery || {};
+    const effectiveDeliveryMinutes = Number(
+      deliverySource.minutes
+      ?? context.deliveryMinutes
+      ?? callBinding(bindings.getDeliveryMinutes, 0)
+    ) || 0;
+    const deliveryFormatter = typeof context.formatDeliveryTime === 'function'
+      ? context.formatDeliveryTime
+      : (typeof bindings.formatDeliveryTime === 'function' ? bindings.formatDeliveryTime : null);
+    const deliveryDisplay = sanitizeText(
+      deliverySource.display
+      || context.deliveryDisplay
+      || (deliveryFormatter ? deliveryFormatter(effectiveDeliveryMinutes) : '')
+    );
     const cartItems = Array.isArray(orderPayload?.cart?.items)
       ? orderPayload.cart.items.filter(item=>item && Number(item.qty)>0)
       : [];
@@ -629,9 +685,9 @@
     const customer = orderPayload.customer || {};
     const preparedPayload = {
       policy,
-      lang: sanitizeText(orderPayload.lang||lang||'es'),
+      lang: resolvedLang,
       timestamp: orderPayload.timestamp || new Date().toISOString(),
-      business: orderPayload.business || BUSINESS,
+      business: sanitizedBusiness,
       customer: {
         firstName: sanitizeText(customer.firstName),
         lastName: sanitizeText(customer.lastName),
@@ -643,13 +699,10 @@
         locationConfirmed: Boolean(customer.locationConfirmed)
       },
       delivery: {
-        minutes: Number(delivery.minutes)||0,
+        minutes: Number(delivery.minutes ?? effectiveDeliveryMinutes)||0,
         fee: toNumber(delivery.fee),
         included: delivery.included!==false,
-        display: sanitizeText(
-          delivery.display
-          || (typeof formatDeliveryTime==='function' ? formatDeliveryTime(deliveryMinutes) : '')
-        )
+        display: deliveryDisplay
       },
       cart: {
         items: sanitizedItems,
@@ -665,7 +718,9 @@
     }
     const gpsSource = (customer && typeof customer.gps==='object' && customer.gps)
       ? customer.gps
-      : (typeof gps==='object' && gps ? gps : null);
+      : (context && typeof context.gps==='object' && context.gps)
+        ? context.gps
+        : callBinding(bindings.getGps, null);
     if(gpsSource && typeof gpsSource.lat==='number' && typeof gpsSource.lng==='number'){
       preparedPayload.customer.gps = {
         lat: Number(gpsSource.lat),
@@ -1167,6 +1222,20 @@
     let locationConfirmed = false;
     window.locationConfirmed = false;
     let suppressAddressFieldListener = false;
+
+    const appBindings = {
+      getLang: ()=>lang,
+      getBusiness: ()=>BUSINESS,
+      getDeliveryMinutes: ()=>deliveryMinutes,
+      getCart: ()=>cart,
+      getProducts: ()=>PRODUCTS,
+      getTotals: ()=>totals(),
+      formatDeliveryTime: mins=>formatDeliveryTime(mins),
+      getGps: ()=>gps,
+      getManualAddress: ()=>manualAddress,
+      isLocationConfirmed: ()=>locationConfirmed
+    };
+    window.__appBindings = appBindings;
 
     /* HELPERS */
     const $ = s => document.querySelector(s);
@@ -2872,7 +2941,17 @@
       let workerInitToken = '';
       if(typeof window.initializeWorkerTransaction==='function'){
         try{
-          const workerResult = await window.initializeWorkerTransaction(orderPayload,{ policy:'OPS' });
+          const workerResult = await window.initializeWorkerTransaction(orderPayload,{
+            policy:'OPS',
+            context:{
+              lang,
+              business:BUSINESS,
+              deliveryMinutes,
+              deliveryDisplay,
+              formatDeliveryTime,
+              gps:gpsData
+            }
+          });
           if(workerResult && workerResult.ok && workerResult.token){
             workerInitToken = String(workerResult.token);
           }else if(workerResult && workerResult.error){
@@ -2953,6 +3032,6 @@
     // Keyboard arrows for carousel
     document.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')scrollByCards(-1); if(e.key==='ArrowRight')scrollByCards(1); });
   </script>
-  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-b4JG5hRjWpB79Dlz01+p4q0doRvkcuwc+rOWmYSpSRS/zAI1hQjP/GusdgvMUo5p" crossorigin="anonymous"></script>
+  <script nonce="2726c7f26c" src="rofrigastreo.js" integrity="sha384-HO8bU4GydgKZs+rrIIdge0BuEoK04fNookPoSv0/d3oSpzX4TsvZ6osmy5BgL52L" crossorigin="anonymous"></script>
 </body>
 </html>
