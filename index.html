@@ -1046,7 +1046,7 @@
     const WORKER_CSAT_URL = selectWorkerUrl(workerConfig, 'PUBLIC_CSAT_URL') || CLOUDFLARE_WORKER_URL;
 
     function selectWorkerUrl(config, primaryKey){
-      const fallbackKeys = ['PUBLIC_SENTIMENT_BASE', 'APPS_FORWARD_URL'];
+      const fallbackKeys = ['PUBLIC_SENTIMENT_BASE', 'APPS_FORWARD_URL', 'FORWARDER_BASE'];
       const keys = [primaryKey, ...fallbackKeys];
       for(const key of keys){
         if(!key) continue;
