@@ -515,6 +515,10 @@ body {
   box-shadow: var(--shadow-soft);
 }
 
+.panel--orders {
+  grid-column: 1 / -1;
+}
+
 .panel header h3 {
   margin: 0;
   font-size: 1.2rem;
