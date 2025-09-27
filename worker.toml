@@ -4,7 +4,6 @@ compatibility_date = "2024-06-28"
 workers_dev = true
 
 [vars]
-PUBLIC_WORKER_BASE = "https://weathered-disk-a104.distraction.workers.dev/"
-PUBLIC_CSAT_URL = "https://weathered-disk-a104.distraction.workers.dev/csat"
-PUBLIC_SENTIMENT_BASE = "https://weathered-disk-a104.distraction.workers.dev/"
+# Where to forward (your intermediate worker or Apps Script web app)
+APPS_FORWARD_URL = "https://weathered-disk-a104.distraction.workers.dev/"
 ALLOWED_ORIGIN = "https://www.marxia.com"
