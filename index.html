@@ -372,18 +372,32 @@
   </main>
 
   <aside class="fab-group" aria-label="Floating actions">
-    <button class="fab" type="button" id="fabLanguage" aria-expanded="false" aria-controls="fabLanguageMenu">🌐</button>
+    <button
+      class="fab"
+      type="button"
+      id="fabLanguage"
+      aria-expanded="false"
+      aria-controls="fabLanguageMenu"
+      data-fab-label="fabLanguageLabel"
+    >🌐</button>
     <div class="fab-menu" id="fabLanguageMenu" role="menu">
       <button class="fab-option" role="menuitem" data-action="language" data-lang="en">EN</button>
       <button class="fab-option" role="menuitem" data-action="language" data-lang="es">ES</button>
     </div>
-    <button class="fab" type="button" id="fabTheme" aria-expanded="false" aria-controls="fabThemeMenu">🎨</button>
+    <button
+      class="fab"
+      type="button"
+      id="fabTheme"
+      aria-expanded="false"
+      aria-controls="fabThemeMenu"
+      data-fab-label="fabThemeLabel"
+    >🎨</button>
     <div class="fab-menu" id="fabThemeMenu" role="menu">
       <button class="fab-option" role="menuitem" data-action="theme" data-theme="light">☀️</button>
       <button class="fab-option" role="menuitem" data-action="theme" data-theme="dark">🌙</button>
     </div>
-    <button class="fab" type="button" id="fabChat" aria-pressed="false">💬</button>
-    <button class="fab" type="button" id="fabPay" aria-pressed="false">💳</button>
+    <button class="fab" type="button" id="fabChat" aria-pressed="false" data-fab-label="fabChatLabel">💬</button>
+    <button class="fab" type="button" id="fabPay" aria-pressed="false" data-fab-label="fabPayLabel">💳</button>
   </aside>
 
   <section class="drawer" id="chatDrawer" aria-hidden="true" aria-labelledby="chatDrawerTitle">
@@ -410,7 +424,6 @@
         <button type="button" class="drawer__close" data-close-drawer>✕</button>
       </header>
       <div class="drawer__body">
-        <p data-i18n="paySecurity">Secure payments protected with PCI DSS compliant encryption.</p>
         <ul class="payment-list" data-payment-items aria-live="polite"></ul>
         <p class="payment-list__empty" data-payment-empty data-i18n="orderSummaryEmpty">Your basket is empty. Add menu favorites to see them here.</p>
         <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span></p>
