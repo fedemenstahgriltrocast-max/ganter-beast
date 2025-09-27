@@ -1,8 +1,8 @@
-name = "sentiment-forwarder"
-main = "worker/sentiment-forwarder.js"
+name = "sequence-worker"
+main = "worker/sequence-worker.js"
 compatibility_date = "2024-06-28"
 workers_dev = true
 
 [vars]
-# Where to forward (your intermediate worker or Apps Script web app)
-APPS_FORWARD_URL = "https://weathered-disk-a104.distraction.workers.dev/"
+FORWARDER_BASE = "https://<your-sentiment-forwarder>.<your-subdomain>.workers.dev"
+
