@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,42 +30,243 @@
   </script>
 </head>
 <body>
-  <main class="page" id="mainContent">
-    <header class="hero" role="banner">
-      <div class="hero__content">
-        <h1>Marxia Café y Bocaditos</h1>
-        <p class="tagline">Breakfasts, pastries, and delivery throughout Guayaquil.</p>
-        <button id="orderButton" class="cta" type="button">Order now</button>
-      </div>
-    </header>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  <header class="topbar" role="banner">
+    <div class="topbar__brand">
+      <span aria-hidden="true" class="logo">☕</span>
+      <p>
+        <strong id="brandTitle">Marxia Café y Bocaditos</strong>
+        <span id="brandSubtitle">Breakfasts, pastries &amp; catering in Guayaquil</span>
+      </p>
+    </div>
+    <nav aria-label="Quick settings" class="topbar__toggles">
+      <button class="toggle" id="languageEn" type="button" data-action="language" data-lang="en" aria-pressed="true">EN</button>
+      <button class="toggle" id="languageEs" type="button" data-action="language" data-lang="es" aria-pressed="false">ES</button>
+      <button class="toggle" id="themeLight" type="button" data-action="theme" data-theme="light" aria-pressed="true">☀️</button>
+      <button class="toggle" id="themeDark" type="button" data-action="theme" data-theme="dark" aria-pressed="false">🌙</button>
+    </nav>
+  </header>
 
-    <section class="highlights" aria-labelledby="highlights-title">
-      <h2 id="highlights-title">Why neighbors choose us</h2>
-      <div class="highlights__grid" role="list">
-        <article role="listitem">
-          <h3>Fresh Ingredients</h3>
-          <p>Each order is prepared with locally sourced breads, fruits, and cheeses.</p>
+  <main class="page" id="mainContent">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__content">
+        <h1 id="hero-title" data-i18n="headline">Marxia Café y Bocaditos</h1>
+        <p class="tagline" data-i18n="tagline">Breakfasts, pastries, and delivery throughout Guayaquil.</p>
+        <div class="hero__cta">
+          <button id="orderButton" class="cta" type="button" data-i18n="orderNow">Order now</button>
+          <p class="hero__promise" data-i18n="promise">Fresh flavors, curated menus, secure checkout.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="order" aria-labelledby="order-title">
+      <header class="section-header">
+        <h2 id="order-title" data-i18n="orderTitle">Our seasonal best sellers</h2>
+        <p data-i18n="orderSubtitle">Tap on your favorites to build the perfect breakfast spread.</p>
+      </header>
+      <div class="product-grid" role="list">
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=400&q=80" alt="Café latte with art" loading="lazy">
+          <h3>Latte de Vainilla</h3>
+          <p class="product-card__meta">12 oz · $2.90</p>
         </article>
-        <article role="listitem">
-          <h3>Fast Delivery</h3>
-          <p>We deliver to Saucés, Alborada, Guayacanes, Tarazana, and Brisas del Río.</p>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Fresh croissant" loading="lazy">
+          <h3>Croissant Artesanal</h3>
+          <p class="product-card__meta">Butter &amp; marmalade · $3.20</p>
         </article>
-        <article role="listitem">
-          <h3>Celebrate Every Moment</h3>
-          <p>Surprise someone special with customizable breakfast boxes and pastries.</p>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Chorizo tortilla" loading="lazy">
+          <h3>Tortilla con Chorizo</h3>
+          <p class="product-card__meta">4 porciones · $3.70</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=400&q=80" alt="Fruit parfait" loading="lazy">
+          <h3>Parfait Tropical</h3>
+          <p class="product-card__meta">Granola &amp; yogurt · $3.40</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=400&q=80" alt="Waffles" loading="lazy">
+          <h3>Waffles con Miel</h3>
+          <p class="product-card__meta">2 piezas · $4.10</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80" alt="Cold brew coffee" loading="lazy">
+          <h3>Cold Brew Naranja</h3>
+          <p class="product-card__meta">16 oz · $3.00</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?auto=format&fit=crop&w=400&q=80" alt="Avocado toast" loading="lazy">
+          <h3>Toast de Aguacate</h3>
+          <p class="product-card__meta">Pan integral · $3.90</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" alt="Chocolate cake" loading="lazy">
+          <h3>Torta de Cacao</h3>
+          <p class="product-card__meta">Porción individual · $3.50</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1481391046821-352b495b3201?auto=format&fit=crop&w=400&q=80" alt="Breakfast sandwich" loading="lazy">
+          <h3>Sanduche Sunrise</h3>
+          <p class="product-card__meta">Huevos y jamón · $3.60</p>
+        </article>
+        <article class="product-card" role="listitem">
+          <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=400&q=80" alt="Iced matcha" loading="lazy">
+          <h3>Matcha Helado</h3>
+          <p class="product-card__meta">Sin azúcar · $3.10</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="insights" aria-labelledby="insights-title">
+      <header class="section-header">
+        <h2 id="insights-title" data-i18n="insightsTitle">Experience dashboard</h2>
+        <p data-i18n="insightsSubtitle">Monitor sentiment, visitors, and online sales in real time.</p>
+      </header>
+      <div class="insights__grid">
+        <article class="panel" aria-labelledby="sentiment-title">
+          <header>
+            <h3 id="sentiment-title" data-i18n="sentimentTitle">End consumer sentiment</h3>
+            <p class="panel__meta" data-i18n="sentimentUpdated">Updated every 30 minutes</p>
+          </header>
+          <div class="sentiment">
+            <div class="sentiment__score" aria-label="Average rating 4.6 out of 5">
+              <span class="sentiment__value">4.6</span>
+              <span class="sentiment__label" data-i18n="sentimentScore">Average rating</span>
+            </div>
+            <div class="sentiment__stars" role="img" aria-label="4.6 out of 5 stars">
+              ★★★★☆
+            </div>
+            <p class="sentiment__reviews" data-i18n="sentimentReviews">1,248 verified reviews</p>
+          </div>
+        </article>
+
+        <article class="panel" aria-labelledby="visitors-title">
+          <header>
+            <h3 id="visitors-title" data-i18n="visitorsTitle">Visitors</h3>
+            <p class="panel__meta" data-i18n="visitorsMeta">Foot &amp; site traffic</p>
+          </header>
+          <figure class="line-chart" aria-describedby="visitors-stats">
+            <svg viewBox="0 0 240 120" role="img" aria-labelledby="visitors-title">
+              <polyline class="line-chart__grid" points="0,100 240,100"></polyline>
+              <polyline class="line-chart__line" points="0,90 40,80 80,85 120,60 160,65 200,40 240,45"></polyline>
+            </svg>
+            <figcaption id="visitors-stats" data-i18n="visitorsCaption">Today 320 · This month 8,450 · Last year 92,300</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel" aria-labelledby="sales-title">
+          <header>
+            <h3 id="sales-title" data-i18n="salesTitle">Online sales</h3>
+            <p class="panel__meta" data-i18n="salesMeta">Room to grow</p>
+          </header>
+          <figure class="line-chart" aria-describedby="sales-stats">
+            <svg viewBox="0 0 240 120" role="img" aria-labelledby="sales-title">
+              <polyline class="line-chart__grid" points="0,100 240,100"></polyline>
+              <polyline class="line-chart__line line-chart__line--accent" points="0,95 40,90 80,70 120,60 160,55 200,35 240,25"></polyline>
+            </svg>
+            <figcaption id="sales-stats" data-i18n="salesCaption">Today $620 · This month $18,400 · Last year $212,000</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel panel--orders" aria-labelledby="orders-title">
+          <header>
+            <h3 id="orders-title" data-i18n="ordersTitle">Order details</h3>
+            <p class="panel__meta" data-i18n="ordersMeta">Secure checkout enabled</p>
+          </header>
+          <dl class="order-summary">
+            <div>
+              <dt data-i18n="ordersSubtotal">Subtotal</dt>
+              <dd>$18.60</dd>
+            </div>
+            <div>
+              <dt data-i18n="ordersTax">VAT 12%</dt>
+              <dd>$2.23</dd>
+            </div>
+            <div>
+              <dt data-i18n="ordersDelivery">Delivery</dt>
+              <dd>$3.00</dd>
+            </div>
+            <div class="order-summary__total">
+              <dt data-i18n="ordersTotal">Total</dt>
+              <dd>$23.83</dd>
+            </div>
+          </dl>
+          <div class="delivery-time" role="group" aria-labelledby="delivery-title">
+            <span id="delivery-title" data-i18n="deliveryTitle">Delivery time</span>
+            <div class="delivery-time__options">
+              <button type="button" class="chip" aria-pressed="true">45 min</button>
+              <button type="button" class="chip" aria-pressed="false">1 hr</button>
+              <button type="button" class="chip" aria-pressed="false">1 hr 30 min</button>
+            </div>
+          </div>
+          <button type="button" class="button button--primary" data-i18n="checkout">Secure checkout</button>
         </article>
       </div>
     </section>
 
     <section class="contact" aria-labelledby="contact-title">
-      <h2 id="contact-title">Contact</h2>
-      <p>WhatsApp <a href="https://wa.me/593987654321">+593 98 765 4321</a></p>
+      <h2 id="contact-title" data-i18n="contactTitle">We deliver to</h2>
+      <p data-i18n="contactAreas">Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río</p>
+      <p data-i18n="contactWhatsApp">WhatsApp <a href="https://wa.me/593987654321">+593 98 765 4321</a></p>
     </section>
   </main>
 
+  <aside class="fab-group" aria-label="Floating actions">
+    <button class="fab" type="button" id="fabLanguage" aria-expanded="false" aria-controls="fabLanguageMenu">🌐</button>
+    <div class="fab-menu" id="fabLanguageMenu" role="menu">
+      <button class="fab-option" role="menuitem" data-action="language" data-lang="en">EN</button>
+      <button class="fab-option" role="menuitem" data-action="language" data-lang="es">ES</button>
+    </div>
+    <button class="fab" type="button" id="fabTheme" aria-expanded="false" aria-controls="fabThemeMenu">🎨</button>
+    <div class="fab-menu" id="fabThemeMenu" role="menu">
+      <button class="fab-option" role="menuitem" data-action="theme" data-theme="light">☀️</button>
+      <button class="fab-option" role="menuitem" data-action="theme" data-theme="dark">🌙</button>
+    </div>
+    <button class="fab" type="button" id="fabChat" aria-pressed="false">💬</button>
+    <button class="fab" type="button" id="fabPay" aria-pressed="false">💳</button>
+  </aside>
+
+  <section class="drawer" id="chatDrawer" aria-hidden="true" aria-labelledby="chatDrawerTitle">
+    <div class="drawer__content">
+      <header class="drawer__header">
+        <h2 id="chatDrawerTitle" data-i18n="chatTitle">Live chat</h2>
+        <button type="button" class="drawer__close" data-close-drawer>✕</button>
+      </header>
+      <div class="drawer__body">
+        <p data-i18n="chatWelcome">Hola 👋 ¿Cómo podemos ayudarte hoy?</p>
+        <form class="chat-form">
+          <label for="chatMessage" data-i18n="chatLabel">Message</label>
+          <textarea id="chatMessage" name="message" rows="3" placeholder="Type here…" data-i18n-placeholder="chatPlaceholder"></textarea>
+          <button type="submit" class="button button--primary" data-i18n="chatSend">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="drawer" id="payDrawer" aria-hidden="true" aria-labelledby="payDrawerTitle">
+    <div class="drawer__content">
+      <header class="drawer__header">
+        <h2 id="payDrawerTitle" data-i18n="payTitle">Checkout preview</h2>
+        <button type="button" class="drawer__close" data-close-drawer>✕</button>
+      </header>
+      <div class="drawer__body">
+        <p data-i18n="paySecurity">Secure payments protected with PCI DSS compliant encryption.</p>
+        <ul class="payment-list">
+          <li>Latte de Vainilla · $2.90</li>
+          <li>Croissant Artesanal · $3.20</li>
+          <li>Waffles con Miel · $4.10</li>
+        </ul>
+        <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: $10.20</p>
+        <button type="button" class="button button--primary" data-i18n="payNow">Pay now</button>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer" role="contentinfo">
-    <small>© <span id="copyrightYear"></span> Marxia Café y Bocaditos. All rights reserved.</small>
+    <small>© <span id="copyrightYear"></span> Marxia Café y Bocaditos. <span data-i18n="rights">All rights reserved.</span></small>
   </footer>
+
   <script src="main.js" defer></script>
 </body>
 </html>
