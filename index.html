@@ -78,61 +78,198 @@
     </section>
 
     <section class="order" aria-labelledby="order-title">
-      <header class="section-header">
-        <h2 id="order-title" data-i18n="orderTitle">Our seasonal best sellers</h2>
-        <p data-i18n="orderSubtitle">Tap on your favorites to build the perfect breakfast spread.</p>
-      </header>
-      <div class="product-grid" role="list">
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=400&q=80" alt="Café latte with art" loading="lazy">
-          <h3>Latte de Vainilla</h3>
-          <p class="product-card__meta">12 oz · $2.90</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Fresh croissant" loading="lazy">
-          <h3>Croissant Artesanal</h3>
-          <p class="product-card__meta">Butter &amp; marmalade · $3.20</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Chorizo tortilla" loading="lazy">
-          <h3>Tortilla con Chorizo</h3>
-          <p class="product-card__meta">4 porciones · $3.70</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=400&q=80" alt="Fruit parfait" loading="lazy">
-          <h3>Parfait Tropical</h3>
-          <p class="product-card__meta">Granola &amp; yogurt · $3.40</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=400&q=80" alt="Waffles" loading="lazy">
-          <h3>Waffles con Miel</h3>
-          <p class="product-card__meta">2 piezas · $4.10</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80" alt="Cold brew coffee" loading="lazy">
-          <h3>Cold Brew Naranja</h3>
-          <p class="product-card__meta">16 oz · $3.00</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?auto=format&fit=crop&w=400&q=80" alt="Avocado toast" loading="lazy">
-          <h3>Toast de Aguacate</h3>
-          <p class="product-card__meta">Pan integral · $3.90</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" alt="Chocolate cake" loading="lazy">
-          <h3>Torta de Cacao</h3>
-          <p class="product-card__meta">Porción individual · $3.50</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1481391046821-352b495b3201?auto=format&fit=crop&w=400&q=80" alt="Breakfast sandwich" loading="lazy">
-          <h3>Sanduche Sunrise</h3>
-          <p class="product-card__meta">Huevos y jamón · $3.60</p>
-        </article>
-        <article class="product-card" role="listitem">
-          <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=400&q=80" alt="Iced matcha" loading="lazy">
-          <h3>Matcha Helado</h3>
-          <p class="product-card__meta">Sin azúcar · $3.10</p>
-        </article>
+      <div class="accordion">
+        <h2 class="accordion__title">
+          <button
+            class="accordion__trigger"
+            type="button"
+            aria-expanded="true"
+            aria-controls="seasonalFavorites"
+            id="order-title"
+          >
+            <span data-i18n="orderTitle">Our seasonal best sellers</span>
+            <span class="accordion__icon" aria-hidden="true">▾</span>
+          </button>
+        </h2>
+        <div class="accordion__content" id="seasonalFavorites" role="region" aria-labelledby="order-title">
+          <p class="accordion__description" data-i18n="orderSubtitle">Tap on your favorites to build the perfect breakfast spread.</p>
+          <div class="product-carousel" data-carousel>
+            <button
+              class="carousel__control carousel__control--prev"
+              type="button"
+              aria-label="Previous favorites"
+              data-i18n-attr="aria-label"
+              data-i18n="carouselPrev"
+              data-i18n-skip-text="true"
+            >
+              ‹
+            </button>
+            <div class="product-carousel__viewport">
+              <ul class="product-carousel__track">
+                <li class="product-card" data-name="Latte de Vainilla" data-price="2.90">
+                  <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=400&q=80" alt="Café latte with art" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Latte de Vainilla</h3>
+                    <p class="product-card__meta">12 oz</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$2.90</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Croissant Artesanal" data-price="3.20">
+                  <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Fresh croissant" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Croissant Artesanal</h3>
+                    <p class="product-card__meta">Butter &amp; marmalade</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.20</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Tortilla con Chorizo" data-price="3.70">
+                  <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Chorizo tortilla" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Tortilla con Chorizo</h3>
+                    <p class="product-card__meta">4 porciones</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.70</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Parfait Tropical" data-price="3.40">
+                  <img src="https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=400&q=80" alt="Fruit parfait" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Parfait Tropical</h3>
+                    <p class="product-card__meta">Granola &amp; yogurt</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.40</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Waffles con Miel" data-price="4.10">
+                  <img src="https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=400&q=80" alt="Waffles" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Waffles con Miel</h3>
+                    <p class="product-card__meta">2 piezas</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$4.10</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Cold Brew Naranja" data-price="3.00">
+                  <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80" alt="Cold brew coffee" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Cold Brew Naranja</h3>
+                    <p class="product-card__meta">16 oz</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.00</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Toast de Aguacate" data-price="3.90">
+                  <img src="https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?auto=format&fit=crop&w=400&q=80" alt="Avocado toast" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Toast de Aguacate</h3>
+                    <p class="product-card__meta">Pan integral</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.90</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Torta de Cacao" data-price="3.50">
+                  <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" alt="Chocolate cake" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Torta de Cacao</h3>
+                    <p class="product-card__meta">Porción individual</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.50</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Sanduche Sunrise" data-price="3.60">
+                  <img src="https://images.unsplash.com/photo-1481391046821-352b495b3201?auto=format&fit=crop&w=400&q=80" alt="Breakfast sandwich" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Sanduche Sunrise</h3>
+                    <p class="product-card__meta">Huevos y jamón</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.60</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+                <li class="product-card" data-name="Matcha Helado" data-price="3.10">
+                  <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=400&q=80" alt="Iced matcha" loading="lazy">
+                  <div class="product-card__info">
+                    <h3>Matcha Helado</h3>
+                    <p class="product-card__meta">Sin azúcar</p>
+                  </div>
+                  <div class="product-card__footer">
+                    <span class="product-card__price" aria-label="Price">$3.10</span>
+                    <div class="product-card__controls">
+                      <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                    </div>
+                    <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <button
+              class="carousel__control carousel__control--next"
+              type="button"
+              aria-label="Next favorites"
+              data-i18n-attr="aria-label"
+              data-i18n="carouselNext"
+              data-i18n-skip-text="true"
+            >
+              ›
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -192,22 +329,25 @@
             <h3 id="orders-title" data-i18n="ordersTitle">Order details</h3>
             <p class="panel__meta" data-i18n="ordersMeta">Secure checkout enabled</p>
           </header>
+          <h4 class="order-summary__heading" data-i18n="orderItems">Selected items</h4>
+          <ul class="order-summary__items" data-summary-items aria-live="polite"></ul>
+          <p class="order-summary__empty" id="orderSummaryEmpty" data-i18n="orderSummaryEmpty">Your basket is empty. Add seasonal favorites to see them here.</p>
           <dl class="order-summary">
             <div>
               <dt data-i18n="ordersSubtotal">Subtotal</dt>
-              <dd>$18.60</dd>
+              <dd data-summary="subtotal">$0.00</dd>
             </div>
             <div>
               <dt data-i18n="ordersTax">VAT 12%</dt>
-              <dd>$2.23</dd>
+              <dd data-summary="tax">$0.00</dd>
             </div>
             <div>
               <dt data-i18n="ordersDelivery">Delivery</dt>
-              <dd>$3.00</dd>
+              <dd data-summary="delivery">$0.00</dd>
             </div>
             <div class="order-summary__total">
               <dt data-i18n="ordersTotal">Total</dt>
-              <dd>$23.83</dd>
+              <dd data-summary="total">$0.00</dd>
             </div>
           </dl>
           <div class="delivery-time" role="group" aria-labelledby="delivery-title">
@@ -226,7 +366,7 @@
     <section class="contact" aria-labelledby="contact-title">
       <h2 id="contact-title" data-i18n="contactTitle">We deliver to</h2>
       <p data-i18n="contactAreas">Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río</p>
-      <p data-i18n="contactWhatsApp">WhatsApp <a href="https://wa.me/593987654321">+593 98 765 4321</a></p>
+      <p data-i18n="contactWhatsApp">WhatsApp <a href="https://wa.me/593987654321">+593 958 741 463</a></p>
     </section>
   </main>
 
@@ -270,12 +410,9 @@
       </header>
       <div class="drawer__body">
         <p data-i18n="paySecurity">Secure payments protected with PCI DSS compliant encryption.</p>
-        <ul class="payment-list">
-          <li>Latte de Vainilla · $2.90</li>
-          <li>Croissant Artesanal · $3.20</li>
-          <li>Waffles con Miel · $4.10</li>
-        </ul>
-        <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: $10.20</p>
+        <ul class="payment-list" data-payment-items aria-live="polite"></ul>
+        <p class="payment-list__empty" data-payment-empty data-i18n="orderSummaryEmpty">Your basket is empty. Add seasonal favorites to see them here.</p>
+        <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span></p>
         <button type="button" class="button button--primary" data-i18n="payNow">Pay now</button>
       </div>
     </div>

@@ -13,7 +13,6 @@
   const languageToggle = document.querySelector('#languageToggle');
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
   const translations = {
     en: {
       headline: 'Marxia Café y Bocaditos',
@@ -40,8 +39,15 @@
       ordersTax: 'VAT 12%',
       ordersDelivery: 'Delivery',
       ordersTotal: 'Total',
+      orderItems: 'Selected items',
+      orderSummaryEmpty: 'Your basket is empty. Add seasonal favorites to see them here.',
       deliveryTitle: 'Delivery time',
       checkout: 'Secure checkout',
+      carouselPrev: 'Previous favorites',
+      carouselNext: 'Next favorites',
+      addToOrder: '+ Add',
+      removeFromOrder: '- Remove',
+      inCart: 'In cart: {count}',
       contactTitle: 'We deliver to',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
       contactWhatsApp: 'WhatsApp',
@@ -80,8 +86,15 @@
       ordersTax: 'IVA 12%',
       ordersDelivery: 'Envío',
       ordersTotal: 'Total',
+      orderItems: 'Artículos seleccionados',
+      orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos de temporada para verlos aquí.',
       deliveryTitle: 'Tiempo de entrega',
       checkout: 'Checkout seguro',
+      carouselPrev: 'Favoritos anteriores',
+      carouselNext: 'Más favoritos',
+      addToOrder: '+ Agregar',
+      removeFromOrder: '- Quitar',
+      inCart: 'En carrito: {count}',
       contactTitle: 'Entregamos en',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
       contactWhatsApp: 'WhatsApp',
@@ -97,6 +110,182 @@
     },
   };
 
+  const getLocale = () => (currentLanguage === 'es' ? 'es-EC' : 'en-US');
+
+  const formatCurrency = (value) => {
+    const formatter = new Intl.NumberFormat(getLocale(), {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    });
+    return formatter.format(Math.max(0, Number.isFinite(value) ? value : 0));
+  };
+
+  const getTranslation = (key) => {
+    const active = translations[currentLanguage] || translations.en;
+    return active[key] ?? translations.en[key] ?? '';
+  };
+
+  const updateProductPrices = () => {
+    productCards.forEach((card) => {
+      const priceNode = card.querySelector('.product-card__price');
+      const price = Number.parseFloat(card.dataset.price || '0');
+      if (!priceNode || Number.isNaN(price)) {
+        return;
+      }
+      priceNode.textContent = formatCurrency(price);
+    });
+  };
+
+  const updateQuantityLabel = (card, quantity) => {
+    const quantityNode = card.querySelector('.product-card__quantity');
+    if (!quantityNode) {
+      return;
+    }
+    quantityNode.setAttribute('data-i18n-count', String(quantity));
+    const template = getTranslation('inCart') || 'In cart: {count}';
+    quantityNode.textContent = template.replace('{count}', quantity);
+  };
+
+  const updateCartDisplay = () => {
+    const items = Array.from(cart.entries())
+      .map(([name, data]) => ({ name, ...data }))
+      .filter((item) => item.quantity > 0);
+
+    const hasItems = items.length > 0;
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const tax = subtotal * TAX_RATE;
+    const delivery = hasItems ? DELIVERY_FEE : 0;
+    const total = subtotal + tax + delivery;
+
+    if (summaryList) {
+      summaryList.innerHTML = '';
+      items.forEach((item) => {
+        const li = document.createElement('li');
+        const label = document.createElement('span');
+        label.textContent = `${item.quantity}× ${item.name}`;
+        const price = document.createElement('span');
+        price.textContent = formatCurrency(item.price * item.quantity);
+        li.append(label, price);
+        summaryList.append(li);
+      });
+      summaryList.toggleAttribute('hidden', !hasItems);
+    }
+
+    if (summaryEmpty) {
+      summaryEmpty.toggleAttribute('hidden', hasItems);
+    }
+
+    if (paymentList) {
+      paymentList.innerHTML = '';
+      items.forEach((item) => {
+        const li = document.createElement('li');
+        const label = document.createElement('span');
+        label.textContent = `${item.quantity}× ${item.name}`;
+        const price = document.createElement('span');
+        price.textContent = formatCurrency(item.price * item.quantity);
+        li.append(label, price);
+        paymentList.append(li);
+      });
+      paymentList.toggleAttribute('hidden', !hasItems);
+    }
+
+    if (paymentEmpty) {
+      paymentEmpty.toggleAttribute('hidden', hasItems);
+    }
+
+    if (summaryTotals.subtotal) {
+      summaryTotals.subtotal.textContent = formatCurrency(subtotal);
+    }
+    if (summaryTotals.tax) {
+      summaryTotals.tax.textContent = formatCurrency(tax);
+    }
+    if (summaryTotals.delivery) {
+      summaryTotals.delivery.textContent = formatCurrency(delivery);
+    }
+    if (summaryTotals.total) {
+      summaryTotals.total.textContent = formatCurrency(total);
+    }
+    if (paymentTotal) {
+      paymentTotal.textContent = formatCurrency(total);
+    }
+
+    productCards.forEach((card) => {
+      const name = card.dataset.name;
+      const entry = name ? cart.get(name) : undefined;
+      const quantity = entry ? entry.quantity : 0;
+      updateQuantityLabel(card, quantity);
+      const removeButton = card.querySelector('[data-cart="remove"]');
+      if (removeButton) {
+        removeButton.toggleAttribute('disabled', quantity === 0);
+      }
+    });
+  };
+
+  const modifyCart = (name, delta) => {
+    const entry = cart.get(name);
+    if (!entry) {
+      return;
+    }
+    entry.quantity = Math.max(0, entry.quantity + delta);
+    cart.set(name, entry);
+    updateCartDisplay();
+  };
+
+  const initializeCart = () => {
+    productCards.forEach((card) => {
+      const name = card.dataset.name;
+      const price = Number.parseFloat(card.dataset.price || '0');
+      if (!name || Number.isNaN(price)) {
+        return;
+      }
+      if (!cart.has(name)) {
+        cart.set(name, { price, quantity: 0, card });
+      }
+
+      const addButton = card.querySelector('[data-cart="add"]');
+      const removeButton = card.querySelector('[data-cart="remove"]');
+
+      if (addButton) {
+        addButton.addEventListener('click', () => modifyCart(name, 1));
+      }
+
+      if (removeButton) {
+        removeButton.addEventListener('click', () => modifyCart(name, -1));
+        removeButton.setAttribute('disabled', 'true');
+      }
+
+      updateQuantityLabel(card, 0);
+    });
+
+    updateProductPrices();
+    updateCartDisplay();
+  };
+
+  const updateCarousel = () => {
+    if (!carousel || !carouselTrack || !carouselViewport || productCards.length === 0) {
+      return;
+    }
+    const styles = window.getComputedStyle(carouselTrack);
+    const gapValue = parseFloat(styles.columnGap || styles.gap || '0');
+    const cardWidth = productCards[0].getBoundingClientRect().width;
+    const viewportWidth = carouselViewport.getBoundingClientRect().width;
+    const totalSlideWidth = cardWidth + gapValue;
+    if (!Number.isFinite(totalSlideWidth) || totalSlideWidth <= 0) {
+      return;
+    }
+    const visibleSlides = Math.max(1, Math.floor((viewportWidth + gapValue) / totalSlideWidth));
+    maxSlideIndex = Math.max(0, productCards.length - visibleSlides);
+    currentSlideIndex = Math.min(currentSlideIndex, maxSlideIndex);
+    const offset = currentSlideIndex * totalSlideWidth;
+    carouselTrack.style.transform = `translateX(-${offset}px)`;
+    if (carouselPrev) {
+      carouselPrev.toggleAttribute('disabled', currentSlideIndex === 0);
+    }
+    if (carouselNext) {
+      carouselNext.toggleAttribute('disabled', currentSlideIndex >= maxSlideIndex);
+    }
+  };
   const setCopyright = () => {
     if (copyright) {
       copyright.textContent = String(new Date().getFullYear());
@@ -136,6 +325,21 @@
       const translation = dict[key];
       if (!translation) return;
 
+      const attrTarget = node.getAttribute('data-i18n-attr');
+      if (attrTarget) {
+        node.setAttribute(attrTarget, translation);
+      }
+
+      if (node.dataset.i18nSkipText === 'true') {
+        return;
+      }
+
+      if (node.hasAttribute('data-i18n-count')) {
+        const count = Number(node.getAttribute('data-i18n-count') || '0');
+        node.textContent = translation.replace('{count}', count);
+        return;
+      }
+
       if (node.querySelector('a') && key === 'contactWhatsApp') {
         node.childNodes[0].textContent = `${translation} `;
       } else {
@@ -149,6 +353,9 @@
         node.setAttribute('placeholder', dict[key]);
       }
     });
+
+    updateProductPrices();
+    updateCartDisplay();
   };
 
   const restorePreferences = () => {
@@ -267,6 +474,41 @@
     });
   });
 
+  if (accordionTrigger && accordionContent) {
+    const expanded = accordionTrigger.getAttribute('aria-expanded') === 'true';
+    accordionContent.hidden = !expanded;
+    accordionTrigger.addEventListener('click', () => {
+      const isExpanded = accordionTrigger.getAttribute('aria-expanded') === 'true';
+      const nextExpanded = !isExpanded;
+      accordionTrigger.setAttribute('aria-expanded', String(nextExpanded));
+      accordionContent.hidden = !nextExpanded;
+      if (nextExpanded) {
+        currentSlideIndex = 0;
+        updateCarousel();
+      }
+    });
+  }
+
+  if (carouselPrev) {
+    carouselPrev.addEventListener('click', () => {
+      if (currentSlideIndex > 0) {
+        currentSlideIndex -= 1;
+        updateCarousel();
+      }
+    });
+  }
+
+  if (carouselNext) {
+    carouselNext.addEventListener('click', () => {
+      if (currentSlideIndex < maxSlideIndex) {
+        currentSlideIndex += 1;
+        updateCarousel();
+      }
+    });
+  }
+
+  window.addEventListener('resize', updateCarousel);
+
   chipButtons.forEach((chip) => {
     chip.addEventListener('click', () => {
       chipButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn === chip)));
@@ -279,6 +521,8 @@
     });
   }
 
+  initializeCart();
   restorePreferences();
+  updateCarousel();
   setCopyright();
 })();
