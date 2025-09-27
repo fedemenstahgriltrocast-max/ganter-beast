@@ -13,6 +13,31 @@
   const languageToggle = document.querySelector('#languageToggle');
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const carousel = document.querySelector('[data-carousel]');
+  const carouselTrack = document.querySelector('.product-carousel__track');
+  const carouselViewport = document.querySelector('.product-carousel__viewport');
+  const carouselPrev = document.querySelector('.carousel__control--prev');
+  const carouselNext = document.querySelector('.carousel__control--next');
+  const accordionTrigger = document.querySelector('.accordion__trigger');
+  const accordionContent = document.querySelector('.accordion__content');
+  const productCards = Array.from(document.querySelectorAll('.product-card'));
+  const summaryList = document.querySelector('[data-summary-items]');
+  const summaryEmpty = document.querySelector('#orderSummaryEmpty');
+  const summaryTotals = {
+    subtotal: document.querySelector('[data-summary="subtotal"]'),
+    tax: document.querySelector('[data-summary="tax"]'),
+    delivery: document.querySelector('[data-summary="delivery"]'),
+    total: document.querySelector('[data-summary="total"]'),
+  };
+  const paymentList = document.querySelector('[data-payment-items]');
+  const paymentEmpty = document.querySelector('[data-payment-empty]');
+  const paymentTotal = document.querySelector('[data-payment-total]');
+  const TAX_RATE = 0.12;
+  const DELIVERY_FEE = 1.5;
+  const cart = new Map();
+  let currentSlideIndex = 0;
+  let maxSlideIndex = 0;
+  let currentLanguage = html.lang === 'es' ? 'es' : 'en';
   const translations = {
     en: {
       headline: 'Marxia Café y Bocaditos',
@@ -306,6 +331,7 @@
 
   const applyLanguage = (lang) => {
     const nextLang = lang === 'es' ? 'es' : 'en';
+    currentLanguage = nextLang;
     html.lang = nextLang;
     localStorage.setItem('marxia-lang', nextLang);
     if (languageToggle) {
