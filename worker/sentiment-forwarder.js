@@ -1,252 +1,128 @@
-const MALICIOUS_PATTERNS = [
-  /<\/?\s*script/i,
-  /<\/?\s*iframe/i,
-  /<\/?\s*object/i,
-  /javascript:/i,
-  /data:text\/html/i,
-  /on\w+=/i
-];
+// worker/sentiment-forwarder.js
+const MAX_JSON = 4096;
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const method = request.method?.toUpperCase?.() || 'GET';
+    const allowedOrigin = pickOrigin(env?.ALLOWED_ORIGIN);
+    const base = normalizeBase(env?.APPS_FORWARD_URL); // e.g. https://weathered-disk-a104.distraction.workers.dev/
 
-    const allowedOrigin = selectAllowedOrigin(env?.ALLOWED_ORIGIN);
-
-    if (method === 'OPTIONS') {
-      return cors(new Response(null, { status: 204 }), allowedOrigin);
-    }
-
-    const appsBase = ensureHttps(env?.APPS_FORWARD_URL);
-    if (!appsBase) {
-      return cors(json({ ok: false, error: 'missing_destination' }, 500), allowedOrigin);
-    }
+    if (method === 'OPTIONS') return cors(new Response(null, { status: 204 }), allowedOrigin);
+    if (!base) return cors(json({ ok:false, error:'missing_destination' }, 500), allowedOrigin);
 
     try {
       if (method === 'GET' && url.pathname === '/') {
         return cors(json({
           ok: true,
-          service: 'sentiment-sanitizer',
-          routes: {
-            csat: '/csat',
-            visit: '/visit'
-          },
-          forwardBase: appsBase
+          service: 'sentiment-forwarder (simple)',
+          routes: { csat: 'POST /csat', visit: 'POST /visit' },
+          forwardBase: base
         }), allowedOrigin);
       }
 
+      // --- CSAT: rating 1..5 + minimal context ---
       if (method === 'POST' && url.pathname === '/csat') {
-        const body = await readJson(request);
-        const sanitized = sanitizePayload(body, {
-          allowUid: true,
-          allowTheme: false
-        });
-
-        if (sanitized.malicious) {
-          return cors(json({ ok: false, error: 'malicious_content_detected' }, 400), allowedOrigin);
-        }
-
-        const rating = sanitizeRating(body?.rating);
-        if (!rating) {
-          return cors(json({ ok: false, error: 'invalid_rating' }, 400), allowedOrigin);
-        }
+        const body = await readJson(request, MAX_JSON);               // { rating, lang, uid?, fp? }
+        const rating = toRating(body?.rating);
+        if (!rating) return cors(json({ ok:false, error:'invalid_rating' }, 400), allowedOrigin);
 
         const payload = {
+          v: 'v1',
+          ts: new Date().toISOString(),
           rating,
-          uid: sanitized.uid || crypto.randomUUID(),
-          fp: sanitized.fp || '',
-          lang: sanitized.lang || 'en',
-          ts: new Date().toISOString()
+          lang: toLang(body?.lang),
+          uid: scrubId(body?.uid),
+          fp:  scrubId(body?.fp)
         };
 
-        const ok = await forward(buildForwardUrl(appsBase, 'csat'), payload);
+        const ok = await forward(`${base}?app=csat`, payload);
         return cors(json({ ok }), allowedOrigin);
       }
 
+      // --- Visitors (optional ping) ---
       if (method === 'POST' && url.pathname === '/visit') {
-        const body = await readJson(request);
-        const sanitized = sanitizePayload(body, {
-          allowUid: true,
-          allowTheme: true
-        });
-
-        if (sanitized.malicious) {
-          return cors(json({ ok: false, error: 'malicious_content_detected' }, 400), allowedOrigin);
-        }
-
+        const body = await readJson(request, MAX_JSON);               // { lang, uid?, fp?, theme? }
         const payload = {
-          uid: sanitized.uid || crypto.randomUUID(),
-          fp: sanitized.fp || '',
-          lang: sanitized.lang || 'en',
-          theme: sanitized.theme || '',
-          ts: new Date().toISOString()
+          v: 'v1',
+          ts: new Date().toISOString(),
+          lang: toLang(body?.lang),
+          uid: scrubId(body?.uid),
+          fp:  scrubId(body?.fp),
+          theme: toTheme(body?.theme)
         };
 
-        const ok = await forward(buildForwardUrl(appsBase, 'vis'), payload);
+        const ok = await forward(`${base}?app=vis`, payload);
         return cors(json({ ok }), allowedOrigin);
       }
 
-      return cors(json({ ok: false, error: 'not_found' }, 404), allowedOrigin);
-    } catch (error) {
-      return cors(json({ ok: false, error: String(error?.message || error) }, 500), allowedOrigin);
+      return cors(json({ ok:false, error:'not_found' }, 404), allowedOrigin);
+    } catch (err) {
+      return cors(json({ ok:false, error:String(err?.message || err) }, 500), allowedOrigin);
     }
   }
 };
 
-function selectAllowedOrigin(value) {
-  if (typeof value !== 'string') return '*';
-  const trimmed = value.trim();
-  if (!trimmed || trimmed === '*') {
-    return '*';
-  }
+/* ---------- helpers ---------- */
+function pickOrigin(v) {
+  if (typeof v !== 'string') return '*';
   try {
-    const parsed = new URL(trimmed);
-    if (!/^https?:$/i.test(parsed.protocol)) {
-      return '*';
-    }
-    return parsed.origin;
-  } catch {
-    return '*';
-  }
+    const u = new URL(v.trim());
+    return /^https?:$/i.test(u.protocol) ? u.origin : '*';
+  } catch { return '*'; }
 }
-
-function ensureHttps(value) {
-  if (typeof value !== 'string') return '';
+function normalizeBase(v) {
+  if (typeof v !== 'string' || !v) return '';
   try {
-    const url = new URL(value);
-    if (url.protocol !== 'https:') {
-      return '';
-    }
-    url.search = '';
-    url.hash = '';
-    return url.toString().replace(/\/+$/, '/');
-  } catch {
-    return '';
-  }
+    const u = new URL(v);
+    if (u.protocol !== 'https:') return '';
+    u.search = ''; u.hash = '';
+    return u.toString().replace(/\/+$/, '/');
+  } catch { return ''; }
 }
-
-function buildForwardUrl(base, app) {
-  if (!base) return '';
-  try {
-    const target = new URL(base);
-    target.searchParams.set('app', app);
-    return target.toString();
-  } catch {
-    return '';
-  }
-}
-
-async function readJson(request, limit = 4096) {
+async function readJson(request, limit) {
   const text = await request.text();
-  if (text.length > limit) {
-    throw new Error('payload_too_large');
-  }
-  if (!text) {
-    return {};
-  }
+  if (text.length > limit) throw new Error('payload_too_large');
+  if (!text) return {};
+  try { return JSON.parse(text); } catch { throw new Error('invalid_json'); }
+}
+function toRating(v) {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 1 && n <= 5 ? Math.floor(n) : 0;
+}
+function toLang(x) {
+  return (typeof x === 'string' ? x : 'en').trim().slice(0,5).toLowerCase() || 'en';
+}
+function toTheme(x) {
+  return (typeof x === 'string' ? x : '').trim().slice(0,16);
+}
+function scrubId(x) {
+  if (typeof x !== 'string') return '';
+  return x.normalize('NFKC').replace(/\p{C}/gu,'').replace(/[^\w\-.@]/g,'').trim().slice(0,64);
+}
+async function forward(url, body) {
   try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error('invalid_json');
-  }
-}
-
-function sanitizePayload(source, options = {}) {
-  const result = {};
-  let malicious = false;
-  const maxIdLength = 64;
-  const maxLangLength = 12;
-  const maxThemeLength = 16;
-
-  const uid = options.allowUid ? safeId(source?.uid || '', maxIdLength) : '';
-  const fp = safeId(source?.fp || '', maxIdLength);
-  const lang = sanitizeString(source?.lang || '', maxLangLength);
-  const theme = options.allowTheme ? sanitizeString(source?.theme || '', maxThemeLength) : '';
-
-  const inspector = value => {
-    if (typeof value === 'string') {
-      if (containsMalicious(value)) {
-        malicious = true;
-      }
-      return;
-    }
-    if (Array.isArray(value)) {
-      value.forEach(inspector);
-      return;
-    }
-    if (value && typeof value === 'object') {
-      for (const nested of Object.values(value)) {
-        inspector(nested);
-      }
-    }
-  };
-
-  inspector(source);
-
-  result.uid = uid;
-  result.fp = fp;
-  result.lang = lang || 'en';
-  if (options.allowTheme) {
-    result.theme = theme;
-  }
-  result.malicious = malicious;
-  return result;
-}
-
-function containsMalicious(value) {
-  if (typeof value !== 'string') return false;
-  const normalized = value.normalize('NFKC');
-  return MALICIOUS_PATTERNS.some(pattern => pattern.test(normalized));
-}
-
-function sanitizeString(value, max = 256) {
-  if (typeof value !== 'string') return '';
-  return value
-    .normalize('NFKC')
-    .replace(/\p{C}/gu, '')
-    .replace(/[<>]/g, '')
-    .trim()
-    .slice(0, max);
-}
-
-function safeId(value, max = 64) {
-  return sanitizeString(value, max).replace(/[^\w\-.@]/g, '');
-}
-
-function sanitizeRating(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return 0;
-  if (number < 1 || number > 5) return 0;
-  return Math.floor(number);
-}
-
-async function forward(url, payload) {
-  if (!url) return false;
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload)
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{ 'content-type':'application/json' },
+      body: JSON.stringify(body)
     });
-    return response.ok;
-  } catch {
-    return false;
-  }
+    return r.ok;
+  } catch { return false; }
 }
-
-function json(obj, status = 200) {
+function json(obj, status=200) {
   return new Response(JSON.stringify(obj), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' }
+    headers:{ 'content-type':'application/json; charset=utf-8' }
   });
 }
-
-function cors(response, origin = '*') {
-  const headers = new Headers(response.headers);
-  headers.set('access-control-allow-origin', origin || '*');
-  headers.set('access-control-allow-methods', 'GET,POST,OPTIONS');
-  headers.set('access-control-allow-headers', 'content-type');
-  headers.set('access-control-max-age', '86400');
-  return new Response(response.body, { status: response.status, headers });
+function cors(resp, origin='*') {
+  const h = new Headers(resp.headers);
+  h.set('access-control-allow-origin', origin || '*');
+  h.set('access-control-allow-methods','GET,POST,OPTIONS');
+  h.set('access-control-allow-headers','content-type');
+  h.set('access-control-max-age','86400');
+  return new Response(resp.body, { status: resp.status, headers: h });
 }
+
+
