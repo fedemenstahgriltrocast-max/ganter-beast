@@ -17,12 +17,12 @@
     en: {
       headline: 'Marxia Café y Bocaditos',
       tagline: 'Breakfasts, pastries, and delivery throughout Guayaquil.',
-      promise: 'Fresh flavors, curated menus, secure checkout.',
+      promise: 'Fresh flavors every morning.',
       orderNow: 'Order now',
-      orderTitle: 'Our seasonal best sellers',
-      orderSubtitle: 'Tap on your favorites to build the perfect breakfast spread.',
+      orderTitle: 'Our menu',
+      orderSubtitle: 'Tap to explore our handcrafted favorites.',
       insightsTitle: 'Experience dashboard',
-      insightsSubtitle: 'Monitor sentiment, visitors, and online sales in real time.',
+      insightsSubtitle: '',
       sentimentTitle: 'End consumer sentiment',
       sentimentUpdated: 'Updated every 30 minutes',
       sentimentScore: 'Average rating',
@@ -40,7 +40,7 @@
       ordersDelivery: 'Delivery',
       ordersTotal: 'Total',
       orderItems: 'Selected items',
-      orderSummaryEmpty: 'Your basket is empty. Add seasonal favorites to see them here.',
+      orderSummaryEmpty: 'Your basket is empty. Add menu favorites to see them here.',
       deliveryTitle: 'Delivery time',
       checkout: 'Secure checkout',
       carouselPrev: 'Previous favorites',
@@ -64,12 +64,12 @@
     es: {
       headline: 'Marxia Café y Bocaditos',
       tagline: 'Desayunos, bocaditos y envíos en todo Guayaquil.',
-      promise: 'Sabores frescos, menús curados y pago seguro.',
+      promise: 'Sabores frescos cada mañana.',
       orderNow: 'Ordenar ahora',
-      orderTitle: 'Nuestros favoritos de temporada',
-      orderSubtitle: 'Selecciona tus preferidos para armar el desayuno ideal.',
+      orderTitle: 'Nuestro menú',
+      orderSubtitle: 'Explora nuestros favoritos artesanales.',
       insightsTitle: 'Panel de experiencia',
-      insightsSubtitle: 'Monitoriza el sentimiento, visitantes y ventas online en tiempo real.',
+      insightsSubtitle: '',
       sentimentTitle: 'Sentimiento del consumidor final',
       sentimentUpdated: 'Actualizado cada 30 minutos',
       sentimentScore: 'Calificación promedio',
@@ -87,7 +87,7 @@
       ordersDelivery: 'Envío',
       ordersTotal: 'Total',
       orderItems: 'Artículos seleccionados',
-      orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos de temporada para verlos aquí.',
+      orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos del menú para verlos aquí.',
       deliveryTitle: 'Tiempo de entrega',
       checkout: 'Checkout seguro',
       carouselPrev: 'Favoritos anteriores',
@@ -323,7 +323,7 @@
       const key = node.getAttribute('data-i18n');
       if (!key) return;
       const translation = dict[key];
-      if (!translation) return;
+      if (translation === undefined) return;
 
       const attrTarget = node.getAttribute('data-i18n-attr');
       if (attrTarget) {
@@ -341,7 +341,11 @@
       }
 
       if (node.querySelector('a') && key === 'contactWhatsApp') {
-        node.childNodes[0].textContent = `${translation} `;
+        const prefixNode = node.childNodes[0];
+        if (prefixNode) {
+          const prefixText = translation ? `${translation} ` : '';
+          prefixNode.textContent = prefixText;
+        }
       } else {
         node.textContent = translation;
       }
