@@ -9,6 +9,8 @@ monitoring.
 
 Current workers:
 
+- `sequence-worker.js` – primary CSAT/visit proxy that sanitizes payloads and
+  forwards them to the configured downstream service.
 - `sentiment-forwarder.js` – proxies CSAT/visit signals to an internal service.
 - `encryption-gateway.js` – exposes a minimal encryption/decryption API for
   workloads that require short-lived secrets.
