@@ -32,6 +32,12 @@
   const paymentList = document.querySelector('[data-payment-items]');
   const paymentEmpty = document.querySelector('[data-payment-empty]');
   const paymentTotal = document.querySelector('[data-payment-total]');
+  const smallScreenQuery = window.matchMedia('(max-width: 767px)');
+  const largeScreenQuery = window.matchMedia('(min-width: 900px)');
+  const draggableDrawerIds = new Set(['chatDrawer', 'payDrawer']);
+  const fabButtons = [fabLanguage, fabTheme, fabChat, fabPay].filter(Boolean);
+  const fabLabelTimers = new WeakMap();
+  const drawerPositions = new Map();
   const TAX_RATE = 0.12;
   const DELIVERY_FEE = 1.5;
   const cart = new Map();
@@ -83,8 +89,11 @@
       chatSend: 'Send',
       chatPlaceholder: 'Type your message…',
       payTitle: 'Checkout preview',
-      paySecurity: 'Secure payments protected with PCI DSS compliant encryption.',
       payNow: 'Pay now',
+      fabLanguageLabel: 'Language options',
+      fabThemeLabel: 'Theme options',
+      fabChatLabel: 'Live chat',
+      fabPayLabel: 'Payment summary',
     },
     es: {
       headline: 'Marxia Café y Bocaditos',
@@ -130,10 +139,16 @@
       chatSend: 'Enviar',
       chatPlaceholder: 'Escribe tu mensaje…',
       payTitle: 'Resumen de pago',
-      paySecurity: 'Pagos protegidos con cifrado compatible PCI DSS.',
       payNow: 'Pagar ahora',
+      fabLanguageLabel: 'Opciones de idioma',
+      fabThemeLabel: 'Opciones de tema',
+      fabChatLabel: 'Chat en vivo',
+      fabPayLabel: 'Resumen de pago',
     },
   };
+
+  const isSmallScreen = () => smallScreenQuery.matches;
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
   const getLocale = () => (currentLanguage === 'es' ? 'es-EC' : 'en-US');
 
@@ -149,6 +164,40 @@
   const getTranslation = (key) => {
     const active = translations[currentLanguage] || translations.en;
     return active[key] ?? translations.en[key] ?? '';
+  };
+
+  const updateFabLabels = () => {
+    fabButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      const key = button.getAttribute('data-fab-label');
+      if (!key) {
+        return;
+      }
+      const label = getTranslation(key);
+      if (!label) {
+        return;
+      }
+      button.dataset.label = label;
+      button.setAttribute('aria-label', label);
+    });
+  };
+
+  const showFabLabel = (button, duration = 1500) => {
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    button.classList.add('fab--show-label');
+    const existingTimer = fabLabelTimers.get(button);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+    const timeout = window.setTimeout(() => {
+      button.classList.remove('fab--show-label');
+      fabLabelTimers.delete(button);
+    }, duration);
+    fabLabelTimers.set(button, timeout);
   };
 
   const updateProductPrices = () => {
@@ -384,6 +433,7 @@
       }
     });
 
+    updateFabLabels();
     updateProductPrices();
     updateCartDisplay();
   };
@@ -425,9 +475,158 @@
     controller.setAttribute('aria-expanded', String(!open));
   };
 
+  const moveDrawerTo = (drawer, position) => {
+    if (!drawer || !largeScreenQuery.matches) {
+      return;
+    }
+    const content = drawer.querySelector('.drawer__content');
+    if (!(content instanceof HTMLElement)) {
+      return;
+    }
+    const rect = content.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const margin = 16;
+    const maxLeft = window.innerWidth - width - margin;
+    const maxTop = window.innerHeight - height - margin;
+    const left = clamp(position.left, margin, Math.max(margin, maxLeft));
+    const top = clamp(position.top, margin, Math.max(margin, maxTop));
+    content.style.left = `${left}px`;
+    content.style.top = `${top}px`;
+    content.style.right = 'auto';
+    content.style.bottom = 'auto';
+    content.style.transform = 'none';
+    content.classList.add('drawer__content--floating');
+    drawerPositions.set(drawer.id, { top, left });
+  };
+
+  const ensureFloatingPosition = (drawer) => {
+    if (!drawer || !largeScreenQuery.matches || drawer.getAttribute('aria-hidden') === 'true') {
+      return;
+    }
+    const content = drawer.querySelector('.drawer__content');
+    if (!(content instanceof HTMLElement)) {
+      return;
+    }
+    content.classList.add('drawer__content--floating');
+    requestAnimationFrame(() => {
+      const rect = content.getBoundingClientRect();
+      const stored = drawerPositions.get(drawer.id);
+      const defaultTop = Math.max(16, (window.innerHeight - rect.height) / 2);
+      const defaultLeft = Math.max(16, (window.innerWidth - rect.width) / 2);
+      moveDrawerTo(drawer, {
+        top: stored?.top ?? defaultTop,
+        left: stored?.left ?? defaultLeft,
+      });
+    });
+  };
+
+  const resetDrawerPosition = (drawer) => {
+    const content = drawer?.querySelector('.drawer__content');
+    if (!(content instanceof HTMLElement)) {
+      return;
+    }
+    content.classList.remove('drawer__content--floating');
+    content.style.left = '';
+    content.style.top = '';
+    content.style.right = '';
+    content.style.bottom = '';
+    content.style.transform = '';
+    delete content.dataset.dragging;
+  };
+
+  const applyDrawerLayout = () => {
+    if (!largeScreenQuery.matches) {
+      drawers.forEach((drawer) => resetDrawerPosition(drawer));
+      drawerPositions.clear();
+      return;
+    }
+    drawers.forEach((drawer) => {
+      if (draggableDrawerIds.has(drawer.id) && drawer.getAttribute('aria-hidden') === 'false') {
+        ensureFloatingPosition(drawer);
+      }
+    });
+  };
+
+  const setupDraggableDrawer = (drawer) => {
+    if (!draggableDrawerIds.has(drawer.id)) {
+      return;
+    }
+    const content = drawer.querySelector('.drawer__content');
+    const handle = drawer.querySelector('.drawer__header');
+    if (!(content instanceof HTMLElement) || !(handle instanceof HTMLElement)) {
+      return;
+    }
+    let activePointerId = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    const stopDragging = (event) => {
+      if (activePointerId === null || (event && event.pointerId !== activePointerId)) {
+        return;
+      }
+      try {
+        if (event && typeof handle.releasePointerCapture === 'function') {
+          handle.releasePointerCapture(activePointerId);
+        }
+      } catch (error) {
+        // Ignore release errors when pointer capture is already cleared.
+      }
+      activePointerId = null;
+      dragOffsetX = 0;
+      dragOffsetY = 0;
+      delete content.dataset.dragging;
+    };
+
+    handle.addEventListener('pointerdown', (event) => {
+      if (!largeScreenQuery.matches || drawer.getAttribute('aria-hidden') === 'true') {
+        return;
+      }
+      if (typeof event.button === 'number' && event.button !== 0) {
+        return;
+      }
+      activePointerId = event.pointerId;
+      if (typeof handle.setPointerCapture === 'function') {
+        handle.setPointerCapture(activePointerId);
+      }
+      const rect = content.getBoundingClientRect();
+      dragOffsetX = event.clientX - rect.left;
+      dragOffsetY = event.clientY - rect.top;
+      content.dataset.dragging = 'true';
+      event.preventDefault();
+    });
+
+    handle.addEventListener('pointermove', (event) => {
+      if (!largeScreenQuery.matches || activePointerId === null || event.pointerId !== activePointerId) {
+        return;
+      }
+      moveDrawerTo(drawer, {
+        left: event.clientX - dragOffsetX,
+        top: event.clientY - dragOffsetY,
+      });
+    });
+
+    handle.addEventListener('pointerup', (event) => {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+      stopDragging(event);
+    });
+
+    handle.addEventListener('pointercancel', (event) => {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+      stopDragging(event);
+    });
+  };
+
   const openDrawer = (drawer) => {
     if (!drawer) return;
     drawer.setAttribute('aria-hidden', 'false');
+    if (largeScreenQuery.matches && draggableDrawerIds.has(drawer.id)) {
+      ensureFloatingPosition(drawer);
+    }
     const closeButton = drawer.querySelector('[data-close-drawer]');
     if (closeButton) {
       closeButton.focus();
@@ -437,6 +636,36 @@
   const closeDrawer = (drawer) => {
     if (!drawer) return;
     drawer.setAttribute('aria-hidden', 'true');
+  };
+
+  const toggleFabDrawer = (fab, drawerId) => {
+    if (!(fab instanceof HTMLElement)) {
+      return;
+    }
+    const drawer = document.querySelector(`#${drawerId}`);
+    if (!(drawer instanceof HTMLElement)) {
+      return;
+    }
+    const isOpen = drawer.getAttribute('aria-hidden') === 'false';
+
+    const toggle = () => {
+      if (isOpen) {
+        closeDrawer(drawer);
+      } else {
+        openDrawer(drawer);
+      }
+      fab.setAttribute('aria-pressed', String(!isOpen));
+    };
+
+    if (isSmallScreen() && !isOpen) {
+      showFabLabel(fab);
+      window.setTimeout(toggle, 220);
+    } else {
+      toggle();
+      if (isSmallScreen()) {
+        showFabLabel(fab);
+      }
+    }
   };
 
   document.addEventListener('click', (event) => {
@@ -465,27 +694,19 @@
     }
 
     if (target === fabLanguage) {
+      if (isSmallScreen()) {
+        showFabLabel(fabLanguage);
+      }
       toggleMenu(document.querySelector('#fabLanguageMenu'), fabLanguage);
     } else if (target === fabTheme) {
+      if (isSmallScreen()) {
+        showFabLabel(fabTheme);
+      }
       toggleMenu(document.querySelector('#fabThemeMenu'), fabTheme);
     } else if (target === fabChat) {
-      const drawer = document.querySelector('#chatDrawer');
-      const isOpen = drawer?.getAttribute('aria-hidden') === 'false';
-      if (isOpen) {
-        closeDrawer(drawer);
-      } else {
-        openDrawer(drawer);
-      }
-      fabChat.setAttribute('aria-pressed', String(!isOpen));
+      toggleFabDrawer(fabChat, 'chatDrawer');
     } else if (target === fabPay) {
-      const drawer = document.querySelector('#payDrawer');
-      const isOpen = drawer?.getAttribute('aria-hidden') === 'false';
-      if (isOpen) {
-        closeDrawer(drawer);
-      } else {
-        openDrawer(drawer);
-      }
-      fabPay.setAttribute('aria-pressed', String(!isOpen));
+      toggleFabDrawer(fabPay, 'payDrawer');
     } else if (!target.closest('.fab-menu') && !target.closest('.fab')) {
       closeMenus();
     }
@@ -495,6 +716,7 @@
   });
 
   drawers.forEach((drawer) => {
+    setupDraggableDrawer(drawer);
     drawer.addEventListener('click', (event) => {
       if (event.target === drawer) {
         closeDrawer(drawer);
@@ -503,6 +725,12 @@
       }
     });
   });
+
+  if (typeof largeScreenQuery.addEventListener === 'function') {
+    largeScreenQuery.addEventListener('change', applyDrawerLayout);
+  } else if (typeof largeScreenQuery.addListener === 'function') {
+    largeScreenQuery.addListener(applyDrawerLayout);
+  }
 
   if (accordionTrigger && accordionContent) {
     const expanded = accordionTrigger.getAttribute('aria-expanded') === 'true';
@@ -537,7 +765,22 @@
     });
   }
 
-  window.addEventListener('resize', updateCarousel);
+  window.addEventListener('resize', () => {
+    updateCarousel();
+    if (largeScreenQuery.matches) {
+      drawers.forEach((drawer) => {
+        if (!draggableDrawerIds.has(drawer.id) || drawer.getAttribute('aria-hidden') === 'true') {
+          return;
+        }
+        const stored = drawerPositions.get(drawer.id);
+        if (stored) {
+          moveDrawerTo(drawer, stored);
+        } else {
+          ensureFloatingPosition(drawer);
+        }
+      });
+    }
+  });
 
   chipButtons.forEach((chip) => {
     chip.addEventListener('click', () => {
@@ -553,6 +796,7 @@
 
   initializeCart();
   restorePreferences();
+  applyDrawerLayout();
   updateCarousel();
   setCopyright();
 })();

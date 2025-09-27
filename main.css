@@ -803,6 +803,43 @@ body {
   transition: transform var(--transition), filter var(--transition);
 }
 
+.fab {
+  position: relative;
+}
+
+.fab::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 64px;
+  top: 50%;
+  transform: translateY(-50%) translateX(12px);
+  background: var(--surface-strong);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition), transform var(--transition);
+  white-space: nowrap;
+}
+
+.fab--show-label::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .fab:hover::after,
+  .fab:focus-visible::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
 .fab:hover,
 .fab:focus-visible,
 .fab-option:hover,
@@ -875,10 +912,27 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .drawer__header h2 {
   margin: 0;
+}
+
+#payDrawer .drawer__header {
+  justify-content: center;
+}
+
+#payDrawer .drawer__header h2 {
+  width: 100%;
+  text-align: center;
+}
+
+#payDrawer .drawer__close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .drawer__close {
@@ -921,6 +975,9 @@ body {
   list-style: none;
   display: grid;
   gap: 0.35rem;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
 .payment-list li {
@@ -936,6 +993,57 @@ body {
   margin: 0.5rem 0 0;
   font-size: 1.05rem;
   color: var(--text-main);
+}
+
+@media (min-width: 900px) {
+  .drawer {
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .drawer__content {
+    border-radius: var(--radius-lg);
+    max-width: 420px;
+  }
+
+  .drawer__content--floating {
+    position: fixed;
+    max-height: min(90vh, 520px);
+    overflow: hidden;
+  }
+
+  .drawer__content--floating .drawer__body {
+    max-height: calc(90vh - 160px);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .drawer__header {
+    cursor: grab;
+  }
+
+  .drawer__content[data-dragging='true'] .drawer__header {
+    cursor: grabbing;
+  }
+}
+
+.payment-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.payment-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.payment-list::-webkit-scrollbar-thumb {
+  background: rgba(16, 19, 25, 0.15);
+  border-radius: 999px;
+}
+
+[data-theme="dark"] .payment-list::-webkit-scrollbar-thumb {
+  background: rgba(242, 245, 255, 0.2);
 }
 
 @media (max-width: 900px) {
