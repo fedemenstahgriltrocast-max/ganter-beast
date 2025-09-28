@@ -735,6 +735,12 @@
   if (accordionTrigger && accordionContent) {
     const expanded = accordionTrigger.getAttribute('aria-expanded') === 'true';
     accordionContent.hidden = !expanded;
+    const refreshCarouselLayout = () => {
+      window.requestAnimationFrame(() => {
+        updateCarousel();
+      });
+    };
+
     accordionTrigger.addEventListener('click', () => {
       const isExpanded = accordionTrigger.getAttribute('aria-expanded') === 'true';
       const nextExpanded = !isExpanded;
@@ -742,9 +748,13 @@
       accordionContent.hidden = !nextExpanded;
       if (nextExpanded) {
         currentSlideIndex = 0;
-        updateCarousel();
+        refreshCarouselLayout();
       }
     });
+
+    if (!accordionContent.hidden) {
+      refreshCarouselLayout();
+    }
   }
 
   if (carouselPrev) {
