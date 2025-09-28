@@ -992,6 +992,29 @@ body {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
+  color: #1f2937;
+}
+
+#payDrawer .drawer__content {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+#payDrawer .drawer__body {
+  color: #4b5563;
+}
+
+#payDrawer .payment-list li {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+#payDrawer .payment-list__total {
+  color: #1f2937;
+}
+
+#payDrawer .payment-list__empty {
+  color: #4b5563;
 }
 
 .drawer__close {
