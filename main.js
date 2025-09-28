@@ -97,7 +97,7 @@
     },
     es: {
       headline: 'Marxia Café y Bocaditos',
-      tagline: 'Desayunos, bocaditos y envíos en todo Guayaquil.',
+      tagline: 'Desayunos, bocaditos y envíos en el Norte de Guayaquil.',
       promise: 'Sabores frescos cada mañana.',
       orderNow: 'Ordenar ahora',
       orderTitle: 'Nuestro menú',
