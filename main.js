@@ -94,6 +94,12 @@
       fabThemeLabel: 'Theme options',
       fabChatLabel: 'Live chat',
       fabPayLabel: 'Payment summary',
+      operationsTitle: 'Operational readiness checklist',
+      operationsSubtitle: 'Confirm the essentials beyond cybersecurity before launch.',
+      operationsMenu: 'Standardize menu documentation, allergen labeling, and daily prep guides.',
+      operationsSuppliers: 'Align supplier contracts, delivery windows, and verified backup vendors.',
+      operationsService: 'Train staff on service scripts, accessibility etiquette, and escalation paths.',
+      operationsMarketing: 'Schedule neighborhood marketing, loyalty pushes, and community partnerships.',
     },
     es: {
       headline: 'Marxia Café y Bocaditos',
@@ -144,6 +150,12 @@
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
       fabPayLabel: 'Resumen de pago',
+      operationsTitle: 'Lista de verificación operativa',
+      operationsSubtitle: 'Confirma lo esencial más allá de la ciberseguridad antes del lanzamiento.',
+      operationsMenu: 'Estandariza la documentación del menú, el etiquetado de alérgenos y las guías de preparación diaria.',
+      operationsSuppliers: 'Alinea contratos con proveedores, ventanas de entrega y proveedores de respaldo verificados.',
+      operationsService: 'Capacita al equipo en guiones de servicio, etiqueta de accesibilidad y rutas de escalamiento.',
+      operationsMarketing: 'Programa marketing barrial, campañas de fidelización y alianzas comunitarias.',
     },
   };
 
