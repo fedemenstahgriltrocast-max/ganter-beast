@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
+  <title id="title">Tortilla, sausage and fried eggs illustration</title>
+  <desc id="desc">Playful plate featuring tortilla slices, sausage and sunny-side-up eggs representing Marxia breakfast.</desc>
+  <defs>
+    <radialGradient id="plateGradient" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e6f4" />
+    </radialGradient>
+    <linearGradient id="eggGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fff3c4" />
+      <stop offset="100%" stop-color="#ffe27a" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="#fff9f0" rx="36" />
+  <g transform="translate(60 40)">
+    <ellipse cx="140" cy="110" rx="136" ry="96" fill="url(#plateGradient)" />
+    <g opacity="0.95">
+      <ellipse cx="124" cy="104" rx="46" ry="36" fill="#d15829" />
+      <ellipse cx="124" cy="104" rx="32" ry="24" fill="#f5a46b" />
+      <ellipse cx="88" cy="72" rx="48" ry="36" fill="#f2c995" />
+      <ellipse cx="188" cy="140" rx="48" ry="36" fill="#f2c995" />
+    </g>
+    <g>
+      <ellipse cx="80" cy="140" rx="44" ry="32" fill="#ffffff" />
+      <circle cx="80" cy="140" r="18" fill="url(#eggGradient)" />
+      <ellipse cx="208" cy="80" rx="44" ry="32" fill="#ffffff" />
+      <circle cx="208" cy="80" r="18" fill="url(#eggGradient)" />
+      <path d="M156 40a20 20 0 1 1 0 40 20 20 0 1 1 0-40" fill="#c24f2d" opacity="0.9" />
+      <path d="M156 52a8 8 0 1 1 0 16 8 8 0 1 1 0-16" fill="#872d1a" opacity="0.65" />
+    </g>
+  </g>
+</svg>

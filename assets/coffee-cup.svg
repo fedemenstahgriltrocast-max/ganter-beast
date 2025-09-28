@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
+  <title id="title">Coffee cup illustration</title>
+  <desc id="desc">Stylized Marxia Café cup with steam iconography.</desc>
+  <defs>
+    <linearGradient id="coffeeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4b2e2b" />
+      <stop offset="60%" stop-color="#7a4d2a" />
+      <stop offset="100%" stop-color="#cba16a" />
+    </linearGradient>
+    <linearGradient id="steamGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="#fbf1e6" rx="36" />
+  <rect x="28" y="32" width="344" height="236" rx="28" fill="#f6d7b0" opacity="0.65" />
+  <g>
+    <path d="M124 214c0-44 36-74 76-74s76 30 76 74v18H124z" fill="#ffffff" opacity="0.9" />
+    <path d="M132 194c-8 0-14-6-14-14v-32c0-8 6-14 14-14h168c8 0 14 6 14 14v32c0 8-6 14-14 14z" fill="#ffffff" />
+    <path d="M160 110h112l-12 42h-88z" fill="url(#coffeeGradient)" opacity="0.95" />
+  </g>
+  <g fill="none" stroke="url(#steamGradient)" stroke-width="7" stroke-linecap="round">
+    <path d="M176 78c0-12 8-22 8-34s-8-22-8-34" />
+    <path d="M200 78c0-12 8-22 8-34s-8-22-8-34" />
+    <path d="M224 78c0-12 8-22 8-34s-8-22-8-34" />
+  </g>
+  <circle cx="200" cy="172" r="28" fill="#4b2e2b" opacity="0.65" />
+  <path d="M200 152a20 20 0 1 1-0.1 0" fill="#ffffff" opacity="0.9" />
+</svg>

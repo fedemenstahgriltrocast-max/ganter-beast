@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
+  <title id="title">Coca Cola soft drink illustration</title>
+  <desc id="desc">Stylized Marxia Cola bottle inspired by Coca Cola red branding.</desc>
+  <defs>
+    <linearGradient id="cokeBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c8102e" />
+      <stop offset="60%" stop-color="#a00c24" />
+      <stop offset="100%" stop-color="#4a0a15" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" rx="36" fill="#fff2f2" />
+  <g transform="translate(150 40)">
+    <path d="M34 0h12c4 0 6 4 6 8v24c0 6 2 10 6 14l12 12c4 4 6 8 6 14v112c0 16-10 30-30 30s-30-14-30-30V72c0-6 2-10 6-14l12-12c4-4 6-8 6-14V8c0-4 2-8 6-8z" fill="url(#cokeBody)" />
+    <rect x="16" y="52" width="60" height="32" rx="12" fill="#ffffff" opacity="0.9" />
+    <text x="46" y="74" text-anchor="middle" font-size="16" font-family="'Montserrat', 'Arial', sans-serif" font-weight="600" fill="#c8102e">Cola</text>
+  </g>
+</svg>
