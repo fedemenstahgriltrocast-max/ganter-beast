@@ -22,7 +22,7 @@
   --chip-bg: rgba(255, 179, 71, 0.2);
   --chip-text: #ff7f50;
   --toggle-bg: rgba(255, 255, 255, 0.85);
-  --toggle-fg: var(--text-main);
+  --toggle-fg: #000000;
   --toggle-shadow: rgba(31, 27, 44, 0.18);
 }
 
