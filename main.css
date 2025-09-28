@@ -42,8 +42,8 @@
   --border-subtle: rgba(126, 243, 179, 0.24);
   --chip-bg: rgba(126, 243, 179, 0.15);
   --chip-text: #7ef3b3;
-  --toggle-bg: rgba(12, 13, 18, 0.9);
-  --toggle-fg: var(--text-main);
+  --toggle-bg: rgba(255, 255, 255, 0.92);
+  --toggle-fg: #000000;
   --toggle-shadow: rgba(5, 6, 10, 0.55);
 }
 
@@ -186,6 +186,7 @@ body {
 }
 
 [data-theme="dark"] .toggle-button[aria-pressed="true"] {
+  color: #000000;
   box-shadow: 0 12px 26px rgba(126, 243, 179, 0.24);
 }
 
