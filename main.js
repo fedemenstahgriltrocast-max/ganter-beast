@@ -353,14 +353,17 @@
       return;
     }
     const styles = window.getComputedStyle(carouselTrack);
-    const gapValue = parseFloat(styles.columnGap || styles.gap || '0');
+    const gapValue = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0;
     const cardWidth = productCards[0].getBoundingClientRect().width;
     const viewportWidth = carouselViewport.getBoundingClientRect().width;
     const totalSlideWidth = cardWidth + gapValue;
     if (!Number.isFinite(totalSlideWidth) || totalSlideWidth <= 0) {
       return;
     }
-    const visibleSlides = Math.max(1, Math.floor((viewportWidth + gapValue) / totalSlideWidth));
+    const prefersSingleSlide = window.matchMedia('(max-width: 768px)').matches;
+    const visibleSlides = prefersSingleSlide
+      ? 1
+      : Math.max(1, Math.floor((viewportWidth + gapValue) / totalSlideWidth));
     maxSlideIndex = Math.max(0, productCards.length - visibleSlides);
     currentSlideIndex = Math.min(currentSlideIndex, maxSlideIndex);
     const offset = currentSlideIndex * totalSlideWidth;
