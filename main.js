@@ -638,6 +638,32 @@
     drawer.setAttribute('aria-hidden', 'true');
   };
 
+  const closeAllDrawers = () => {
+    drawers.forEach((drawer) => {
+      closeDrawer(drawer);
+    });
+  };
+
+  const resetFabStates = () => {
+    fabButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      if (button.hasAttribute('aria-pressed')) {
+        button.setAttribute('aria-pressed', 'false');
+      }
+      if (button.hasAttribute('aria-expanded')) {
+        button.setAttribute('aria-expanded', 'false');
+      }
+    });
+  };
+
+  const exitAllFabInteractions = () => {
+    closeMenus();
+    closeAllDrawers();
+    resetFabStates();
+  };
+
   const toggleFabDrawer = (fab, drawerId) => {
     if (!(fab instanceof HTMLElement)) {
       return;
@@ -683,14 +709,8 @@
     }
 
     if (target.matches('[data-close-drawer]')) {
-      const drawer = target.closest('.drawer');
-      closeDrawer(drawer);
-      if (drawer?.id === 'chatDrawer') {
-        fabChat?.setAttribute('aria-pressed', 'false');
-      }
-      if (drawer?.id === 'payDrawer') {
-        fabPay?.setAttribute('aria-pressed', 'false');
-      }
+      exitAllFabInteractions();
+      return;
     }
 
     if (target === fabLanguage) {
@@ -719,11 +739,21 @@
     setupDraggableDrawer(drawer);
     drawer.addEventListener('click', (event) => {
       if (event.target === drawer) {
-        closeDrawer(drawer);
-        fabChat?.setAttribute('aria-pressed', 'false');
-        fabPay?.setAttribute('aria-pressed', 'false');
+        exitAllFabInteractions();
       }
     });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    const anyDrawerOpen = drawers.some((drawer) => drawer.getAttribute('aria-hidden') === 'false');
+    const anyMenuOpen = fabMenus.some((menu) => menu.dataset.open === 'true');
+    if (anyDrawerOpen || anyMenuOpen) {
+      event.preventDefault();
+      exitAllFabInteractions();
+    }
   });
 
   if (typeof largeScreenQuery.addEventListener === 'function') {
