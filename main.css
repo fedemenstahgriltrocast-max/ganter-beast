@@ -1172,19 +1172,25 @@ body {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .product-carousel {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 
   .product-carousel__viewport {
-    overflow: visible;
+    overflow: hidden;
     padding-inline: 3.5rem;
   }
 
+  .product-carousel__track {
+    gap: 1rem;
+  }
+
   .product-card {
-    min-width: clamp(200px, 100%, 320px);
+    flex: 0 0 100%;
+    max-width: 100%;
+    min-width: auto;
   }
 
   .carousel__control {
