@@ -434,11 +434,14 @@ body {
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
-.product-card img {
+.product-card__image {
   width: 100%;
+  aspect-ratio: 4 / 3;
   height: auto;
   display: block;
   border-radius: 18px;
+  object-fit: cover;
+  background: linear-gradient(135deg, rgba(255, 179, 71, 0.35), rgba(255, 127, 80, 0.25));
 }
 
 .product-card:hover,
