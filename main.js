@@ -104,7 +104,7 @@
       orderSubtitle: 'Explora nuestros favoritos artesanales.',
       insightsTitle: 'Panel de experiencia',
       insightsSubtitle: '',
-      sentimentTitle: 'Sentimiento del consumidor final',
+      sentimentTitle: 'Comparte tu Experiencia',
       sentimentUpdated: 'Actualizado cada 30 minutos',
       sentimentScore: 'Calificación promedio',
       sentimentReviews: '1.248 reseñas verificadas',
