@@ -1,26 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
-  <title id="title">Marxia Café placeholder</title>
-  <desc id="desc">Abstract illustration placeholder for menu items.</desc>
+  <title id="title">Marxia Café breakfast plate</title>
+  <desc id="desc">Photograph of a breakfast plate with coffee, tortilla, fried egg, and sausages.</desc>
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffb347" />
-      <stop offset="50%" stop-color="#ff7f50" />
-      <stop offset="100%" stop-color="#ffd8a8" />
-    </linearGradient>
-    <linearGradient id="steam" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
-      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-    </linearGradient>
+    <clipPath id="roundedFrame">
+      <rect x="8" y="8" width="384" height="284" rx="20" ry="20" />
+    </clipPath>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.35" />
+    </filter>
   </defs>
-  <rect width="400" height="300" fill="#fff6e8" rx="32" />
-  <rect x="28" y="28" width="344" height="244" rx="24" fill="url(#grad)" />
-  <g fill="#ffffff" opacity="0.85">
-    <path d="M140 216c0-32 24-56 60-56s60 24 60 56v8H140z" />
-    <path d="M140 200c-8 0-14-6-14-14v-24c0-8 6-14 14-14h120c8 0 14 6 14 14v24c0 8-6 14-14 14z" />
-  </g>
-  <g fill="url(#steam)">
-    <path d="M180 88c0-12 6-22 6-34s-6-22-6-34" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
-    <path d="M200 88c0-12 6-22 6-34s-6-22-6-34" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
-    <path d="M220 88c0-12 6-22 6-34s-6-22-6-34" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
-  </g>
+  <rect width="400" height="300" fill="#1f1303" rx="24" ry="24" />
+  <image
+    href="https://twilight-glade-ca07.distraction.workers.dev/"
+    x="8"
+    y="8"
+    width="384"
+    height="284"
+    preserveAspectRatio="xMidYMid slice"
+    clip-path="url(#roundedFrame)"
+  />
+  <rect x="8" y="8" width="384" height="284" rx="20" ry="20" fill="none" stroke="#f6efe2" stroke-width="3" filter="url(#shadow)" />
 </svg>
