@@ -419,12 +419,39 @@
         <div class="delivery-time" role="group" aria-labelledby="delivery-title">
           <span id="delivery-title" data-i18n="deliveryTitle">Delivery time</span>
           <div class="delivery-time__options">
-            <button type="button" class="chip" aria-pressed="true">45 min</button>
-            <button type="button" class="chip" aria-pressed="false">1 hr</button>
-            <button type="button" class="chip" aria-pressed="false">1 hr 30 min</button>
+            <button
+              type="button"
+              class="chip"
+              aria-pressed="true"
+              data-delivery-minutes="45"
+              data-label-en="45 min"
+              data-label-es="45 min"
+            >45 min</button>
+            <button
+              type="button"
+              class="chip"
+              aria-pressed="false"
+              data-delivery-minutes="60"
+              data-label-en="1 hr"
+              data-label-es="1 hr"
+            >1 hr</button>
+            <button
+              type="button"
+              class="chip"
+              aria-pressed="false"
+              data-delivery-minutes="90"
+              data-label-en="1 hr 30 min"
+              data-label-es="1 hr 30 min"
+            >1 hr 30 min</button>
           </div>
+          <p class="delivery-time__selection" data-delivery-selection aria-live="polite" data-i18n-skip-text="true"></p>
         </div>
-        <button type="button" class="button button--primary" data-i18n="checkout">Secure checkout</button>
+        <button
+          type="button"
+          class="button button--primary"
+          data-i18n="checkout"
+          data-checkout-trigger
+        >Secure checkout</button>
       </article>
     </section>
   </main>
@@ -500,6 +527,7 @@
       <div class="drawer__body">
         <ul class="payment-list" data-payment-items aria-live="polite"></ul>
         <p class="payment-list__empty" data-payment-empty data-i18n="orderSummaryEmpty">Your basket is empty. Add menu favorites to see them here.</p>
+        <p class="payment-list__eta" data-payment-delivery aria-live="polite" data-i18n-skip-text="true"></p>
         <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span></p>
         <button type="button" class="button button--primary" data-i18n="payNow">Pay now</button>
       </div>

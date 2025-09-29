@@ -12,6 +12,7 @@
   const fabLanguageMenu = document.querySelector('#fabLanguageMenu');
   const fabThemeMenu = document.querySelector('#fabThemeMenu');
   const drawers = Array.from(document.querySelectorAll('.drawer'));
+  const payDrawer = document.querySelector('#payDrawer');
   const languageToggle = document.querySelector('#languageToggle');
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -34,6 +35,8 @@
   const paymentList = document.querySelector('[data-payment-items]');
   const paymentEmpty = document.querySelector('[data-payment-empty]');
   const paymentTotal = document.querySelector('[data-payment-total]');
+  const deliverySelectionDisplay = document.querySelector('[data-delivery-selection]');
+  const paymentDeliveryDisplay = document.querySelector('[data-payment-delivery]');
   const smallScreenQuery = window.matchMedia('(max-width: 767px)');
   const largeScreenQuery = window.matchMedia('(min-width: 900px)');
   const draggableDrawerIds = new Set(['chatDrawer', 'payDrawer']);
@@ -43,9 +46,12 @@
   const TAX_RATE = 0.15;
   const DELIVERY_FEE = 1.5;
   const cart = new Map();
+  const checkoutTrigger = document.querySelector('[data-checkout-trigger]');
+  const DELIVERY_STORAGE_KEY = 'marxia-delivery-minutes';
   let currentSlideIndex = 0;
   let maxSlideIndex = 0;
   let currentLanguage = html.lang === 'es' ? 'es' : 'en';
+  let selectedDeliveryTime = null;
   const translations = {
     en: {
       headline: 'Marxia Café y Bocaditos',
@@ -75,6 +81,8 @@
       orderItems: 'Selected items',
       orderSummaryEmpty: 'Your basket is empty. Add menu favorites to see them here.',
       deliveryTitle: 'Delivery time',
+      deliveryEta: 'Estimated delivery: {time}',
+      deliveryEtaPrompt: 'Select a delivery time',
       checkout: 'Secure checkout',
       carouselPrev: 'Previous favorites',
       carouselNext: 'Next favorites',
@@ -127,6 +135,8 @@
       orderItems: 'Artículos seleccionados',
       orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos del menú para verlos aquí.',
       deliveryTitle: 'Tiempo de entrega',
+      deliveryEta: 'Entrega estimada: {time}',
+      deliveryEtaPrompt: 'Selecciona el tiempo de entrega',
       checkout: 'Checkout seguro',
       carouselPrev: 'Favoritos anteriores',
       carouselNext: 'Más favoritos',
@@ -170,6 +180,105 @@
   const getTranslation = (key) => {
     const active = translations[currentLanguage] || translations.en;
     return active[key] ?? translations.en[key] ?? '';
+  };
+
+  const getDeliveryLabelForChip = (chip, lang = currentLanguage) => {
+    if (!(chip instanceof HTMLElement)) {
+      return '';
+    }
+    const dictionaryKey = lang === 'es' ? 'labelEs' : 'labelEn';
+    return chip.dataset[dictionaryKey] || chip.textContent.trim();
+  };
+
+  const updateDeliveryOptionLabels = (lang = currentLanguage) => {
+    chipButtons.forEach((chip) => {
+      const label = getDeliveryLabelForChip(chip, lang);
+      if (label) {
+        chip.textContent = label;
+      }
+    });
+  };
+
+  const syncSelectedDeliveryLabel = () => {
+    if (!selectedDeliveryTime) {
+      return;
+    }
+    const activeChip = chipButtons.find((chip) => chip.getAttribute('aria-pressed') === 'true');
+    if (activeChip) {
+      selectedDeliveryTime.label = getDeliveryLabelForChip(activeChip);
+    }
+  };
+
+  const updateDeliveryDisplay = () => {
+    const label = selectedDeliveryTime?.label;
+    const template = getTranslation('deliveryEta') || 'Estimated delivery: {time}';
+    const prompt = getTranslation('deliveryEtaPrompt') || '';
+    const message = label ? template.replace('{time}', label) : prompt;
+
+    if (deliverySelectionDisplay) {
+      deliverySelectionDisplay.textContent = message;
+      deliverySelectionDisplay.toggleAttribute('hidden', !message);
+    }
+
+    if (paymentDeliveryDisplay) {
+      paymentDeliveryDisplay.textContent = message;
+      paymentDeliveryDisplay.toggleAttribute('hidden', !message);
+    }
+  };
+
+  const setSelectedDeliveryTime = (chip, { persist = true } = {}) => {
+    if (!(chip instanceof HTMLElement)) {
+      return;
+    }
+
+    chipButtons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn === chip));
+    });
+
+    const minutesValue = Number(chip.getAttribute('data-delivery-minutes') || chip.dataset.deliveryMinutes || '');
+    const minutes = Number.isFinite(minutesValue) ? minutesValue : null;
+    const label = getDeliveryLabelForChip(chip);
+
+    selectedDeliveryTime = {
+      minutes,
+      label,
+    };
+
+    if (persist && minutes !== null) {
+      try {
+        localStorage.setItem(DELIVERY_STORAGE_KEY, String(minutes));
+      } catch (error) {
+        // no-op: storage might be unavailable
+      }
+    }
+
+    updateDeliveryDisplay();
+  };
+
+  const restoreDeliverySelection = () => {
+    updateDeliveryOptionLabels();
+    let savedMinutes = null;
+    try {
+      savedMinutes = localStorage.getItem(DELIVERY_STORAGE_KEY);
+    } catch (error) {
+      savedMinutes = null;
+    }
+
+    let targetChip = null;
+    if (savedMinutes) {
+      targetChip = chipButtons.find((chip) => chip.getAttribute('data-delivery-minutes') === savedMinutes) || null;
+    }
+
+    if (!targetChip) {
+      targetChip =
+        chipButtons.find((chip) => chip.getAttribute('aria-pressed') === 'true') || chipButtons[0] || null;
+    }
+
+    if (targetChip) {
+      setSelectedDeliveryTime(targetChip, { persist: false });
+    } else {
+      updateDeliveryDisplay();
+    }
   };
 
   const updateMenuPressedState = (menu, attribute, activeValue) => {
@@ -467,6 +576,9 @@
       }
     });
 
+    updateDeliveryOptionLabels(nextLang);
+    syncSelectedDeliveryLabel();
+    updateDeliveryDisplay();
     updateFabLabels();
     updateFabMenuSelection();
     updateProductPrices();
@@ -889,9 +1001,26 @@
 
   chipButtons.forEach((chip) => {
     chip.addEventListener('click', () => {
-      chipButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn === chip)));
+      setSelectedDeliveryTime(chip);
     });
   });
+
+  if (checkoutTrigger) {
+    checkoutTrigger.addEventListener('click', () => {
+      closeMenus();
+      closeAllDrawers();
+      resetFabStates();
+      if (payDrawer) {
+        openDrawer(payDrawer);
+      }
+      if (fabPay) {
+        fabPay.setAttribute('aria-pressed', 'true');
+        if (isSmallScreen()) {
+          showFabLabel(fabPay);
+        }
+      }
+    });
+  }
 
   if (orderButton && orderSection) {
     orderButton.addEventListener('click', () => {
@@ -901,6 +1030,7 @@
 
   initializeCart();
   restorePreferences();
+  restoreDeliverySelection();
   applyDrawerLayout();
   updateCarousel();
   setCopyright();
