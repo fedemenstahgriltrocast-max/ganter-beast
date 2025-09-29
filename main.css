@@ -255,8 +255,35 @@ body {
   transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
 }
 
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
 .button--primary {
   width: 100%;
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--accent-strong);
+  border: 1.5px solid currentColor;
+  box-shadow: none;
+  padding: 0.6rem 1.75rem;
+  width: auto;
+}
+
+.button--ghost:disabled {
+  opacity: 0.35;
+}
+
+.button--ghost:hover,
+.button--ghost:focus-visible {
+  background: var(--accent);
+  color: #101319;
+  border-color: transparent;
 }
 
 .cta:hover,
@@ -764,6 +791,14 @@ body {
   margin: 0;
 }
 
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
 .delivery-time {
   display: grid;
   gap: 0.75rem;
@@ -1104,6 +1139,22 @@ body {
   margin: 0.5rem 0 0;
   font-size: 1.05rem;
   color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.payment-list__total-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.button--ghost--compact {
+  padding: 0.4rem 1.2rem;
+  font-size: 0.95rem;
 }
 
 @media (min-width: 900px) {

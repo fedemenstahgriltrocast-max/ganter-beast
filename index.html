@@ -446,12 +446,16 @@
           </div>
           <p class="delivery-time__selection" data-delivery-selection aria-live="polite" data-i18n-skip-text="true"></p>
         </div>
-        <button
-          type="button"
-          class="button button--primary"
-          data-i18n="checkout"
-          data-checkout-trigger
-        >Secure checkout</button>
+        <div class="order-actions">
+          <button
+            type="button"
+            class="button button--ghost"
+            data-action="clear-cart"
+            data-i18n="clearOrder"
+            disabled
+          >Clear</button>
+        </div>
+        <button type="button" class="button button--primary" data-i18n="checkout">Secure checkout</button>
       </article>
     </section>
   </main>
@@ -527,8 +531,18 @@
       <div class="drawer__body">
         <ul class="payment-list" data-payment-items aria-live="polite"></ul>
         <p class="payment-list__empty" data-payment-empty data-i18n="orderSummaryEmpty">Your basket is empty. Add menu favorites to see them here.</p>
-        <p class="payment-list__eta" data-payment-delivery aria-live="polite" data-i18n-skip-text="true"></p>
-        <p class="payment-list__total"><strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span></p>
+        <p class="payment-list__total">
+          <span class="payment-list__total-amount">
+            <strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span>
+          </span>
+          <button
+            type="button"
+            class="button button--ghost button--ghost--compact"
+            data-action="clear-cart"
+            data-i18n="clearOrder"
+            disabled
+          >Clear</button>
+        </p>
         <button type="button" class="button button--primary" data-i18n="payNow">Pay now</button>
       </div>
     </div>
