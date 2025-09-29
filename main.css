@@ -812,6 +812,22 @@ body {
   position: relative;
 }
 
+.fab-option {
+  border-radius: 999px;
+  width: auto;
+  min-width: 136px;
+  height: auto;
+  padding: 0.55rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-transform: none;
+}
+
 .fab::after {
   content: attr(data-label);
   position: absolute;
@@ -852,6 +868,16 @@ body {
   transform: translateY(-2px);
   filter: brightness(1.05);
   outline: none;
+}
+
+.fab-option[aria-pressed="true"] {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 0 0 3px rgba(16, 19, 25, 0.1) inset, var(--shadow-soft);
+}
+
+[data-theme="dark"] .fab-option[aria-pressed="true"] {
+  box-shadow: 0 0 0 3px rgba(126, 243, 179, 0.3) inset, var(--shadow-soft);
 }
 
 [data-theme="dark"] .fab,

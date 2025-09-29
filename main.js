@@ -9,6 +9,8 @@
   const fabChat = document.querySelector('#fabChat');
   const fabPay = document.querySelector('#fabPay');
   const fabMenus = Array.from(document.querySelectorAll('.fab-menu'));
+  const fabLanguageMenu = document.querySelector('#fabLanguageMenu');
+  const fabThemeMenu = document.querySelector('#fabThemeMenu');
   const drawers = Array.from(document.querySelectorAll('.drawer'));
   const languageToggle = document.querySelector('#languageToggle');
   const themeToggle = document.querySelector('#themeToggle');
@@ -164,6 +166,29 @@
   const getTranslation = (key) => {
     const active = translations[currentLanguage] || translations.en;
     return active[key] ?? translations.en[key] ?? '';
+  };
+
+  const updateMenuPressedState = (menu, attribute, activeValue) => {
+    if (!(menu instanceof HTMLElement)) {
+      return;
+    }
+    menu.querySelectorAll(`[${attribute}]`).forEach((button) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      const value = button.getAttribute(attribute);
+      if (!value) {
+        button.setAttribute('aria-pressed', 'false');
+        return;
+      }
+      button.setAttribute('aria-pressed', String(value === activeValue));
+    });
+  };
+
+  const updateFabMenuSelection = () => {
+    updateMenuPressedState(fabLanguageMenu, 'data-lang', currentLanguage);
+    const activeTheme = html.dataset.theme === 'dark' ? 'dark' : 'light';
+    updateMenuPressedState(fabThemeMenu, 'data-theme', activeTheme);
   };
 
   const updateFabLabels = () => {
@@ -373,9 +398,10 @@
     const nextTheme = theme === 'dark' ? 'dark' : 'light';
     html.dataset.theme = nextTheme;
     localStorage.setItem('marxia-theme', nextTheme);
+    updateFabMenuSelection();
     if (themeToggle) {
       const isDark = nextTheme === 'dark';
-      themeToggle.textContent = isDark ? 'Light' : 'Dark';
+      themeToggle.textContent = isDark ? 'Light [Sun]' : 'Dark [Moon]';
       themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
       themeToggle.setAttribute('aria-pressed', String(isDark));
     }
@@ -386,6 +412,7 @@
     currentLanguage = nextLang;
     html.lang = nextLang;
     localStorage.setItem('marxia-lang', nextLang);
+    updateFabMenuSelection();
     if (languageToggle) {
       const isSpanish = nextLang === 'es';
       languageToggle.textContent = isSpanish ? 'EN' : 'ES';
@@ -437,6 +464,7 @@
     });
 
     updateFabLabels();
+    updateFabMenuSelection();
     updateProductPrices();
     updateCartDisplay();
   };
@@ -701,6 +729,30 @@
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
+    const actionButton = target.closest('.fab-menu [data-action]');
+    if (actionButton instanceof HTMLElement) {
+      const { action } = actionButton.dataset;
+      if (action === 'language') {
+        const lang = actionButton.getAttribute('data-lang');
+        if (lang) {
+          applyLanguage(lang);
+          if (fabLanguage) {
+            showFabLabel(fabLanguage);
+          }
+        }
+      } else if (action === 'theme') {
+        const themeChoice = actionButton.getAttribute('data-theme');
+        if (themeChoice) {
+          applyTheme(themeChoice);
+          if (fabTheme) {
+            showFabLabel(fabTheme);
+          }
+        }
+      }
+      closeMenus();
+      return;
+    }
+
     if (target === themeToggle) {
       const nextTheme = html.dataset.theme === 'dark' ? 'light' : 'dark';
       applyTheme(nextTheme);
@@ -731,9 +783,6 @@
     } else if (target === fabPay) {
       toggleFabDrawer(fabPay, 'payDrawer');
     } else if (!target.closest('.fab-menu') && !target.closest('.fab')) {
-      closeMenus();
-    }
-    if (target.closest('.fab-menu') && target.dataset.action) {
       closeMenus();
     }
   });
