@@ -40,7 +40,7 @@
   const fabButtons = [fabLanguage, fabTheme, fabChat, fabPay].filter(Boolean);
   const fabLabelTimers = new WeakMap();
   const drawerPositions = new Map();
-  const TAX_RATE = 0.12;
+  const TAX_RATE = 0.15;
   const DELIVERY_FEE = 1.5;
   const cart = new Map();
   let currentSlideIndex = 0;
@@ -69,7 +69,7 @@
       ordersTitle: 'Order details',
       ordersMeta: 'Secure checkout enabled',
       ordersSubtotal: 'Subtotal',
-      ordersTax: 'VAT 12%',
+      ordersTax: 'VAT 15%',
       ordersDelivery: 'Delivery',
       ordersTotal: 'Total',
       orderItems: 'Selected items',
@@ -90,8 +90,10 @@
       chatLabel: 'Message',
       chatSend: 'Send',
       chatPlaceholder: 'Type your message…',
+      chatClose: 'Close chat',
       payTitle: 'Checkout preview',
       payNow: 'Pay now',
+      payClose: 'Close payment summary',
       fabLanguageLabel: 'Language options',
       fabThemeLabel: 'Theme options',
       fabChatLabel: 'Live chat',
@@ -119,7 +121,7 @@
       ordersTitle: 'Detalles del pedido',
       ordersMeta: 'Checkout seguro activado',
       ordersSubtotal: 'Subtotal',
-      ordersTax: 'IVA 12%',
+      ordersTax: 'IVA 15%',
       ordersDelivery: 'Envío',
       ordersTotal: 'Total',
       orderItems: 'Artículos seleccionados',
@@ -140,8 +142,10 @@
       chatLabel: 'Mensaje',
       chatSend: 'Enviar',
       chatPlaceholder: 'Escribe tu mensaje…',
+      chatClose: 'Cerrar chat',
       payTitle: 'Resumen de pago',
       payNow: 'Pagar ahora',
+      payClose: 'Cerrar resumen de pago',
       fabLanguageLabel: 'Opciones de idioma',
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
@@ -764,7 +768,16 @@
     }
 
     if (target.matches('[data-close-drawer]')) {
+      const closeTargetId = target.getAttribute('data-close-target');
       exitAllFabInteractions();
+      if (closeTargetId) {
+        const associatedFab = document.querySelector(`#${closeTargetId}`);
+        if (associatedFab instanceof HTMLElement) {
+          window.setTimeout(() => {
+            associatedFab.focus();
+          }, 0);
+        }
+      }
       return;
     }
 
