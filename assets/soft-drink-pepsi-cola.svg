@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
+  <title id="title">Pepsi cola soft drink illustration</title>
+  <desc id="desc">Soft drink bottle placeholder featuring Pepsi brand colors.</desc>
+  <defs>
+    <linearGradient id="pepsiBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#004b93" />
+      <stop offset="60%" stop-color="#002f6c" />
+      <stop offset="100%" stop-color="#011a3c" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" rx="36" fill="#f0f6ff" />
+  <g transform="translate(150 40)">
+    <path d="M34 0h12c4 0 6 4 6 8v24c0 6 2 10 6 14l12 12c4 4 6 8 6 14v112c0 16-10 30-30 30s-30-14-30-30V72c0-6 2-10 6-14l12-12c4-4 6-8 6-14V8c0-4 2-8 6-8z" fill="url(#pepsiBody)" />
+    <rect x="16" y="56" width="60" height="32" rx="12" fill="#ffffff" opacity="0.9" />
+    <g transform="translate(24 60)">
+      <path d="M22 0c12 0 22 10 22 22S34 44 22 44 0 34 0 22 10 0 22 0z" fill="#e4002b" />
+      <path d="M1.6 20c4-8 12-12 20.4-12C38 8 44 18 44 18s-10 12-24 12c-8 0-14-2-18.4-6z" fill="#ffffff" />
+    </g>
+  </g>
+</svg>
