@@ -273,6 +273,7 @@ body {
   box-shadow: none;
   padding: 0.6rem 1.75rem;
   width: auto;
+  font-weight: 700;
 }
 
 .button--ghost:disabled {
@@ -802,12 +803,15 @@ body {
 .delivery-time {
   display: grid;
   gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-items: center;
 }
 
 .delivery-time__options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .delivery-time__selection {
