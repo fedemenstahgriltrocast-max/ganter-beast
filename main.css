@@ -731,6 +731,12 @@ body {
   gap: 0.5rem;
 }
 
+.delivery-time__selection {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
 .chip {
   border: none;
   border-radius: 999px;
@@ -1042,6 +1048,12 @@ body {
   background: var(--surface);
   padding: 0.5rem 0.75rem;
   border-radius: 12px;
+}
+
+.payment-list__eta {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
 .payment-list__total {
