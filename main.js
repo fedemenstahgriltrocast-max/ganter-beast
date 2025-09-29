@@ -88,6 +88,8 @@
       carouselNext: 'Next favorites',
       addToOrder: '+ Add',
       removeFromOrder: '- Remove',
+      summaryIncrease: 'Add one {item}',
+      summaryDecrease: 'Remove one {item}',
       inCart: 'In cart: {count}',
       contactTitle: 'We deliver to',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
@@ -142,6 +144,8 @@
       carouselNext: 'Más favoritos',
       addToOrder: '+ Agregar',
       removeFromOrder: '- Quitar',
+      summaryIncrease: 'Agregar uno de {item}',
+      summaryDecrease: 'Quitar uno de {item}',
       inCart: 'En carrito: {count}',
       contactTitle: 'Entregamos en',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
@@ -374,11 +378,41 @@
       summaryList.innerHTML = '';
       items.forEach((item) => {
         const li = document.createElement('li');
+
         const label = document.createElement('span');
+        label.className = 'order-summary__item-label';
         label.textContent = `${item.quantity}× ${item.name}`;
+
+        const controls = document.createElement('div');
+        controls.className = 'order-summary__controls';
+
+        const decreaseButton = document.createElement('button');
+        decreaseButton.type = 'button';
+        decreaseButton.className = 'order-summary__control order-summary__control--decrease';
+        decreaseButton.textContent = '-';
+        decreaseButton.setAttribute(
+          'aria-label',
+          (getTranslation('summaryDecrease') || 'Remove one {item}').replace('{item}', item.name),
+        );
+        decreaseButton.addEventListener('click', () => modifyCart(item.name, -1));
+
+        const increaseButton = document.createElement('button');
+        increaseButton.type = 'button';
+        increaseButton.className = 'order-summary__control order-summary__control--increase';
+        increaseButton.textContent = '+';
+        increaseButton.setAttribute(
+          'aria-label',
+          (getTranslation('summaryIncrease') || 'Add one {item}').replace('{item}', item.name),
+        );
+        increaseButton.addEventListener('click', () => modifyCart(item.name, 1));
+
+        controls.append(decreaseButton, increaseButton);
+
         const price = document.createElement('span');
+        price.className = 'order-summary__item-price';
         price.textContent = formatCurrency(item.price * item.quantity);
-        li.append(label, price);
+
+        li.append(label, controls, price);
         summaryList.append(li);
       });
       summaryList.toggleAttribute('hidden', !hasItems);
