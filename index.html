@@ -404,7 +404,7 @@
             <dd data-summary="subtotal">$0.00</dd>
           </div>
           <div>
-            <dt data-i18n="ordersTax">VAT 12%</dt>
+            <dt data-i18n="ordersTax">VAT 15%</dt>
             <dd data-summary="tax">$0.00</dd>
           </div>
           <div>
@@ -462,7 +462,15 @@
     <div class="drawer__content">
       <header class="drawer__header">
         <h2 id="chatDrawerTitle" data-i18n="chatTitle">Live chat</h2>
-        <button type="button" class="drawer__close" data-close-drawer>✕</button>
+        <button
+          type="button"
+          class="drawer__close"
+          data-close-drawer
+          data-close-target="fabChat"
+          data-i18n="chatClose"
+          data-i18n-attr="aria-label"
+          aria-label="Close chat"
+        >✕</button>
       </header>
       <div class="drawer__body">
         <p data-i18n="chatWelcome">Hola 👋 ¿Cómo podemos ayudarte hoy?</p>
@@ -479,7 +487,15 @@
     <div class="drawer__content">
       <header class="drawer__header">
         <h2 id="payDrawerTitle" data-i18n="payTitle">Checkout preview</h2>
-        <button type="button" class="drawer__close" data-close-drawer>✕</button>
+        <button
+          type="button"
+          class="drawer__close"
+          data-close-drawer
+          data-close-target="fabPay"
+          data-i18n="payClose"
+          data-i18n-attr="aria-label"
+          aria-label="Close payment summary"
+        >✕</button>
       </header>
       <div class="drawer__body">
         <ul class="payment-list" data-payment-items aria-live="polite"></ul>
