@@ -12,6 +12,7 @@
   const fabLanguageMenu = document.querySelector('#fabLanguageMenu');
   const fabThemeMenu = document.querySelector('#fabThemeMenu');
   const drawers = Array.from(document.querySelectorAll('.drawer'));
+  const payDrawer = document.querySelector('#payDrawer');
   const languageToggle = document.querySelector('#languageToggle');
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -41,12 +42,15 @@
   const fabButtons = [fabLanguage, fabTheme, fabChat, fabPay].filter(Boolean);
   const fabLabelTimers = new WeakMap();
   const drawerPositions = new Map();
-  const TAX_RATE = 0.12;
+  const TAX_RATE = 0.15;
   const DELIVERY_FEE = 1.5;
   const cart = new Map();
+  const checkoutTrigger = document.querySelector('[data-checkout-trigger]');
+  const DELIVERY_STORAGE_KEY = 'marxia-delivery-minutes';
   let currentSlideIndex = 0;
   let maxSlideIndex = 0;
   let currentLanguage = html.lang === 'es' ? 'es' : 'en';
+  let selectedDeliveryTime = null;
   const translations = {
     en: {
       headline: 'Marxia Café y Bocaditos',
@@ -70,7 +74,7 @@
       ordersTitle: 'Order details',
       ordersMeta: 'Secure checkout enabled',
       ordersSubtotal: 'Subtotal',
-      ordersTax: 'VAT 12%',
+      ordersTax: 'VAT 15%',
       ordersDelivery: 'Delivery',
       ordersTotal: 'Total',
       orderItems: 'Selected items',
@@ -82,6 +86,8 @@
       carouselNext: 'Next favorites',
       addToOrder: '+ Add',
       removeFromOrder: '- Remove',
+      summaryIncrease: 'Add one {item}',
+      summaryDecrease: 'Remove one {item}',
       inCart: 'In cart: {count}',
       contactTitle: 'We deliver to',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
@@ -92,8 +98,10 @@
       chatLabel: 'Message',
       chatSend: 'Send',
       chatPlaceholder: 'Type your message…',
+      chatClose: 'Close chat',
       payTitle: 'Checkout preview',
       payNow: 'Pay now',
+      payClose: 'Close payment summary',
       fabLanguageLabel: 'Language options',
       fabThemeLabel: 'Theme options',
       fabChatLabel: 'Live chat',
@@ -121,7 +129,7 @@
       ordersTitle: 'Detalles del pedido',
       ordersMeta: 'Checkout seguro activado',
       ordersSubtotal: 'Subtotal',
-      ordersTax: 'IVA 12%',
+      ordersTax: 'IVA 15%',
       ordersDelivery: 'Envío',
       ordersTotal: 'Total',
       orderItems: 'Artículos seleccionados',
@@ -133,6 +141,8 @@
       carouselNext: 'Más favoritos',
       addToOrder: '+ Agregar',
       removeFromOrder: '- Quitar',
+      summaryIncrease: 'Agregar uno de {item}',
+      summaryDecrease: 'Quitar uno de {item}',
       inCart: 'En carrito: {count}',
       contactTitle: 'Entregamos en',
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
@@ -143,8 +153,10 @@
       chatLabel: 'Mensaje',
       chatSend: 'Enviar',
       chatPlaceholder: 'Escribe tu mensaje…',
+      chatClose: 'Cerrar chat',
       payTitle: 'Resumen de pago',
       payNow: 'Pagar ahora',
+      payClose: 'Cerrar resumen de pago',
       fabLanguageLabel: 'Opciones de idioma',
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
@@ -169,6 +181,105 @@
   const getTranslation = (key) => {
     const active = translations[currentLanguage] || translations.en;
     return active[key] ?? translations.en[key] ?? '';
+  };
+
+  const getDeliveryLabelForChip = (chip, lang = currentLanguage) => {
+    if (!(chip instanceof HTMLElement)) {
+      return '';
+    }
+    const dictionaryKey = lang === 'es' ? 'labelEs' : 'labelEn';
+    return chip.dataset[dictionaryKey] || chip.textContent.trim();
+  };
+
+  const updateDeliveryOptionLabels = (lang = currentLanguage) => {
+    chipButtons.forEach((chip) => {
+      const label = getDeliveryLabelForChip(chip, lang);
+      if (label) {
+        chip.textContent = label;
+      }
+    });
+  };
+
+  const syncSelectedDeliveryLabel = () => {
+    if (!selectedDeliveryTime) {
+      return;
+    }
+    const activeChip = chipButtons.find((chip) => chip.getAttribute('aria-pressed') === 'true');
+    if (activeChip) {
+      selectedDeliveryTime.label = getDeliveryLabelForChip(activeChip);
+    }
+  };
+
+  const updateDeliveryDisplay = () => {
+    const label = selectedDeliveryTime?.label;
+    const template = getTranslation('deliveryEta') || 'Estimated delivery: {time}';
+    const prompt = getTranslation('deliveryEtaPrompt') || '';
+    const message = label ? template.replace('{time}', label) : prompt;
+
+    if (deliverySelectionDisplay) {
+      deliverySelectionDisplay.textContent = message;
+      deliverySelectionDisplay.toggleAttribute('hidden', !message);
+    }
+
+    if (paymentDeliveryDisplay) {
+      paymentDeliveryDisplay.textContent = message;
+      paymentDeliveryDisplay.toggleAttribute('hidden', !message);
+    }
+  };
+
+  const setSelectedDeliveryTime = (chip, { persist = true } = {}) => {
+    if (!(chip instanceof HTMLElement)) {
+      return;
+    }
+
+    chipButtons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn === chip));
+    });
+
+    const minutesValue = Number(chip.getAttribute('data-delivery-minutes') || chip.dataset.deliveryMinutes || '');
+    const minutes = Number.isFinite(minutesValue) ? minutesValue : null;
+    const label = getDeliveryLabelForChip(chip);
+
+    selectedDeliveryTime = {
+      minutes,
+      label,
+    };
+
+    if (persist && minutes !== null) {
+      try {
+        localStorage.setItem(DELIVERY_STORAGE_KEY, String(minutes));
+      } catch (error) {
+        // no-op: storage might be unavailable
+      }
+    }
+
+    updateDeliveryDisplay();
+  };
+
+  const restoreDeliverySelection = () => {
+    updateDeliveryOptionLabels();
+    let savedMinutes = null;
+    try {
+      savedMinutes = localStorage.getItem(DELIVERY_STORAGE_KEY);
+    } catch (error) {
+      savedMinutes = null;
+    }
+
+    let targetChip = null;
+    if (savedMinutes) {
+      targetChip = chipButtons.find((chip) => chip.getAttribute('data-delivery-minutes') === savedMinutes) || null;
+    }
+
+    if (!targetChip) {
+      targetChip =
+        chipButtons.find((chip) => chip.getAttribute('aria-pressed') === 'true') || chipButtons[0] || null;
+    }
+
+    if (targetChip) {
+      setSelectedDeliveryTime(targetChip, { persist: false });
+    } else {
+      updateDeliveryDisplay();
+    }
   };
 
   const updateMenuPressedState = (menu, attribute, activeValue) => {
@@ -264,11 +375,41 @@
       summaryList.innerHTML = '';
       items.forEach((item) => {
         const li = document.createElement('li');
+
         const label = document.createElement('span');
+        label.className = 'order-summary__item-label';
         label.textContent = `${item.quantity}× ${item.name}`;
+
+        const controls = document.createElement('div');
+        controls.className = 'order-summary__controls';
+
+        const decreaseButton = document.createElement('button');
+        decreaseButton.type = 'button';
+        decreaseButton.className = 'order-summary__control order-summary__control--decrease';
+        decreaseButton.textContent = '-';
+        decreaseButton.setAttribute(
+          'aria-label',
+          (getTranslation('summaryDecrease') || 'Remove one {item}').replace('{item}', item.name),
+        );
+        decreaseButton.addEventListener('click', () => modifyCart(item.name, -1));
+
+        const increaseButton = document.createElement('button');
+        increaseButton.type = 'button';
+        increaseButton.className = 'order-summary__control order-summary__control--increase';
+        increaseButton.textContent = '+';
+        increaseButton.setAttribute(
+          'aria-label',
+          (getTranslation('summaryIncrease') || 'Add one {item}').replace('{item}', item.name),
+        );
+        increaseButton.addEventListener('click', () => modifyCart(item.name, 1));
+
+        controls.append(decreaseButton, increaseButton);
+
         const price = document.createElement('span');
+        price.className = 'order-summary__item-price';
         price.textContent = formatCurrency(item.price * item.quantity);
-        li.append(label, price);
+
+        li.append(label, controls, price);
         summaryList.append(li);
       });
       summaryList.toggleAttribute('hidden', !hasItems);
@@ -483,6 +624,9 @@
       }
     });
 
+    updateDeliveryOptionLabels(nextLang);
+    syncSelectedDeliveryLabel();
+    updateDeliveryDisplay();
     updateFabLabels();
     updateFabMenuSelection();
     updateProductPrices();
@@ -784,7 +928,16 @@
     }
 
     if (target.matches('[data-close-drawer]')) {
+      const closeTargetId = target.getAttribute('data-close-target');
       exitAllFabInteractions();
+      if (closeTargetId) {
+        const associatedFab = document.querySelector(`#${closeTargetId}`);
+        if (associatedFab instanceof HTMLElement) {
+          window.setTimeout(() => {
+            associatedFab.focus();
+          }, 0);
+        }
+      }
       return;
     }
 
@@ -906,9 +1059,26 @@
 
   chipButtons.forEach((chip) => {
     chip.addEventListener('click', () => {
-      chipButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn === chip)));
+      setSelectedDeliveryTime(chip);
     });
   });
+
+  if (checkoutTrigger) {
+    checkoutTrigger.addEventListener('click', () => {
+      closeMenus();
+      closeAllDrawers();
+      resetFabStates();
+      if (payDrawer) {
+        openDrawer(payDrawer);
+      }
+      if (fabPay) {
+        fabPay.setAttribute('aria-pressed', 'true');
+        if (isSmallScreen()) {
+          showFabLabel(fabPay);
+        }
+      }
+    });
+  }
 
   if (orderButton && orderSection) {
     orderButton.addEventListener('click', () => {
@@ -918,6 +1088,7 @@
 
   initializeCart();
   restorePreferences();
+  restoreDeliverySelection();
   applyDrawerLayout();
   updateCarousel();
   setCopyright();
