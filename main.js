@@ -34,6 +34,7 @@
   const paymentList = document.querySelector('[data-payment-items]');
   const paymentEmpty = document.querySelector('[data-payment-empty]');
   const paymentTotal = document.querySelector('[data-payment-total]');
+  const clearCartButtons = Array.from(document.querySelectorAll('[data-action="clear-cart"]'));
   const smallScreenQuery = window.matchMedia('(max-width: 767px)');
   const largeScreenQuery = window.matchMedia('(min-width: 900px)');
   const draggableDrawerIds = new Set(['chatDrawer', 'payDrawer']);
@@ -75,6 +76,7 @@
       orderItems: 'Selected items',
       orderSummaryEmpty: 'Your basket is empty. Add menu favorites to see them here.',
       deliveryTitle: 'Delivery time',
+      clearOrder: 'Clear',
       checkout: 'Secure checkout',
       carouselPrev: 'Previous favorites',
       carouselNext: 'Next favorites',
@@ -125,6 +127,7 @@
       orderItems: 'Artículos seleccionados',
       orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos del menú para verlos aquí.',
       deliveryTitle: 'Tiempo de entrega',
+      clearOrder: 'Vaciar',
       checkout: 'Checkout seguro',
       carouselPrev: 'Favoritos anteriores',
       carouselNext: 'Más favoritos',
@@ -309,6 +312,12 @@
       paymentTotal.textContent = formatCurrency(total);
     }
 
+    clearCartButtons.forEach((button) => {
+      if (button) {
+        button.toggleAttribute('disabled', !hasItems);
+      }
+    });
+
     productCards.forEach((card) => {
       const name = card.dataset.name;
       const entry = name ? cart.get(name) : undefined;
@@ -328,6 +337,17 @@
     }
     entry.quantity = Math.max(0, entry.quantity + delta);
     cart.set(name, entry);
+    updateCartDisplay();
+  };
+
+  const clearCart = () => {
+    cart.forEach((entry, name) => {
+      if (!entry) {
+        return;
+      }
+      entry.quantity = 0;
+      cart.set(name, entry);
+    });
     updateCartDisplay();
   };
 
@@ -401,7 +421,7 @@
     updateFabMenuSelection();
     if (themeToggle) {
       const isDark = nextTheme === 'dark';
-      themeToggle.textContent = isDark ? 'Light [Sun]' : 'Dark [Moon]';
+      themeToggle.textContent = isDark ? 'Light' : 'Dark';
       themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
       themeToggle.setAttribute('aria-pressed', String(isDark));
     }
@@ -872,6 +892,16 @@
         }
       });
     }
+  });
+
+  clearCartButtons.forEach((button) => {
+    if (!button) {
+      return;
+    }
+    button.addEventListener('click', () => {
+      clearCart();
+      button.blur();
+    });
   });
 
   chipButtons.forEach((chip) => {
