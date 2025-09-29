@@ -334,6 +334,7 @@ body {
 .accordion__trigger span:first-child {
   flex: 0 1 auto;
   text-align: center;
+  font-size: 1.5rem;
 }
 
 .accordion__trigger:focus-visible {
