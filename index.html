@@ -77,23 +77,26 @@
           <button
             class="accordion__trigger"
             type="button"
-            aria-expanded="false"
+            aria-expanded="true"
             aria-controls="seasonalFavorites"
             id="order-title">
             <span data-i18n="orderTitle">Our menu</span>
             <span class="accordion__icon" aria-hidden="true">▾</span>
           </button>
         </h2>
-        <div class="accordion__content" id="seasonalFavorites" role="region" aria-labelledby="order-title" hidden>
+        <div class="accordion__content" id="seasonalFavorites" role="region" aria-labelledby="order-title">
           <p class="accordion__description" data-i18n="orderSubtitle">Tap to explore our handcrafted favorites.</p>
           <div class="product-carousel" data-carousel>
             <button
-              class="carousel__control carousel__control--prev"
+              class="product-carousel__control product-carousel__control--prev"
               type="button"
+              data-carousel-prev
               aria-label="Previous favorites"
-              data-i18n-attr="aria-label"
               data-i18n="carouselPrev"
-              data-i18n-skip-text="true">
+              data-i18n-attr="aria-label"
+              data-i18n-skip-text="true"
+            >
+              <span aria-hidden="true">&#8249;</span>
             </button>
             <div class="product-carousel__viewport">
               <ul class="product-carousel__track">
@@ -111,10 +114,10 @@
                     <p class="product-card__meta">Tueste medio · 12 oz</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -133,10 +136,10 @@
                     <p class="product-card__meta">Café + tortilla + huevos + salchicha</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$3.20</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$3.20</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -155,10 +158,10 @@
                     <p class="product-card__meta">4 porciones</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$1.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$1.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -177,10 +180,10 @@
                     <p class="product-card__meta">1 huevo frito + 1 salchicha</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$2.00</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$2.00</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -199,10 +202,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -221,10 +224,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -243,10 +246,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -265,10 +268,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -287,10 +290,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -309,10 +312,10 @@
                     <p class="product-card__meta">Botella 355 ml</p>
                   </div>
                   <div class="product-card__footer">
-                    <span class="product-card__price" aria-label="Price">$0.60</span>
-                    <div class="product-card__controls">
+                    <div class="product-card__actions">
                       <button type="button" class="product-card__button" data-cart="add" data-i18n="addToOrder">+ Add</button>
-                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder">- Remove</button>
+                      <span class="product-card__price" aria-label="Price">$0.60</span>
+                      <button type="button" class="product-card__button product-card__button--remove" data-cart="remove" data-i18n="removeFromOrder" disabled>- Remove</button>
                     </div>
                     <span class="product-card__quantity" data-i18n="inCart" data-i18n-count="0" aria-live="polite">In cart: 0</span>
                   </div>
@@ -320,12 +323,15 @@
               </ul>
             </div>
             <button
-              class="carousel__control carousel__control--next"
+              class="product-carousel__control product-carousel__control--next"
               type="button"
+              data-carousel-next
               aria-label="Next favorites"
-              data-i18n-attr="aria-label"
               data-i18n="carouselNext"
-              data-i18n-skip-text="true">
+              data-i18n-attr="aria-label"
+              data-i18n-skip-text="true"
+            >
+              <span aria-hidden="true">&#8250;</span>
             </button>
           </div>
         </div>
