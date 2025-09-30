@@ -878,14 +878,12 @@
       fab.setAttribute('aria-pressed', String(!isOpen));
     };
 
-    if (isSmallScreen() && !isOpen) {
-      showFabLabel(fab);
+    const shouldDelay = isSmallScreen() && !isOpen;
+    showFabLabel(fab);
+    if (shouldDelay) {
       window.setTimeout(toggle, 220);
     } else {
       toggle();
-      if (isSmallScreen()) {
-        showFabLabel(fab);
-      }
     }
   };
 
@@ -942,14 +940,10 @@
     }
 
     if (target === fabLanguage) {
-      if (isSmallScreen()) {
-        showFabLabel(fabLanguage);
-      }
+      showFabLabel(fabLanguage);
       toggleMenu(document.querySelector('#fabLanguageMenu'), fabLanguage);
     } else if (target === fabTheme) {
-      if (isSmallScreen()) {
-        showFabLabel(fabTheme);
-      }
+      showFabLabel(fabTheme);
       toggleMenu(document.querySelector('#fabThemeMenu'), fabTheme);
     } else if (target === fabChat) {
       toggleFabDrawer(fabChat, 'chatDrawer');
