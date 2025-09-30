@@ -978,8 +978,9 @@
       applyLanguage(nextLang);
     }
 
-    if (target.matches('[data-close-drawer]')) {
-      const closeTargetId = target.getAttribute('data-close-target');
+    const closeButton = target.closest('[data-close-drawer]');
+    if (closeButton instanceof HTMLElement) {
+      const closeTargetId = closeButton.getAttribute('data-close-target');
       exitAllFabInteractions();
       if (closeTargetId) {
         const associatedFab = document.querySelector(`#${closeTargetId}`);
