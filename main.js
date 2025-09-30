@@ -34,6 +34,8 @@
   const paymentList = document.querySelector('[data-payment-items]');
   const paymentEmpty = document.querySelector('[data-payment-empty]');
   const paymentTotal = document.querySelector('[data-payment-total]');
+  const deliverySelectionDisplay = document.querySelector('[data-delivery-selection]');
+  const paymentDeliveryDisplay = document.querySelector('[data-payment-delivery]');
   const clearCartButtons = Array.from(document.querySelectorAll('[data-action="clear-cart"]'));
   const smallScreenQuery = window.matchMedia('(max-width: 767px)');
   const largeScreenQuery = window.matchMedia('(min-width: 900px)');
@@ -80,6 +82,8 @@
       orderItems: 'Selected items',
       orderSummaryEmpty: 'Your basket is empty. Add menu favorites to see them here.',
       deliveryTitle: 'Delivery time',
+      deliveryEta: 'Estimated delivery: {time}',
+      deliveryEtaPrompt: 'Select a delivery window to see your ETA.',
       clearOrder: 'Clear',
       checkout: 'Secure checkout',
       carouselPrev: 'Previous favorites',
@@ -136,6 +140,8 @@
       orderItems: 'Artículos seleccionados',
       orderSummaryEmpty: 'Tu pedido está vacío. Agrega favoritos del menú para verlos aquí.',
       deliveryTitle: 'Tiempo de entrega',
+      deliveryEta: 'Entrega estimada: {time}',
+      deliveryEtaPrompt: 'Selecciona una franja de entrega para ver tu tiempo estimado.',
       clearOrder: 'Vaciar',
       checkout: 'Checkout seguro',
       carouselPrev: 'Favoritos anteriores',
