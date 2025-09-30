@@ -93,6 +93,7 @@
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
       contactWhatsApp: 'WhatsApp',
       rights: 'All rights reserved.',
+      edgeSecurity: 'Edge protected via Cloudflare Zero Trust',
       chatTitle: 'Live chat',
       chatWelcome: 'Hola 👋 How can we help you today?',
       chatLabel: 'Message',
@@ -149,6 +150,7 @@
       contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
       contactWhatsApp: 'WhatsApp',
       rights: 'Todos los derechos reservados.',
+      edgeSecurity: 'Perímetro protegido con Cloudflare Zero Trust',
       chatTitle: 'Chat en vivo',
       chatWelcome: 'Hola 👋 ¿Cómo podemos ayudarte hoy?',
       chatLabel: 'Mensaje',
@@ -162,7 +164,7 @@
       fabLanguageLabel: 'Opciones de idioma',
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
-      fabPayLabel: 'Resumen de pago',
+      fabPayLabel: 'Su Orden',
     },
   };
 

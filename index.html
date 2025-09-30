@@ -8,6 +8,13 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.marxia.com/">
   <link rel="alternate" href="https://www.marxia.com/" hreflang="es">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
   <link rel="stylesheet" href="main.css">
   <script type="application/ld+json">
   {
@@ -531,7 +538,7 @@
           data-close-target="fabPay"
           data-i18n="payClose"
           data-i18n-attr="aria-label"
-          aria-label="Close payment summary"
+          aria-label="Close"
         >✕</button>
       </header>
       <div class="drawer__body">
@@ -558,13 +565,19 @@
             >Close</button>
           </span>
         </p>
-        <button type="button" class="button button--primary" data-i18n="payNow">Pay now</button>
+        <button type="button" class="button button--primary" data-i18n="payNow">Confirm transaction</button>
       </div>
     </div>
   </section>
 
   <footer class="footer" role="contentinfo">
     <small>© <span id="copyrightYear"></span> Marxia Café y Bocaditos. <span data-i18n="rights">All rights reserved.</span></small>
+    <p class="footer__security">
+      <span class="footer__security-icon" aria-hidden="true">
+        <i class="fa-solid fa-cloudflare"></i>
+      </span>
+      <span class="footer__security-text" data-i18n="edgeSecurity">Edge protected via Cloudflare Zero Trust</span>
+    </p>
   </footer>
   <script src="main.js" defer></script>
 </body>
