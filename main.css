@@ -1234,8 +1234,17 @@ body {
   min-width: 0;
 }
 
-.payment-list__total .button {
+.payment-list__actions {
   justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.payment-list__actions .button {
+  justify-self: auto;
 }
 
 .button--ghost--compact {
