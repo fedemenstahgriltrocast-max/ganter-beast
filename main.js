@@ -103,7 +103,6 @@
       payTitle: 'Checkout preview',
       payNow: 'Pay now',
       payCloseAction: 'Close',
-      payClose: 'Close payment summary',
       fabLanguageLabel: 'Language options',
       fabThemeLabel: 'Theme options',
       fabChatLabel: 'Live chat',
@@ -160,7 +159,6 @@
       payTitle: 'Resumen de pago',
       payNow: 'Pagar ahora',
       payCloseAction: 'Cerrar',
-      payClose: 'Cerrar resumen de pago',
       fabLanguageLabel: 'Opciones de idioma',
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
@@ -968,8 +966,32 @@
 
     const closeButton = target.closest('[data-close-drawer]');
     if (closeButton instanceof HTMLElement) {
+      event.preventDefault();
       const closeTargetId = closeButton.getAttribute('data-close-target');
-      exitAllFabInteractions();
+      const parentDrawer = closeButton.closest('.drawer');
+
+      if (parentDrawer) {
+        closeDrawer(parentDrawer);
+      }
+
+      closeMenus();
+
+      drawers.forEach((drawer) => {
+        if (drawer !== parentDrawer) {
+          closeDrawer(drawer);
+        }
+      });
+
+      fabButtons.forEach((button) => {
+        if (!(button instanceof HTMLElement)) {
+          return;
+        }
+        button.setAttribute('aria-pressed', 'false');
+        if (button.hasAttribute('aria-expanded')) {
+          button.setAttribute('aria-expanded', 'false');
+        }
+      });
+
       if (closeTargetId) {
         const associatedFab = document.querySelector(`#${closeTargetId}`);
         if (associatedFab instanceof HTMLElement) {
@@ -978,6 +1000,7 @@
           }, 0);
         }
       }
+
       return;
     }
 
