@@ -548,13 +548,22 @@
           <span class="payment-list__total-amount">
             <strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span>
           </span>
-          <button
-            type="button"
-            class="button button--ghost button--ghost--compact"
-            data-action="clear-cart"
-            data-i18n="clearOrder"
-            disabled
-          >Clear</button>
+          <span class="payment-list__actions">
+            <button
+              type="button"
+              class="button button--ghost button--ghost--compact"
+              data-action="clear-cart"
+              data-i18n="clearOrder"
+              disabled
+            >Clear</button>
+            <button
+              type="button"
+              class="button button--ghost button--ghost--compact"
+              data-close-drawer
+              data-close-target="fabPay"
+              data-i18n="payCloseAction"
+            >Close</button>
+          </span>
         </p>
         <button type="button" class="button button--primary" data-i18n="payNow">Confirm transaction</button>
       </div>
