@@ -60,24 +60,78 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 12% 18%, rgba(255, 193, 134, 0.32), transparent 42%),
-    radial-gradient(circle at 88% 22%, rgba(255, 179, 213, 0.28), transparent 46%),
-    radial-gradient(circle at 18% 82%, rgba(166, 227, 199, 0.34), transparent 48%),
-    linear-gradient(165deg, var(--background-top) 0%, var(--background-middle) 48%, var(--background-bottom) 100%);
+  background: linear-gradient(
+    135deg,
+    #a47551 0%,
+    #b76e79 10%,
+    #7a6a9a 25%,
+    #5c7fa3 40%,
+    #6a8ca2 55%,
+    #2f5d62 70%,
+    #5a6e3c 80%,
+    #4b6043 90%,
+    #c89f64 95%,
+    #d85c53 100%
+  );
   background-attachment: fixed;
-  background-color: var(--background-middle);
+  background-size: 280% 280%;
+  background-position: 0% 50%;
+  background-color: #a47551;
   color: var(--text-main);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
   transition: background var(--transition), color var(--transition);
+  animation: gradientFlow 36s ease-in-out infinite;
 }
 
 [data-theme="dark"] body {
-  background: radial-gradient(circle at 10% 12%, rgba(77, 212, 255, 0.16), transparent 36%),
-    radial-gradient(circle at 90% 20%, rgba(126, 243, 179, 0.12), transparent 38%),
-    linear-gradient(175deg, var(--background-top) 0%, var(--background-middle) 40%, var(--background-bottom) 100%);
+  background: linear-gradient(
+      135deg,
+      rgba(164, 117, 81, 0.35) 0%,
+      rgba(183, 110, 121, 0.32) 12%,
+      rgba(122, 106, 154, 0.38) 26%,
+      rgba(92, 127, 163, 0.34) 42%,
+      rgba(106, 140, 162, 0.36) 57%,
+      rgba(47, 93, 98, 0.4) 70%,
+      rgba(90, 110, 60, 0.35) 82%,
+      rgba(75, 96, 67, 0.35) 92%,
+      rgba(200, 159, 100, 0.38) 97%,
+      rgba(216, 92, 83, 0.34) 100%
+    ),
+    #050508;
+  background-size: 320% 320%;
+  background-position: 100% 50%;
+  animation: gradientFlowDark 42s ease-in-out infinite;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes gradientFlowDark {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  50% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 body::before,
