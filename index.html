@@ -514,13 +514,17 @@
         <h2 id="chatDrawerTitle" data-i18n="chatTitle">Live chat</h2>
         <button
           type="button"
-          class="drawer__close"
+          class="drawer__close drawer__close--text"
           data-close-drawer
           data-close-target="fabChat"
           data-i18n="chatClose"
           data-i18n-attr="aria-label"
+          data-i18n-skip-text="true"
           aria-label="Close chat"
-        >✕</button>
+        >
+          <span class="drawer__close-icon" aria-hidden="true">✕</span>
+          <span class="drawer__close-label" data-i18n="chatClose">Close chat</span>
+        </button>
       </header>
       <div class="drawer__body">
         <p data-i18n="chatWelcome">Hola 👋 ¿Cómo podemos ayudarte hoy?</p>
