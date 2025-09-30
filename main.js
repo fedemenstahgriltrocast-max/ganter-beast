@@ -18,9 +18,8 @@
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const carousel = document.querySelector('[data-carousel]');
   const carouselTrack = document.querySelector('.product-carousel__track');
-  const carouselViewport = document.querySelector('.product-carousel__viewport');
-  const carouselPrev = document.querySelector('.carousel__control--prev');
-  const carouselNext = document.querySelector('.carousel__control--next');
+  const carouselPrevButton = carousel ? carousel.querySelector('[data-carousel-prev]') : null;
+  const carouselNextButton = carousel ? carousel.querySelector('[data-carousel-next]') : null;
   const accordionTrigger = document.querySelector('.accordion__trigger');
   const accordionContent = document.querySelector('.accordion__content');
   const productCards = Array.from(document.querySelectorAll('.product-card'));
@@ -49,6 +48,7 @@
   const DELIVERY_STORAGE_KEY = 'marxia-delivery-minutes';
   let currentSlideIndex = 0;
   let maxSlideIndex = 0;
+  let lastCarouselPerView = largeScreenQuery.matches ? 2 : 1;
   let currentLanguage = html.lang === 'es' ? 'es' : 'en';
   let selectedDeliveryTime = null;
   const translations = {
@@ -166,6 +166,63 @@
 
   const isSmallScreen = () => smallScreenQuery.matches;
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+  const getCardsPerView = () => (largeScreenQuery.matches ? 2 : 1);
+
+  const getCarouselGap = () => {
+    if (!carouselTrack) {
+      return 0;
+    }
+    const style = window.getComputedStyle(carouselTrack);
+    const gapValue =
+      style.columnGap || style.gap || style.rowGap || style.getPropertyValue('--carousel-gap');
+    const parsed = Number.parseFloat(gapValue);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const updateCarouselControls = () => {
+    if (carouselPrevButton) {
+      carouselPrevButton.disabled = currentSlideIndex <= 0;
+    }
+    if (carouselNextButton) {
+      carouselNextButton.disabled = currentSlideIndex >= maxSlideIndex;
+    }
+    if (carousel) {
+      carousel.classList.toggle('product-carousel--static', maxSlideIndex === 0);
+    }
+  };
+
+  const getCarouselStep = () => {
+    if (!carouselTrack) {
+      return 0;
+    }
+    const perView = getCardsPerView();
+    const startIndex = Math.min(currentSlideIndex * perView, Math.max(productCards.length - 1, 0));
+    const firstVisibleCard = productCards[startIndex] || productCards[0];
+    if (!firstVisibleCard) {
+      return 0;
+    }
+    const cardWidth = firstVisibleCard.getBoundingClientRect().width;
+    const gap = getCarouselGap();
+    return perView * cardWidth + Math.max(0, (perView - 1) * gap);
+  };
+
+  const updateCarouselPosition = () => {
+    if (!carouselTrack) {
+      return;
+    }
+    const step = getCarouselStep();
+    const offset = step * currentSlideIndex;
+    carouselTrack.style.transform = step > 0 ? `translateX(-${offset}px)` : 'translateX(0)';
+  };
+
+  const moveCarousel = (direction) => {
+    if (maxSlideIndex <= 0) {
+      return;
+    }
+    currentSlideIndex = clamp(currentSlideIndex + direction, 0, maxSlideIndex);
+    updateCarouselPosition();
+    updateCarouselControls();
+  };
 
   const getLocale = () => (currentLanguage === 'es' ? 'es-EC' : 'en-US');
 
@@ -523,31 +580,22 @@
   };
 
   const updateCarousel = () => {
-    if (!carousel || !carouselTrack || !carouselViewport || productCards.length === 0) {
+    if (!carousel || !carouselTrack) {
       return;
     }
-    const styles = window.getComputedStyle(carouselTrack);
-    const gapValue = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0;
-    const cardWidth = productCards[0].getBoundingClientRect().width;
-    const viewportWidth = carouselViewport.getBoundingClientRect().width;
-    const totalSlideWidth = cardWidth + gapValue;
-    if (!Number.isFinite(totalSlideWidth) || totalSlideWidth <= 0) {
-      return;
+    const totalCards = productCards.length;
+    const perView = getCardsPerView();
+    if (perView !== lastCarouselPerView) {
+      currentSlideIndex = Math.floor((currentSlideIndex * lastCarouselPerView) / Math.max(perView, 1));
+      lastCarouselPerView = perView;
     }
-    const prefersSingleSlide = window.matchMedia('(max-width: 768px)').matches;
-    const visibleSlides = prefersSingleSlide
-      ? 1
-      : Math.max(1, Math.floor((viewportWidth + gapValue) / totalSlideWidth));
-    maxSlideIndex = Math.max(0, productCards.length - visibleSlides);
-    currentSlideIndex = Math.min(currentSlideIndex, maxSlideIndex);
-    const offset = currentSlideIndex * totalSlideWidth;
-    carouselTrack.style.transform = `translateX(-${offset}px)`;
-    if (carouselPrev) {
-      carouselPrev.toggleAttribute('disabled', currentSlideIndex === 0);
-    }
-    if (carouselNext) {
-      carouselNext.toggleAttribute('disabled', currentSlideIndex >= maxSlideIndex);
-    }
+    const nextMaxIndex = Math.max(0, Math.ceil(totalCards / perView) - 1);
+    maxSlideIndex = nextMaxIndex;
+    currentSlideIndex = clamp(currentSlideIndex, 0, maxSlideIndex);
+    window.requestAnimationFrame(() => {
+      updateCarouselPosition();
+      updateCarouselControls();
+    });
   };
   const setCopyright = () => {
     if (copyright) {
@@ -975,10 +1023,30 @@
     }
   });
 
+  if (carouselPrevButton) {
+    carouselPrevButton.addEventListener('click', () => moveCarousel(-1));
+  }
+
+  if (carouselNextButton) {
+    carouselNextButton.addEventListener('click', () => moveCarousel(1));
+  }
+
   if (typeof largeScreenQuery.addEventListener === 'function') {
     largeScreenQuery.addEventListener('change', applyDrawerLayout);
+    largeScreenQuery.addEventListener('change', () => {
+      updateCarousel();
+    });
   } else if (typeof largeScreenQuery.addListener === 'function') {
     largeScreenQuery.addListener(applyDrawerLayout);
+    largeScreenQuery.addListener(updateCarousel);
+  }
+
+  if (typeof smallScreenQuery.addEventListener === 'function') {
+    smallScreenQuery.addEventListener('change', () => {
+      updateCarousel();
+    });
+  } else if (typeof smallScreenQuery.addListener === 'function') {
+    smallScreenQuery.addListener(updateCarousel);
   }
 
   if (accordionTrigger && accordionContent) {
@@ -1004,24 +1072,6 @@
     if (!accordionContent.hidden) {
       refreshCarouselLayout();
     }
-  }
-
-  if (carouselPrev) {
-    carouselPrev.addEventListener('click', () => {
-      if (currentSlideIndex > 0) {
-        currentSlideIndex -= 1;
-        updateCarousel();
-      }
-    });
-  }
-
-  if (carouselNext) {
-    carouselNext.addEventListener('click', () => {
-      if (currentSlideIndex < maxSlideIndex) {
-        currentSlideIndex += 1;
-        updateCarousel();
-      }
-    });
   }
 
   window.addEventListener('resize', () => {
