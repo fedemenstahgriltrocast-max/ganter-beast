@@ -1351,6 +1351,56 @@ body::after {
   cursor: pointer;
 }
 
+.drawer__close--text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(31, 27, 44, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition),
+    transform var(--transition), color var(--transition);
+}
+
+[data-theme="dark"] .drawer__close--text {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.drawer__close--text:hover {
+  background: rgba(255, 179, 71, 0.22);
+  border-color: rgba(255, 179, 71, 0.5);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .drawer__close--text:hover {
+  background: rgba(126, 243, 179, 0.22);
+  border-color: rgba(126, 243, 179, 0.45);
+}
+
+.drawer__close--text:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.35);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .drawer__close--text:focus-visible {
+  box-shadow: 0 0 0 3px rgba(126, 243, 179, 0.32);
+}
+
+.drawer__close-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.drawer__close-label {
+  font-size: 0.95rem;
+}
+
 .drawer__body {
   display: grid;
   gap: 1rem;
