@@ -561,18 +561,18 @@ body::after {
 }
 
 .product-carousel {
-  --carousel-gap: clamp(1rem, 4vw, 1.5rem);
+  --carousel-gap: clamp(0.75rem, 3.5vw, 1.5rem);
   position: relative;
   display: grid;
   place-items: center;
-  max-width: min(720px, 100%);
+  max-width: min(880px, 100%);
   margin-inline: auto;
 }
 
 .product-carousel__viewport {
   overflow: hidden;
   width: 100%;
-  padding-inline: clamp(0.5rem, 4vw, 1.5rem);
+  padding-inline: clamp(0.4rem, 3.5vw, 1.25rem);
 }
 
 .product-carousel__track {
@@ -643,13 +643,13 @@ body::after {
 .product-card {
   background: var(--surface-strong);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: 1.45rem;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1.05rem;
   flex: 0 0 calc(100% - var(--carousel-gap));
-  max-width: 340px;
-  min-width: 260px;
+  max-width: 420px;
+  min-width: 280px;
   --product-card-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
   box-shadow: var(--product-card-inset-shadow), var(--shadow-layered);
   transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
@@ -658,10 +658,10 @@ body::after {
 
 .product-card__image {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 4;
   height: auto;
   display: block;
-  border-radius: 18px;
+  border-radius: 20px;
   object-fit: cover;
   background: linear-gradient(135deg, rgba(255, 179, 71, 0.35), rgba(255, 127, 80, 0.25));
 }
@@ -1700,7 +1700,7 @@ body::after {
   }
 
   .product-card__image {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 5 / 4;
   }
 }
 
@@ -1729,13 +1729,13 @@ body::after {
 
 @media (max-width: 768px) {
   .product-carousel__viewport {
-    padding-inline: clamp(0.75rem, 8vw, 2rem);
+    padding-inline: clamp(0.5rem, 7vw, 1.5rem);
   }
 
   .product-card {
     flex-basis: calc(100% - var(--carousel-gap));
-    max-width: 360px;
-    min-width: 240px;
+    max-width: 420px;
+    min-width: 260px;
   }
 }
 
@@ -1746,6 +1746,6 @@ body::after {
 
   .product-card {
     flex-basis: calc((100% - var(--carousel-gap)) / 2);
-    max-width: 320px;
+    max-width: 360px;
   }
 }
