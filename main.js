@@ -171,7 +171,6 @@
   const isSmallScreen = () => smallScreenQuery.matches;
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
   const getCardsPerView = () => (largeScreenQuery.matches ? 2 : 1);
-
   const getCarouselGap = () => {
     if (!carouselTrack) {
       return 0;
@@ -229,7 +228,6 @@
   };
 
   const getLocale = () => (currentLanguage === 'es' ? 'es-EC' : 'en-US');
-
   const formatCurrency = (value) => {
     const formatter = new Intl.NumberFormat(getLocale(), {
       style: 'currency',
@@ -300,7 +298,6 @@
     const minutesValue = Number(chip.getAttribute('data-delivery-minutes') || chip.dataset.deliveryMinutes || '');
     const minutes = Number.isFinite(minutesValue) ? minutesValue : null;
     const label = getDeliveryLabelForChip(chip);
-
     selectedDeliveryTime = {
       minutes,
       label,
@@ -313,10 +310,8 @@
         // no-op: storage might be unavailable
       }
     }
-
     updateDeliveryDisplay();
   };
-
   const restoreDeliverySelection = () => {
     updateDeliveryOptionLabels();
     let savedMinutes = null;
@@ -330,12 +325,10 @@
     if (savedMinutes) {
       targetChip = chipButtons.find((chip) => chip.getAttribute('data-delivery-minutes') === savedMinutes) || null;
     }
-
     if (!targetChip) {
       targetChip =
         chipButtons.find((chip) => chip.getAttribute('aria-pressed') === 'true') || chipButtons[0] || null;
     }
-
     if (targetChip) {
       setSelectedDeliveryTime(targetChip, { persist: false });
     } else {
@@ -436,19 +429,15 @@
       summaryList.innerHTML = '';
       items.forEach((item) => {
         const li = document.createElement('li');
-
         const label = document.createElement('span');
         label.className = 'order-summary__item-label';
         label.textContent = item.name;
         label.setAttribute('aria-label', `${item.quantity}× ${item.name}`);
-
         const quantity = document.createElement('span');
         quantity.className = 'order-summary__item-quantity';
         quantity.textContent = `${item.quantity}`;
-
         const controls = document.createElement('div');
         controls.className = 'order-summary__controls';
-
         const decreaseButton = document.createElement('button');
         decreaseButton.type = 'button';
         decreaseButton.className = 'order-summary__control order-summary__control--decrease';
@@ -458,7 +447,6 @@
           (getTranslation('summaryDecrease') || 'Remove one {item}').replace('{item}', item.name),
         );
         decreaseButton.addEventListener('click', () => modifyCart(item.name, -1));
-
         const increaseButton = document.createElement('button');
         increaseButton.type = 'button';
         increaseButton.className = 'order-summary__control order-summary__control--increase';
@@ -468,9 +456,7 @@
           (getTranslation('summaryIncrease') || 'Add one {item}').replace('{item}', item.name),
         );
         increaseButton.addEventListener('click', () => modifyCart(item.name, 1));
-
         controls.append(decreaseButton, increaseButton);
-
         const price = document.createElement('span');
         price.className = 'order-summary__item-price';
         price.textContent = formatCurrency(item.price * item.quantity);
@@ -580,10 +566,8 @@
         removeButton.addEventListener('click', () => modifyCart(name, -1));
         removeButton.setAttribute('disabled', 'true');
       }
-
       updateQuantityLabel(card, 0);
     });
-
     updateProductPrices();
     updateCartDisplay();
   };
