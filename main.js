@@ -378,7 +378,12 @@
 
         const label = document.createElement('span');
         label.className = 'order-summary__item-label';
-        label.textContent = `${item.quantity}× ${item.name}`;
+        label.textContent = item.name;
+        label.setAttribute('aria-label', `${item.quantity}× ${item.name}`);
+
+        const quantity = document.createElement('span');
+        quantity.className = 'order-summary__item-quantity';
+        quantity.textContent = `${item.quantity}`;
 
         const controls = document.createElement('div');
         controls.className = 'order-summary__controls';
@@ -409,7 +414,7 @@
         price.className = 'order-summary__item-price';
         price.textContent = formatCurrency(item.price * item.quantity);
 
-        li.append(label, controls, price);
+        li.append(label, quantity, controls, price);
         summaryList.append(li);
       });
       summaryList.toggleAttribute('hidden', !hasItems);
