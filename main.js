@@ -408,6 +408,44 @@
     });
   };
 
+  const getCartItemLabel = (entry, lang = currentLanguage) => {
+    if (!entry) {
+      return '';
+    }
+    const labels = entry.labels || {};
+    if (lang === 'es' && labels.es) {
+      return labels.es;
+    }
+    if (lang === 'en' && labels.en) {
+      return labels.en;
+    }
+    return labels.en || labels.es || entry.card?.dataset?.labelEn || entry.card?.dataset?.name || '';
+  };
+
+  const updateProductContent = (lang = currentLanguage) => {
+    productCards.forEach((card) => {
+      const nameKey = lang === 'es' ? 'labelEs' : 'labelEn';
+      const metaKey = lang === 'es' ? 'metaEs' : 'metaEn';
+      const name = card.dataset[nameKey] || card.dataset.labelEn || card.dataset.name || '';
+      const meta = card.dataset[metaKey];
+
+      const titleNode = card.querySelector('.product-card__info h3');
+      if (titleNode && name) {
+        titleNode.textContent = name;
+      }
+
+      const imageNode = card.querySelector('.product-card__image');
+      if (imageNode && name) {
+        imageNode.setAttribute('alt', name);
+      }
+
+      const metaNode = card.querySelector('.product-card__meta');
+      if (metaNode && meta !== undefined) {
+        metaNode.textContent = meta;
+      }
+    });
+  };
+
   const updateQuantityLabel = (card, quantity) => {
     const quantityNode = card.querySelector('.product-card__quantity');
     if (!quantityNode) {
@@ -420,7 +458,7 @@
 
   const updateCartDisplay = () => {
     const items = Array.from(cart.entries())
-      .map(([name, data]) => ({ name, ...data }))
+      .map(([key, data]) => ({ key, ...data, displayName: getCartItemLabel(data, currentLanguage) }))
       .filter((item) => item.quantity > 0);
 
     const hasItems = items.length > 0;
@@ -435,8 +473,8 @@
         const li = document.createElement('li');
         const label = document.createElement('span');
         label.className = 'order-summary__item-label';
-        label.textContent = item.name;
-        label.setAttribute('aria-label', `${item.quantity}× ${item.name}`);
+        label.textContent = item.displayName;
+        label.setAttribute('aria-label', `${item.quantity}× ${item.displayName}`);
         const quantity = document.createElement('span');
         quantity.className = 'order-summary__item-quantity';
         quantity.textContent = `${item.quantity}`;
@@ -448,18 +486,18 @@
         decreaseButton.textContent = '-';
         decreaseButton.setAttribute(
           'aria-label',
-          (getTranslation('summaryDecrease') || 'Remove one {item}').replace('{item}', item.name),
+          (getTranslation('summaryDecrease') || 'Remove one {item}').replace('{item}', item.displayName),
         );
-        decreaseButton.addEventListener('click', () => modifyCart(item.name, -1));
+        decreaseButton.addEventListener('click', () => modifyCart(item.key, -1));
         const increaseButton = document.createElement('button');
         increaseButton.type = 'button';
         increaseButton.className = 'order-summary__control order-summary__control--increase';
         increaseButton.textContent = '+';
         increaseButton.setAttribute(
           'aria-label',
-          (getTranslation('summaryIncrease') || 'Add one {item}').replace('{item}', item.name),
+          (getTranslation('summaryIncrease') || 'Add one {item}').replace('{item}', item.displayName),
         );
-        increaseButton.addEventListener('click', () => modifyCart(item.name, 1));
+        increaseButton.addEventListener('click', () => modifyCart(item.key, 1));
         controls.append(decreaseButton, increaseButton);
         const price = document.createElement('span');
         price.className = 'order-summary__item-price';
@@ -480,7 +518,7 @@
       items.forEach((item) => {
         const li = document.createElement('li');
         const label = document.createElement('span');
-        label.textContent = `${item.quantity}× ${item.name}`;
+        label.textContent = `${item.quantity}× ${item.displayName}`;
         const price = document.createElement('span');
         price.textContent = formatCurrency(item.price * item.quantity);
         li.append(label, price);
@@ -555,8 +593,20 @@
       if (!name || Number.isNaN(price)) {
         return;
       }
+      const labels = {
+        en: card.dataset.labelEn || name,
+        es: card.dataset.labelEs || card.dataset.labelEn || name,
+      };
       if (!cart.has(name)) {
-        cart.set(name, { price, quantity: 0, card });
+        cart.set(name, { price, quantity: 0, card, labels });
+      } else {
+        const existing = cart.get(name);
+        if (existing) {
+          existing.price = price;
+          existing.card = card;
+          existing.labels = labels;
+          cart.set(name, existing);
+        }
       }
 
       const addButton = card.querySelector('[data-cart="add"]');
@@ -572,6 +622,7 @@
       }
       updateQuantityLabel(card, 0);
     });
+    updateProductContent(currentLanguage);
     updateProductPrices();
     updateCartDisplay();
   };
@@ -674,6 +725,7 @@
     updateDeliveryDisplay();
     updateFabLabels();
     updateFabMenuSelection();
+    updateProductContent(nextLang);
     updateProductPrices();
     updateCartDisplay();
   };
