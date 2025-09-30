@@ -457,7 +457,13 @@
               data-label-es="1 hr 30 min"
             >1 hr 30 min</button>
           </div>
-          <p class="delivery-time__selection" data-delivery-selection aria-live="polite" data-i18n-skip-text="true"></p>
+          <p
+            class="delivery-time__selection"
+            data-delivery-selection
+            aria-live="polite"
+            data-i18n-skip-text="true"
+            hidden
+          ></p>
         </div>
         <div class="order-actions">
           <button
@@ -542,6 +548,7 @@
       <div class="drawer__body">
         <ul class="payment-list" data-payment-items aria-live="polite"></ul>
         <p class="payment-list__empty" data-payment-empty data-i18n="orderSummaryEmpty">Your basket is empty. Add menu favorites to see them here.</p>
+        <p class="payment-list__eta" data-payment-delivery aria-live="polite" hidden></p>
         <p class="payment-list__total">
           <span class="payment-list__total-amount">
             <strong data-i18n="ordersTotal">Total</strong>: <span data-payment-total>$0.00</span>
