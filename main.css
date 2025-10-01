@@ -819,9 +819,11 @@ body::after {
 }
 
 .insights__grid--metrics {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
   width: 100%;
-  justify-items: center;
+  justify-content: center;
+  justify-items: stretch;
+  grid-auto-rows: minmax(260px, auto);
 }
 
 .panel {
@@ -833,6 +835,12 @@ body::after {
   box-shadow: var(--shadow-layered);
   --shape-font-boost: 0px;
   transition: box-shadow var(--transition), filter var(--transition), transform var(--transition);
+}
+
+.panel--metric {
+  max-width: 320px;
+  width: 100%;
+  height: 100%;
 }
 
 .panel--orders {
