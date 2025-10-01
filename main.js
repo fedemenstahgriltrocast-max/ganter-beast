@@ -877,6 +877,13 @@
       if (typeof event.button === 'number' && event.button !== 0) {
         return;
       }
+      const pointerTarget = event.target;
+      if (
+        pointerTarget instanceof HTMLElement &&
+        pointerTarget.closest('button, [role="button"], a, input, textarea, select')
+      ) {
+        return;
+      }
       activePointerId = event.pointerId;
       if (typeof handle.setPointerCapture === 'function') {
         handle.setPointerCapture(activePointerId);
