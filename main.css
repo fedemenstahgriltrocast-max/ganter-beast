@@ -1820,7 +1820,7 @@ body::after {
     flex: 0 0 var(--mobile-card-width);
     max-width: var(--mobile-card-width);
     min-width: var(--mobile-card-width);
-    padding: clamp(1rem, 4vw, 1.35rem);
+    padding: clamp(0.95rem, 3.75vw, 1.3rem);
     border-radius: clamp(20px, 7vw, 28px);
   }
 
