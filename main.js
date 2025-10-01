@@ -44,7 +44,7 @@
   const fabLabelTimers = new WeakMap();
   const drawerPositions = new Map();
   const TAX_RATE = 0.15;
-  const DELIVERY_FEE = 1.5;
+  const DELIVERY_FEE = 3.5;
   const cart = new Map();
   const checkoutTrigger = document.querySelector('[data-checkout-trigger]');
   const DELIVERY_STORAGE_KEY = 'marxia-delivery-minutes';
