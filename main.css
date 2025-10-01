@@ -1798,22 +1798,25 @@ body::after {
   }
 
   .product-carousel {
-    --mobile-viewport-padding: clamp(0.1rem, 1.75vw, 0.45rem);
-    width: 100%;
+    --mobile-carousel-width: min(98vw, 100%);
+    --mobile-carousel-padding: clamp(0.35rem, 2.75vw, 0.85rem);
+    --mobile-carousel-gap: clamp(0.5rem, 2.75vw, 0.9rem);
+    width: var(--mobile-carousel-width);
+    max-width: var(--mobile-carousel-width);
   }
 
   .product-carousel__viewport {
-    width: min(98vw, 100%);
-    padding-inline: var(--mobile-viewport-padding);
-    margin-inline: auto;
+    padding-inline: var(--mobile-carousel-padding);
   }
 
   .product-carousel__track {
-    gap: clamp(0.35rem, 2vw, 0.65rem);
+    gap: var(--mobile-carousel-gap);
   }
 
   .product-card {
-    --mobile-card-width: calc(min(98vw, 100%) - (var(--mobile-viewport-padding) * 2));
+    --mobile-card-width: calc(
+      var(--mobile-carousel-width) - (var(--mobile-carousel-padding) * 2)
+    );
     flex: 0 0 var(--mobile-card-width);
     max-width: var(--mobile-card-width);
     min-width: var(--mobile-card-width);
