@@ -98,9 +98,8 @@
       summaryIncrease: 'Add one {item}',
       summaryDecrease: 'Remove one {item}',
       inCart: 'In cart: {count}',
-      contactTitlePrefix: 'We deliver to:',
-      contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
-      contactWhatsApp: 'WhatsApp',
+      contactDeliveryLine: 'We deliver to: Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
+      contactWhatsApp: 'WhatsApp:',
       rights: 'All rights reserved.',
       edgeSecurity: 'Edge protected via Cloudflare Zero Trust',
       chatTitle: 'Live chat',
@@ -158,9 +157,8 @@
       summaryIncrease: 'Agregar uno de {item}',
       summaryDecrease: 'Quitar uno de {item}',
       inCart: 'En carrito: {count}',
-      contactTitlePrefix: 'Entregamos en:',
-      contactAreas: 'Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
-      contactWhatsApp: 'WhatsApp',
+      contactDeliveryLine: 'Entregamos en: Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río',
+      contactWhatsApp: 'WhatsApp:',
       rights: 'Todos los derechos reservados.',
       edgeSecurity: 'Protección perimetral con Cloudflare Zero Trust',
       chatTitle: 'Chat en vivo',
@@ -773,15 +771,7 @@
         return;
       }
 
-      if (node.querySelector('a') && key === 'contactWhatsApp') {
-        const prefixNode = node.childNodes[0];
-        if (prefixNode) {
-          const prefixText = translation ? `${translation} ` : '';
-          prefixNode.textContent = prefixText;
-        }
-      } else {
-        node.textContent = translation;
-      }
+      node.textContent = translation;
     });
 
     document.querySelectorAll('[data-i18n-placeholder]').forEach((node) => {
