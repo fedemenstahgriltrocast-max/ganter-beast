@@ -1798,27 +1798,32 @@ body::after {
   }
 
   .product-carousel {
-    width: min(92vw, 100%);
+    --mobile-viewport-padding: clamp(0.1rem, 1.75vw, 0.45rem);
+    width: 100%;
   }
 
   .product-carousel__viewport {
-    padding-inline: clamp(0.2rem, 2.5vw, 0.65rem);
+    width: min(98vw, 100%);
+    padding-inline: var(--mobile-viewport-padding);
+    margin-inline: auto;
   }
 
   .product-carousel__track {
-    gap: clamp(0.4rem, 2.25vw, 0.7rem);
+    gap: clamp(0.35rem, 2vw, 0.65rem);
   }
 
   .product-card {
-    --mobile-card-width: min(92vw, 100%);
+    --mobile-card-width: calc(min(98vw, 100%) - (var(--mobile-viewport-padding) * 2));
     flex: 0 0 var(--mobile-card-width);
     max-width: var(--mobile-card-width);
     min-width: var(--mobile-card-width);
-    padding: clamp(1rem, 4vw, 1.35rem);
+    padding: clamp(0.95rem, 3.75vw, 1.3rem);
     border-radius: clamp(20px, 7vw, 28px);
   }
 
   .product-card__image {
+    width: 90%;
+    margin-inline: auto;
     aspect-ratio: 1;
     border-radius: clamp(18px, 6vw, 26px);
   }
