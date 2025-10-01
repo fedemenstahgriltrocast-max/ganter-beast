@@ -20,6 +20,7 @@
   const carouselTrack = document.querySelector('.product-carousel__track');
   const carouselPrevButton = carousel ? carousel.querySelector('[data-carousel-prev]') : null;
   const carouselNextButton = carousel ? carousel.querySelector('[data-carousel-next]') : null;
+  const carouselPagination = carousel ? carousel.querySelector('[data-carousel-pagination]') : null;
   const accordionTrigger = document.querySelector('.accordion__trigger');
   const accordionContent = document.querySelector('.accordion__content');
   const productCards = Array.from(document.querySelectorAll('.product-card'));
@@ -51,6 +52,8 @@
   let currentSlideIndex = 0;
   let maxSlideIndex = 0;
   let lastCarouselPerView = largeScreenQuery.matches ? 2 : 1;
+  let carouselPaginationButtons = [];
+  let lastCarouselPageCount = 0;
   let currentLanguage = html.lang === 'es' ? 'es' : 'en';
   let selectedDeliveryTime = null;
   const translations = {
@@ -88,6 +91,8 @@
       checkout: 'Secure checkout',
       carouselPrev: 'Previous favorites',
       carouselNext: 'Next favorites',
+      carouselPagination: 'Menu highlights',
+      carouselSlideLabel: 'View slide {index}',
       addToOrder: '+ Add',
       removeFromOrder: '- Remove',
       summaryIncrease: 'Add one {item}',
@@ -146,6 +151,8 @@
       checkout: 'Checkout seguro',
       carouselPrev: 'Favoritos anteriores',
       carouselNext: 'Siguientes favoritos',
+      carouselPagination: 'Destacados del menú',
+      carouselSlideLabel: 'Ver diapositiva {index}',
       addToOrder: '+ Agregar',
       removeFromOrder: '- Quitar',
       summaryIncrease: 'Agregar uno de {item}',
@@ -198,6 +205,68 @@
     }
   };
 
+  const refreshCarouselPagination = () => {
+    if (!carousel || !carouselTrack || !carouselPagination) {
+      return;
+    }
+    const perView = Math.max(getCardsPerView(), 1);
+    const pageCount = Math.max(1, Math.ceil(productCards.length / perView));
+    if (pageCount <= 1) {
+      carouselPagination.hidden = true;
+      carouselPagination.innerHTML = '';
+      carouselPaginationButtons = [];
+      lastCarouselPageCount = 0;
+      return;
+    }
+
+    const template = getTranslation('carouselSlideLabel') || 'View slide {index}';
+    carouselPagination.hidden = false;
+
+    if (pageCount !== lastCarouselPageCount) {
+      carouselPagination.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+      carouselPaginationButtons = [];
+      for (let index = 0; index < pageCount; index += 1) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'product-carousel__dot';
+        button.dataset.carouselPage = String(index);
+        button.addEventListener('click', () => {
+          currentSlideIndex = index;
+          updateCarouselPosition();
+          updateCarouselControls();
+          refreshCarouselPagination();
+        });
+        fragment.appendChild(button);
+        carouselPaginationButtons.push(button);
+      }
+      carouselPagination.appendChild(fragment);
+      lastCarouselPageCount = pageCount;
+    }
+
+    const maxIndex = Math.max(0, pageCount - 1);
+    const clampedIndex = clamp(currentSlideIndex, 0, maxIndex);
+    if (clampedIndex !== currentSlideIndex) {
+      currentSlideIndex = clampedIndex;
+      updateCarouselPosition();
+      updateCarouselControls();
+    } else {
+      currentSlideIndex = clampedIndex;
+    }
+
+    carouselPaginationButtons.forEach((button, index) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      const isActive = index === currentSlideIndex;
+      const label = template.replace('{index}', index + 1);
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+      button.toggleAttribute('disabled', isActive);
+      button.setAttribute('aria-label', label);
+    });
+  };
+
   const getCarouselStep = () => {
     if (!carouselTrack) {
       return 0;
@@ -229,6 +298,7 @@
     currentSlideIndex = clamp(currentSlideIndex + direction, 0, maxSlideIndex);
     updateCarouselPosition();
     updateCarouselControls();
+    refreshCarouselPagination();
   };
 
   const getLocale = () => (currentLanguage === 'es' ? 'es-EC' : 'en-US');
@@ -643,6 +713,7 @@
     window.requestAnimationFrame(() => {
       updateCarouselPosition();
       updateCarouselControls();
+      refreshCarouselPagination();
     });
   };
   const setCopyright = () => {
@@ -728,6 +799,7 @@
     updateProductContent(nextLang);
     updateProductPrices();
     updateCartDisplay();
+    refreshCarouselPagination();
   };
 
   const restorePreferences = () => {
