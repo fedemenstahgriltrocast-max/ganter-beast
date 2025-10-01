@@ -863,6 +863,7 @@
 
   const openDrawer = (drawer) => {
     if (!drawer) return;
+    drawer.hidden = false;
     drawer.setAttribute('aria-hidden', 'false');
     if (largeScreenQuery.matches && draggableDrawerIds.has(drawer.id)) {
       ensureFloatingPosition(drawer);
@@ -876,6 +877,7 @@
   const closeDrawer = (drawer) => {
     if (!drawer) return;
     drawer.setAttribute('aria-hidden', 'true');
+    drawer.hidden = true;
   };
 
   const closeAllDrawers = () => {
