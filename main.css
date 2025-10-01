@@ -341,7 +341,7 @@ body::after {
 }
 
 .page {
-  width: min(1200px, 100%);
+  width: min(95vw, 100%);
   margin: 0 auto;
   padding: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 5vw, 2.5rem) 4rem;
   display: flex;
@@ -480,7 +480,7 @@ body::after {
   gap: clamp(1.5rem, 4vw, 2.5rem);
   justify-items: center;
   text-align: center;
-  width: min(100%, 960px);
+  width: min(95vw, 100%);
   margin-inline: auto;
   --shape-font-boost: 0px;
   transition: box-shadow var(--transition), filter var(--transition), transform var(--transition);
@@ -489,7 +489,7 @@ body::after {
 .accordion {
   display: grid;
   gap: 1.5rem;
-  width: min(100%, 960px);
+  width: min(95vw, 100%);
   margin-inline: auto;
 }
 
@@ -562,10 +562,12 @@ body::after {
 
 .product-carousel {
   --carousel-gap: clamp(0.75rem, 3.5vw, 1.5rem);
+  --carousel-cards: 1;
   position: relative;
   display: grid;
   place-items: center;
-  max-width: min(880px, 100%);
+  width: min(95vw, 100%);
+  max-width: min(95vw, 100%);
   margin-inline: auto;
 }
 
@@ -703,9 +705,13 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 1.05rem;
-  flex: 0 0 calc(100% - var(--carousel-gap));
-  max-width: 420px;
-  min-width: 280px;
+  --product-card-columns: var(--carousel-cards, 1);
+  --product-card-width: calc(
+    (100% - (var(--product-card-columns) - 1) * var(--carousel-gap)) / var(--product-card-columns)
+  );
+  flex: 0 0 var(--product-card-width);
+  max-width: var(--product-card-width);
+  min-width: clamp(260px, var(--product-card-width), 100%);
   --product-card-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
   box-shadow: var(--product-card-inset-shadow), var(--shadow-layered);
   transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
@@ -1877,12 +1883,11 @@ body::after {
 }
 
 @media (min-width: 900px) {
-  .product-carousel__viewport {
-    padding-inline: clamp(1rem, 4vw, 2.5rem);
+  .product-carousel {
+    --carousel-cards: 2;
   }
 
-  .product-card {
-    flex-basis: calc((100% - var(--carousel-gap)) / 2);
-    max-width: 360px;
+  .product-carousel__viewport {
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
   }
 }
