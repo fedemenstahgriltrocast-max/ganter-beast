@@ -369,8 +369,8 @@ body::after {
 }
 
 .landing__promise {
-  margin: 0;
-  font-size: 1.05rem;
+  margin: 1rem 0 0;
+  font-size: 1.1rem;
   color: rgba(60, 42, 30, 0.7);
 }
 
@@ -551,6 +551,16 @@ body::after {
   transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
 }
 
+.cta--large {
+  padding: 1.15rem 3.5rem;
+  font-size: 1.2rem;
+  min-width: clamp(240px, 36vw, 360px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -608,22 +618,24 @@ body::after {
 
 .landing__gallery-track {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: clamp(1.5rem, 4vw, 3rem);
-  padding-block: clamp(1rem, 2.5vw, 1.75rem) 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: clamp(2rem, 5vw, 3.5rem);
+  padding-block: clamp(1.25rem, 3vw, 2rem) 0.75rem;
 }
 
 .landing__gallery-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
-  border-radius: 28px;
-  padding: clamp(0.5rem, 1.5vw, 1.25rem);
+  aspect-ratio: 5 / 4;
+  border-radius: 32px;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(255, 245, 232, 0.92));
-  box-shadow: 0 26px 52px rgba(60, 42, 30, 0.18);
+  box-shadow: 0 32px 58px rgba(60, 42, 30, 0.18);
   border: 1px solid rgba(60, 42, 30, 0.08);
   transition: transform var(--transition), box-shadow var(--transition);
+  width: min(100%, 440px);
+  margin-inline: auto;
 }
 
 .landing__gallery-item:hover,
@@ -648,8 +660,14 @@ body::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background-color: #fff7ef;
+}
+
+.landing__gallery-actions {
+  margin-top: clamp(1.75rem, 4vw, 3rem);
+  display: flex;
+  justify-content: center;
 }
 
 [data-theme="dark"] .landing__gallery-item img {
@@ -809,6 +827,12 @@ body::after {
 
 .landing__whatsapp a {
   color: inherit;
+}
+
+.landing__cta-secondary {
+  justify-self: center;
+  margin-top: clamp(1rem, 3vw, 2.25rem);
+  text-decoration: none;
 }
 
 .landing__secondary {
