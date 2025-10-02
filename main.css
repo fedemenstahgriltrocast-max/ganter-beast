@@ -767,6 +767,10 @@ body::after {
   font-size: clamp(1.65rem, 3vw, 2.1rem);
 }
 
+#gallery-title {
+  font-size: 48px;
+}
+
 .section-header p {
   margin: 0;
   color: var(--text-muted);
