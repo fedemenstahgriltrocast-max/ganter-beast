@@ -525,12 +525,13 @@ body::after {
 
 .hero__promise {
   color: var(--text-muted);
-  font-size: calc(0.95rem + (var(--shape-font-boost) * 0.3));
+  font-size: calc(1.1rem + (var(--shape-font-boost) * 0.35));
+  margin: 0;
   transition: font-size var(--transition);
 }
 
 .tagline {
-  font-size: calc(clamp(1.1rem, 3vw, 1.35rem) + (var(--shape-font-boost) * 0.4));
+  font-size: calc(clamp(1.2rem, 3vw, 1.5rem) + (var(--shape-font-boost) * 0.4));
   color: var(--text-muted);
   margin: 0;
   transition: font-size var(--transition);
@@ -1365,36 +1366,30 @@ body::after {
   font-size: calc(1.25rem + (var(--shape-font-boost) * 0.35));
   font-weight: 700;
   color: var(--text-strong);
-  display: inline-flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  text-align: center;
 }
 
-.panel--contact .panel__delivery-heading span:last-child {
-  color: var(--text-muted);
+.panel--contact .panel__delivery-areas {
+  margin: 0.35rem 0 0;
+  font-size: calc(1.05rem + (var(--shape-font-boost) * 0.35));
   font-weight: 600;
-}
-
-.panel--contact p {
-  margin: 0;
   color: var(--text-muted);
-  font-size: calc(1rem + (var(--shape-font-boost) * 0.3));
-  transition: font-size var(--transition);
+  text-align: center;
 }
 
-.panel--contact .panel__whatsapp {
-  margin-top: 0.75rem;
-  display: inline-flex;
+.panel--contact .panel__whatsapp-heading {
+  margin: 1rem 0 0;
+  display: flex;
   gap: 0.5rem;
   align-items: center;
   justify-content: center;
-  font-size: calc(1rem + (var(--shape-font-boost) * 0.25));
+  font-size: calc(1.35rem + (var(--shape-font-boost) * 0.4));
+  font-weight: 700;
+  color: var(--text-strong);
 }
 
-.panel--contact .panel__whatsapp span {
-  font-weight: 600;
-  color: var(--text-strong);
+.panel--contact .panel__whatsapp-heading span {
+  font-weight: 700;
 }
 
 .panel--contact a {
