@@ -111,6 +111,7 @@
       payTitle: 'Checkout preview',
       payNow: 'Pay now',
       payCloseAction: 'Close',
+      fabNavLabel: 'Quick actions navigation',
       fabLanguageLabel: 'Language options',
       fabThemeLabel: 'Theme options',
       fabChatLabel: 'Live chat',
@@ -170,6 +171,7 @@
       payTitle: 'Vista previa del checkout',
       payNow: 'Pagar ahora',
       payCloseAction: 'Cerrar',
+      fabNavLabel: 'Menú de acciones rápidas',
       fabLanguageLabel: 'Opciones de idioma',
       fabThemeLabel: 'Opciones de tema',
       fabChatLabel: 'Chat en vivo',
@@ -446,6 +448,10 @@
       }
       button.dataset.label = label;
       button.setAttribute('aria-label', label);
+      const labelTarget = button.querySelector('[data-fab-label-target]');
+      if (labelTarget) {
+        labelTarget.textContent = label;
+      }
     });
   };
 
