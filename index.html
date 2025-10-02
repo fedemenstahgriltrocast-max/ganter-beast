@@ -530,7 +530,14 @@
     </section>
   </main>
 
-  <aside class="fab-group" aria-label="Floating actions">
+  <nav
+    class="fab-group mobile-nav"
+    aria-label="Quick actions navigation"
+    role="navigation"
+    data-i18n="fabNavLabel"
+    data-i18n-attr="aria-label"
+    data-i18n-skip-text="true"
+  >
     <button
       class="fab"
       type="button"
@@ -538,7 +545,10 @@
       aria-expanded="false"
       aria-controls="fabLanguageMenu"
       data-fab-label="fabLanguageLabel"
-    >🌐</button>
+    >
+      <span class="fab__icon" aria-hidden="true">🌐</span>
+      <span class="fab__label" data-fab-label-target>Language options</span>
+    </button>
     <div class="fab-menu" id="fabLanguageMenu" role="menu">
       <button class="fab-option" role="menuitem" data-action="language" data-lang="en" aria-pressed="false">EN</button>
       <button class="fab-option" role="menuitem" data-action="language" data-lang="es" aria-pressed="false">ES</button>
@@ -550,14 +560,23 @@
       aria-expanded="false"
       aria-controls="fabThemeMenu"
       data-fab-label="fabThemeLabel"
-    >🎨</button>
+    >
+      <span class="fab__icon" aria-hidden="true">🎨</span>
+      <span class="fab__label" data-fab-label-target>Theme options</span>
+    </button>
     <div class="fab-menu" id="fabThemeMenu" role="menu">
       <button class="fab-option" role="menuitem" data-action="theme" data-theme="light" aria-pressed="false">Light</button>
       <button class="fab-option" role="menuitem" data-action="theme" data-theme="dark" aria-pressed="false">Dark</button>
     </div>
-    <button class="fab" type="button" id="fabChat" aria-pressed="false" data-fab-label="fabChatLabel">💬</button>
-    <button class="fab" type="button" id="fabPay" aria-pressed="false" data-fab-label="fabPayLabel">💳</button>
-  </aside>
+    <button class="fab" type="button" id="fabChat" aria-pressed="false" data-fab-label="fabChatLabel">
+      <span class="fab__icon" aria-hidden="true">💬</span>
+      <span class="fab__label" data-fab-label-target>Live chat</span>
+    </button>
+    <button class="fab" type="button" id="fabPay" aria-pressed="false" data-fab-label="fabPayLabel">
+      <span class="fab__icon" aria-hidden="true">💳</span>
+      <span class="fab__label" data-fab-label-target>Payment summary</span>
+    </button>
+  </nav>
 
   <section
     class="drawer"
