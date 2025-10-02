@@ -51,11 +51,33 @@
         <p class="landing__brand-tag">Café y Bocaditos</p>
       </div>
     </div>
-    <nav aria-label="Principal" class="landing__nav">
-      <a class="landing__link" href="order.html">Ordenar</a>
-      <a class="landing__link" href="#galeria">Galería</a>
-      <a class="landing__link" href="#contacto">Contacto</a>
-    </nav>
+    <div class="landing__actions">
+      <nav aria-label="Principal" class="landing__nav">
+        <a class="landing__link" href="order.html">Ordenar</a>
+        <a class="landing__link" href="#galeria">Galería</a>
+        <a class="landing__link" href="#contacto">Contacto</a>
+      </nav>
+      <nav aria-label="Preferencias rápidas" class="landing__toggles">
+        <div class="toggle-group" role="group" aria-label="Language selection">
+          <button
+            class="toggle-button"
+            id="languageToggle"
+            type="button"
+            aria-pressed="false"
+            aria-label="Idioma: Español (cambiar a inglés)"
+          >EN</button>
+        </div>
+        <div class="toggle-group" role="group" aria-label="Theme selection">
+          <button
+            class="toggle-button toggle-button--theme"
+            id="themeToggle"
+            type="button"
+            aria-pressed="false"
+            aria-label="Switch to dark theme"
+          >Dark</button>
+        </div>
+      </nav>
+    </div>
   </header>
 
   <main id="mainContent">
