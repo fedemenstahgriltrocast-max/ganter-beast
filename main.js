@@ -24,6 +24,25 @@
   const accordionTrigger = document.querySelector('.accordion__trigger');
   const accordionContent = document.querySelector('.accordion__content');
   const productCards = Array.from(document.querySelectorAll('.product-card'));
+  const productCardImages = orderSection
+    ? Array.from(orderSection.querySelectorAll('.product-card img'))
+    : [];
+
+  const ensureProductCardImageClass = () => {
+    if (!productCardImages.length) {
+      return;
+    }
+    productCardImages.forEach((image) => {
+      if (!(image instanceof HTMLImageElement)) {
+        return;
+      }
+      if (!image.classList.contains('product-card__image')) {
+        image.classList.add('product-card__image');
+      }
+    });
+  };
+
+  ensureProductCardImageClass();
   const summaryList = document.querySelector('[data-summary-items]');
   const summaryEmpty = document.querySelector('#orderSummaryEmpty');
   const summaryTotals = {
