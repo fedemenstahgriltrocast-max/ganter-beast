@@ -450,6 +450,83 @@ body::after {
   outline: none;
 }
 
+.gallery {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-layered);
+  padding: clamp(2rem, 4vw, 3rem);
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.gallery__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.gallery__wrapper {
+  margin-inline: clamp(0rem, 5vw, 2.5rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+  border-radius: calc(var(--radius-md) * 0.75);
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+  align-items: center;
+  padding-block: 0.5rem 0.75rem;
+  padding-inline: clamp(0.5rem, 3vw, 1.5rem);
+}
+
+.gallery__wrapper:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.gallery__wrapper::-webkit-scrollbar {
+  height: 10px;
+}
+
+.gallery__wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 999px;
+}
+
+[data-theme="dark"] .gallery__wrapper {
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+[data-theme="dark"] .gallery__wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.gallery__image {
+  flex: 0 0 auto;
+  width: clamp(240px, 60vw, 320px);
+  height: clamp(13rem, 32vw, 17rem);
+  object-fit: cover;
+  border-radius: calc(var(--radius-md) * 0.8);
+  box-shadow: var(--shadow-soft);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .gallery__image {
+    width: clamp(280px, 35vw, 360px);
+    height: clamp(15rem, 22vw, 18.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery__wrapper {
+    scroll-behavior: auto;
+  }
+}
+
 .section-header {
   display: grid;
   gap: 0.4rem;
@@ -469,6 +546,11 @@ body::after {
 
 .section-header p:empty {
   display: none;
+}
+
+.gallery__header {
+  margin-bottom: 0;
+  gap: 0.65rem;
 }
 
 .delivery {
