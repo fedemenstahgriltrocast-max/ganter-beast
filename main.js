@@ -44,6 +44,7 @@
   const fabButtons = [fabLanguage, fabTheme, fabChat, fabPay].filter(Boolean);
   const fabLabelTimers = new WeakMap();
   const drawerPositions = new Map();
+  const drawerFocusOrigins = new Map();
   const TAX_RATE = 0.15;
   const DELIVERY_FEE = 3.5;
   const cart = new Map();
@@ -988,9 +989,24 @@
     });
   };
 
-  const openDrawer = (drawer) => {
+  const openDrawer = (drawer, { focusOrigin } = {}) => {
     if (!drawer) return;
+    let originElement = null;
+    if (focusOrigin instanceof HTMLElement) {
+      originElement = focusOrigin;
+    } else if (document.activeElement instanceof HTMLElement) {
+      originElement = document.activeElement;
+    }
+    if (originElement instanceof HTMLElement && drawer.contains(originElement)) {
+      originElement = null;
+    }
+    if (originElement) {
+      drawerFocusOrigins.set(drawer, originElement);
+    } else {
+      drawerFocusOrigins.delete(drawer);
+    }
     drawer.hidden = false;
+    drawer.removeAttribute('inert');
     drawer.setAttribute('aria-hidden', 'false');
     if (largeScreenQuery.matches && draggableDrawerIds.has(drawer.id)) {
       ensureFloatingPosition(drawer);
@@ -1001,15 +1017,29 @@
     }
   };
 
-  const closeDrawer = (drawer) => {
+  const closeDrawer = (drawer, { restoreFocus = true } = {}) => {
     if (!drawer) return;
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement && drawer.contains(activeElement)) {
+      activeElement.blur();
+    }
     drawer.setAttribute('aria-hidden', 'true');
     drawer.hidden = true;
+    drawer.setAttribute('inert', '');
+    const originElement = drawerFocusOrigins.get(drawer);
+    if (restoreFocus && originElement instanceof HTMLElement) {
+      window.setTimeout(() => {
+        if (document.contains(originElement)) {
+          originElement.focus();
+        }
+      }, 0);
+    }
+    drawerFocusOrigins.delete(drawer);
   };
 
-  const closeAllDrawers = () => {
+  const closeAllDrawers = (options = {}) => {
     drawers.forEach((drawer) => {
-      closeDrawer(drawer);
+      closeDrawer(drawer, options);
     });
   };
 
@@ -1047,7 +1077,7 @@
       if (isOpen) {
         closeDrawer(drawer);
       } else {
-        openDrawer(drawer);
+        openDrawer(drawer, { focusOrigin: fab });
       }
       fab.setAttribute('aria-pressed', String(!isOpen));
     };
@@ -1106,14 +1136,14 @@
       const parentDrawer = closeButton.closest('.drawer');
 
       if (parentDrawer) {
-        closeDrawer(parentDrawer);
+        closeDrawer(parentDrawer, { restoreFocus: !closeTargetId });
       }
 
       closeMenus();
 
       drawers.forEach((drawer) => {
         if (drawer !== parentDrawer) {
-          closeDrawer(drawer);
+          closeDrawer(drawer, { restoreFocus: false });
         }
       });
 
@@ -1260,12 +1290,13 @@
   });
 
   if (checkoutTrigger) {
-    checkoutTrigger.addEventListener('click', () => {
+    checkoutTrigger.addEventListener('click', (event) => {
       closeMenus();
-      closeAllDrawers();
+      closeAllDrawers({ restoreFocus: false });
       resetFabStates();
       if (payDrawer) {
-        openDrawer(payDrawer);
+        const focusOrigin = event.currentTarget instanceof HTMLElement ? event.currentTarget : undefined;
+        openDrawer(payDrawer, { focusOrigin });
       }
       if (fabPay) {
         fabPay.setAttribute('aria-pressed', 'true');
