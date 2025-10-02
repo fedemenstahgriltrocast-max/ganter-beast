@@ -303,7 +303,7 @@ body::after {
   color: inherit;
   font-weight: 600;
   position: relative;
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-size: 1.8rem;
 }
 
 .landing__link::after {
@@ -800,7 +800,7 @@ body::after {
 }
 
 #gallery-title {
-  font-size: 48px;
+  font-size: 2rem;
 }
 
 .section-header p {
