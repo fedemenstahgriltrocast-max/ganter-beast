@@ -830,7 +830,7 @@
     if (savedLang) {
       applyLanguage(savedLang);
     } else {
-      applyLanguage('en');
+      applyLanguage(currentLanguage);
     }
   };
 
@@ -1326,8 +1326,16 @@
   }
 
   if (orderButton && orderSection) {
-    orderButton.addEventListener('click', () => {
+    orderButton.addEventListener('click', (event) => {
+      event.preventDefault();
       orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  } else if (orderButton && !orderSection) {
+    orderButton.addEventListener('click', () => {
+      if (orderButton instanceof HTMLAnchorElement) {
+        return;
+      }
+      window.location.href = 'order.html';
     });
   }
 
