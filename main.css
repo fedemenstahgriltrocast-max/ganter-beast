@@ -86,6 +86,14 @@ body {
   animation: gradientFlow 36s ease-in-out infinite;
 }
 
+body.landing {
+  background: radial-gradient(circle at top left, rgba(255, 247, 235, 0.9), rgba(255, 230, 214, 0.85)),
+    linear-gradient(135deg, #fef6e4 0%, #fde2e4 50%, #bee1e6 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  color: #3c2a1e;
+}
+
 [data-theme="dark"] body {
   background: linear-gradient(
       135deg,
@@ -228,6 +236,74 @@ body::after {
   transform: translate(-50%, 0.75rem);
 }
 
+.landing__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(1rem, 3vw, 1.75rem) clamp(1.25rem, 4vw, 3.5rem);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.landing__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.landing__brand img {
+  border-radius: 18px;
+  box-shadow: 0 8px 18px rgba(109, 85, 58, 0.22);
+}
+
+.landing__brand-name {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.landing__brand-tag {
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(60, 42, 30, 0.75);
+}
+
+.landing__nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+}
+
+.landing__link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+  position: relative;
+}
+
+.landing__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.25rem;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition);
+}
+
+.landing__link:focus-visible::after,
+.landing__link:hover::after {
+  transform: scaleX(1);
+}
+
 .topbar {
   width: min(1200px, 100%);
   margin: 1.5rem auto 0;
@@ -245,10 +321,76 @@ body::after {
   transition: box-shadow var(--transition), filter var(--transition), transform var(--transition);
 }
 
+.landing__hero {
+  padding: clamp(3.5rem, 8vw, 7rem) clamp(1.5rem, 6vw, 5.5rem);
+  display: grid;
+  justify-items: start;
+  align-items: center;
+}
+
+.landing__hero-content {
+  max-width: 720px;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.landing__eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(60, 42, 30, 0.7);
+}
+
+.landing__headline {
+  margin: 0;
+  font-size: clamp(2.8rem, 7vw, 4rem);
+  line-height: 1.05;
+}
+
+.landing__subheadline,
+.landing__hint {
+  margin: 0;
+  font-weight: 500;
+  color: rgba(60, 42, 30, 0.75);
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+}
+
+.landing__hint {
+  font-size: clamp(0.95rem, 2.4vw, 1.2rem);
+}
+
+.landing__cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.landing__promise {
+  margin: 0;
+  font-size: 1.05rem;
+  color: rgba(60, 42, 30, 0.7);
+}
+
 .topbar__brand {
   display: flex;
   gap: 1rem;
   align-items: center;
+}
+
+.topbar__home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.topbar__home-text {
+  font-size: 0.95rem;
 }
 
 .logo {
@@ -459,6 +601,42 @@ body::after {
   gap: clamp(1.25rem, 3vw, 2rem);
 }
 
+.landing__gallery {
+  padding: clamp(2.5rem, 7vw, 6rem) clamp(1.5rem, 6vw, 5.5rem);
+}
+
+.landing__gallery-track {
+  display: grid;
+  grid-auto-flow: column;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  overflow-x: auto;
+  padding-block: 0.75rem 0.25rem;
+  scroll-snap-type: x mandatory;
+}
+
+.landing__gallery-track::-webkit-scrollbar {
+  height: 8px;
+}
+
+.landing__gallery-track::-webkit-scrollbar-thumb {
+  background: rgba(60, 42, 30, 0.25);
+  border-radius: 999px;
+}
+
+.landing__gallery-item {
+  scroll-snap-align: center;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(60, 42, 30, 0.18);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.landing__gallery-item img {
+  display: block;
+  width: min(320px, 70vw);
+  height: auto;
+}
+
 .gallery__hint {
   margin: 0;
   color: var(--text-muted);
@@ -521,6 +699,34 @@ body::after {
   }
 }
 
+@media (max-width: 768px) {
+  .landing__header {
+    flex-direction: column;
+    gap: 1rem;
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .landing__nav {
+    gap: 1.25rem;
+  }
+
+  .landing__hero {
+    padding-top: clamp(2.5rem, 12vw, 4.5rem);
+  }
+
+  .landing__gallery-track {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    overflow-x: visible;
+  }
+
+  .landing__gallery-item img {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gallery__wrapper {
     scroll-behavior: auto;
@@ -556,6 +762,67 @@ body::after {
 .delivery {
   display: flex;
   justify-content: center;
+}
+
+.landing__about {
+  padding: clamp(3rem, 8vw, 6.5rem) clamp(1.5rem, 6vw, 5.5rem);
+  display: flex;
+  justify-content: center;
+}
+
+.landing__about-card {
+  max-width: 680px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 32px;
+  padding: clamp(2rem, 6vw, 4rem);
+  box-shadow: 0 30px 70px rgba(60, 42, 30, 0.16);
+  display: grid;
+  gap: 1rem;
+}
+
+.landing__brand-heading {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+}
+
+.landing__brand-subheading {
+  margin: 0;
+  font-weight: 500;
+  color: rgba(60, 42, 30, 0.78);
+}
+
+.landing__support {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+}
+
+.landing__whatsapp {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+}
+
+.landing__whatsapp a {
+  color: inherit;
+}
+
+.landing__secondary {
+  align-self: start;
+  text-decoration: none;
+  font-weight: 600;
+  color: #3c2a1e;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(60, 42, 30, 0.4);
+  transition: background var(--transition), color var(--transition), border var(--transition);
+}
+
+.landing__secondary:hover,
+.landing__secondary:focus-visible {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #101319;
+  border-color: transparent;
 }
 
 .order {
@@ -1383,6 +1650,13 @@ body::after {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+}
+
+.landing__footer {
+  padding: 2rem clamp(1.5rem, 6vw, 5.5rem);
+  text-align: center;
+  color: rgba(60, 42, 30, 0.7);
+  font-size: 0.95rem;
 }
 
 .footer__security {
