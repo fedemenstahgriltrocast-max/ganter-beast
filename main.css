@@ -1921,29 +1921,87 @@ body::after {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
-    min-height: clamp(52px, 15vw, 64px);
-    padding: 0.4rem 0.75rem;
+    gap: 0.4rem;
+    min-height: auto;
+    padding: 0.35rem 0;
     border-radius: 16px;
+    background: transparent;
+    border: none;
     box-shadow: none;
+    color: var(--text-muted);
+  }
+
+  .fab[aria-pressed="true"] {
+    background: transparent;
+    color: var(--text-main);
+  }
+
+  [data-theme="dark"] .fab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+  }
+
+  [data-theme="dark"] .fab[aria-pressed="true"] {
+    color: var(--text-main);
+  }
+
+  .fab:hover,
+  .fab:focus-visible {
+    transform: none;
+    filter: none;
+    box-shadow: none;
+  }
+
+  .fab:focus-visible {
+    outline: 2px solid rgba(16, 19, 25, 0.25);
+    outline-offset: 4px;
+  }
+
+  [data-theme="dark"] .fab:focus-visible {
+    outline: 2px solid rgba(126, 243, 179, 0.55);
+  }
+
+  .fab__icon {
+    display: grid;
+    place-items: center;
+    width: clamp(42px, 12vw, 48px);
+    height: clamp(42px, 12vw, 48px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    color: #101319;
+    box-shadow: var(--shadow-layered);
+    transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+  }
+
+  .fab:hover .fab__icon,
+  .fab:focus-visible .fab__icon,
+  .fab[aria-pressed="true"] .fab__icon {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-layered-strong);
+    filter: brightness(var(--hover-darken));
   }
 
   .fab__label {
     position: static;
     transform: none;
     display: block;
-    margin-top: 0.15rem;
+    margin-top: 0.25rem;
     background: transparent;
     color: var(--text-main);
     font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
     opacity: 1;
     pointer-events: none;
     white-space: normal;
     text-align: center;
     line-height: 1.2;
     box-shadow: none;
+  }
+
+  .fab[aria-pressed="true"] .fab__label {
+    color: var(--accent-strong);
   }
 
   .fab-menu {
