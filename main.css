@@ -262,15 +262,21 @@ body::after {
 
 .landing__brand-name {
   margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-size: clamp(2rem, 4.5vw, 2.85rem);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: -0.015em;
+  color: #3c2a1e;
+  text-shadow: 0 10px 26px rgba(60, 42, 30, 0.18);
 }
 
 .landing__brand-tag {
   margin: 0;
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  color: rgba(60, 42, 30, 0.75);
+  font-size: clamp(1.05rem, 2.8vw, 1.55rem);
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  color: rgba(60, 42, 30, 0.7);
 }
 
 .landing__nav {
@@ -283,6 +289,7 @@ body::after {
   text-decoration: none;
   color: inherit;
   font-weight: 600;
+  font-size: clamp(1.125rem, 2.4vw, 2rem);
   position: relative;
 }
 
@@ -352,12 +359,12 @@ body::after {
 .landing__hint {
   margin: 0;
   font-weight: 500;
-  color: rgba(60, 42, 30, 0.75);
+  color: rgba(60, 42, 30, 0.78);
   font-size: clamp(1.05rem, 3vw, 1.35rem);
 }
 
 .landing__hint {
-  font-size: clamp(0.95rem, 2.4vw, 1.2rem);
+  font-size: clamp(1rem, 2.6vw, 1.25rem);
 }
 
 .landing__cta-group {
@@ -365,13 +372,7 @@ body::after {
   flex-wrap: wrap;
   align-items: center;
   gap: 1.25rem;
-  margin-top: 0.75rem;
-}
-
-.landing__promise {
-  margin: 0;
-  font-size: 1.05rem;
-  color: rgba(60, 42, 30, 0.7);
+  margin-top: 1.25rem;
 }
 
 .topbar__brand {
@@ -631,10 +632,11 @@ body::after {
   background: rgba(255, 255, 255, 0.85);
 }
 
-.landing__gallery-item img {
+.landing__gallery-image {
   display: block;
   width: min(320px, 70vw);
   height: auto;
+  border-radius: inherit;
 }
 
 .gallery__hint {
@@ -722,7 +724,7 @@ body::after {
     overflow-x: visible;
   }
 
-  .landing__gallery-item img {
+  .landing__gallery-image {
     width: 100%;
   }
 }
@@ -782,13 +784,20 @@ body::after {
 
 .landing__brand-heading {
   margin: 0;
-  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-size: clamp(2.4rem, 5.5vw, 3.4rem);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: #3c2a1e;
+  text-shadow: 0 14px 32px rgba(60, 42, 30, 0.18);
 }
 
 .landing__brand-subheading {
   margin: 0;
   font-weight: 500;
-  color: rgba(60, 42, 30, 0.78);
+  font-style: italic;
+  letter-spacing: -0.01em;
+  color: rgba(60, 42, 30, 0.72);
 }
 
 .landing__support {
