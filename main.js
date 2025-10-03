@@ -13,7 +13,7 @@
   const fabThemeMenu = document.querySelector('#fabThemeMenu');
   const drawers = Array.from(document.querySelectorAll('.drawer'));
   const payDrawer = document.querySelector('#payDrawer');
-  const languageToggle = document.querySelector('#languageToggle');
+  const languageToggleButtons = Array.from(document.querySelectorAll('[data-language-option]'));
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const carousel = document.querySelector('[data-carousel]');
@@ -785,15 +785,28 @@
     html.lang = nextLang;
     localStorage.setItem('marxia-lang', nextLang);
     updateFabMenuSelection();
-    if (languageToggle) {
-      const isSpanish = nextLang === 'es';
-      languageToggle.textContent = isSpanish ? 'EN' : 'ES';
-      languageToggle.setAttribute(
-        'aria-label',
-        isSpanish ? 'Idioma: Español (cambiar a inglés)' : 'Language: English (switch to Spanish)'
-      );
-      languageToggle.setAttribute('aria-pressed', String(isSpanish));
-    }
+    languageToggleButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      const targetLang = button.dataset.languageOption;
+      if (!targetLang) {
+        button.setAttribute('aria-pressed', 'false');
+        return;
+      }
+      const isActive = targetLang === nextLang;
+      button.textContent = targetLang.toUpperCase();
+      button.setAttribute('aria-pressed', String(isActive));
+      const label =
+        targetLang === 'es'
+          ? isActive
+            ? 'Idioma actual: Español'
+            : 'Cambiar a Español'
+          : isActive
+          ? 'Current language: English'
+          : 'Switch to English';
+      button.setAttribute('aria-label', label);
+    });
 
     const dict = translations[nextLang];
     document.querySelectorAll('[data-i18n]').forEach((node) => {
@@ -1158,14 +1171,19 @@
       return;
     }
 
+    const languageButton = target.closest('[data-language-option]');
+    if (languageButton instanceof HTMLElement) {
+      const langChoice = languageButton.getAttribute('data-language-option');
+      if (langChoice) {
+        applyLanguage(langChoice);
+      }
+      closeMenus();
+      return;
+    }
+
     if (target === themeToggle) {
       const nextTheme = html.dataset.theme === 'dark' ? 'light' : 'dark';
       applyTheme(nextTheme);
-    }
-
-    if (target === languageToggle) {
-      const nextLang = html.lang === 'es' ? 'en' : 'es';
-      applyLanguage(nextLang);
     }
 
     const closeButton = target.closest('[data-close-drawer]');

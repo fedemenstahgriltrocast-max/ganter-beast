@@ -91,7 +91,7 @@ body.landing {
     linear-gradient(135deg, #fef6e4 0%, #fde2e4 50%, #bee1e6 100%);
   background-attachment: fixed;
   background-size: cover;
-  color: #3c2a1e;
+  color: var(--text-main);
 }
 
 [data-theme="dark"] body {
@@ -251,6 +251,12 @@ body::after {
   border-bottom: 1px solid rgba(255, 255, 255, 0.6);
 }
 
+[data-theme="dark"] .landing__header {
+  background: rgba(12, 13, 18, 0.82);
+  border-bottom: 1px solid rgba(126, 243, 179, 0.25);
+  box-shadow: 0 16px 32px rgba(5, 6, 10, 0.6);
+}
+
 .landing__brand {
   display: inline-flex;
   align-items: center;
@@ -272,7 +278,7 @@ body::after {
 .landing__brand-tag {
   margin: 0;
   font-size: clamp(1rem, 2vw, 1.25rem);
-  color: rgba(60, 42, 30, 0.75);
+  color: var(--text-muted);
 }
 
 .landing__nav {
@@ -359,7 +365,7 @@ body::after {
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.18em;
-  color: rgba(60, 42, 30, 0.7);
+  color: var(--text-muted);
 }
 
 .landing__headline {
@@ -372,7 +378,7 @@ body::after {
 .landing__hint {
   margin: 0;
   font-weight: 500;
-  color: rgba(60, 42, 30, 0.75);
+  color: var(--text-muted);
   font-size: clamp(1.05rem, 3vw, 1.35rem);
 }
 
@@ -391,7 +397,7 @@ body::after {
 .landing__promise {
   margin: 1rem 0 0;
   font-size: 1.1rem;
-  color: rgba(60, 42, 30, 0.7);
+  color: var(--text-muted);
 }
 
 .topbar__brand {
@@ -838,6 +844,12 @@ body::after {
   gap: 1rem;
 }
 
+[data-theme="dark"] .landing__about-card {
+  background: rgba(20, 22, 32, 0.9);
+  box-shadow: 0 26px 64px rgba(5, 6, 10, 0.6);
+  border: 1px solid rgba(126, 243, 179, 0.2);
+}
+
 .landing__brand-heading {
   margin: 0;
   font-size: clamp(2.2rem, 5vw, 3rem);
@@ -846,7 +858,7 @@ body::after {
 .landing__brand-subheading {
   margin: 0;
   font-weight: 500;
-  color: rgba(60, 42, 30, 0.78);
+  color: var(--text-muted);
 }
 
 .landing__support {
@@ -875,7 +887,7 @@ body::after {
   align-self: start;
   text-decoration: none;
   font-weight: 600;
-  color: #3c2a1e;
+  color: var(--text-main);
   padding: 0.6rem 1.4rem;
   border-radius: 999px;
   border: 1.5px solid rgba(60, 42, 30, 0.4);
@@ -887,6 +899,10 @@ body::after {
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: #101319;
   border-color: transparent;
+}
+
+[data-theme="dark"] .landing__secondary {
+  border-color: rgba(126, 243, 179, 0.35);
 }
 
 .order {
@@ -1713,7 +1729,7 @@ body::after {
 .landing__footer {
   padding: 2rem clamp(1.5rem, 6vw, 5.5rem);
   text-align: center;
-  color: rgba(60, 42, 30, 0.7);
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
