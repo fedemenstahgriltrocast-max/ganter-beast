@@ -79,6 +79,10 @@ import { formatCurrency } from './utils/currency.js';
   let carouselPaginationButtons = [];
   let lastCarouselPageCount = 0;
   const i18n = createI18nManager({ html });
+  if (typeof window !== 'undefined') {
+    window.marxia = window.marxia || {};
+    window.marxia.i18n = i18n;
+  }
   let currentLanguage = i18n.language;
   let selectedDeliveryTime = null;
   const isSmallScreen = () => smallScreenQuery.matches;
@@ -613,8 +617,10 @@ import { formatCurrency } from './utils/currency.js';
     updateFabMenuSelection();
     if (themeToggle) {
       const isDark = nextTheme === 'dark';
-      themeToggle.textContent = isDark ? 'Light' : 'Dark';
-      themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+      const labelKey = isDark ? 'themeToggleLight' : 'themeToggleDark';
+      const ariaKey = isDark ? 'themeToggleAriaLight' : 'themeToggleAriaDark';
+      themeToggle.textContent = getTranslation(labelKey);
+      themeToggle.setAttribute('aria-label', getTranslation(ariaKey));
       themeToggle.setAttribute('aria-pressed', String(isDark));
     }
   };
@@ -627,10 +633,8 @@ import { formatCurrency } from './utils/currency.js';
       const isSpanish = nextLang === 'es';
       languageToggle.setAttribute('data-current-language', nextLang);
       languageToggle.setAttribute('aria-checked', String(!isSpanish));
-      languageToggle.setAttribute(
-        'aria-label',
-        isSpanish ? 'Switch to English' : 'Cambiar a Español'
-      );
+      const ariaKey = isSpanish ? 'languageToggleToEnglish' : 'languageToggleToSpanish';
+      languageToggle.setAttribute('aria-label', getTranslation(ariaKey));
       languageToggle.textContent = nextLang.toUpperCase();
     }
 
@@ -656,7 +660,11 @@ import { formatCurrency } from './utils/currency.js';
         return;
       }
 
-      node.textContent = translation;
+      if (node.dataset.i18nHtml === 'true') {
+        node.innerHTML = translation;
+      } else {
+        node.textContent = translation;
+      }
     });
 
     document.querySelectorAll('[data-i18n-placeholder]').forEach((node) => {
@@ -665,6 +673,14 @@ import { formatCurrency } from './utils/currency.js';
         node.setAttribute('placeholder', dict[key]);
       }
     });
+
+    if (typeof document !== 'undefined' && typeof CustomEvent === 'function') {
+      document.dispatchEvent(
+        new CustomEvent('marxia:language-change', {
+          detail: { language: nextLang },
+        })
+      );
+    }
 
     updateDeliveryOptionLabels(nextLang);
     syncSelectedDeliveryLabel();
@@ -675,6 +691,7 @@ import { formatCurrency } from './utils/currency.js';
     updateProductPrices();
     updateCartDisplay();
     refreshCarouselPagination();
+    applyTheme(html.dataset.theme);
   };
 
   const restorePreferences = () => {
