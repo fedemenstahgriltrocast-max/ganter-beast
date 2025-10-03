@@ -1201,6 +1201,23 @@ import { formatCurrency } from './utils/currency.js';
     });
   }
 
+  const calculatorButton = document.querySelector('#openCalc');
+  if (calculatorButton) {
+    const workerBase = (calculatorButton.getAttribute('data-worker-base') || '').trim().replace(/\/+$/, '');
+    const targetUrl = workerBase ? `${workerBase}/calc` : '';
+    if (!targetUrl) {
+      calculatorButton.setAttribute('disabled', 'true');
+      calculatorButton.setAttribute('aria-disabled', 'true');
+    } else {
+      calculatorButton.addEventListener('click', () => {
+        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!popup || popup.closed) {
+          window.location.href = targetUrl;
+        }
+      });
+    }
+  }
+
   if (orderButton && orderSection) {
     orderButton.addEventListener('click', (event) => {
       event.preventDefault();
