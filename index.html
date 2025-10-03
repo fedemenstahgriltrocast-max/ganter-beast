@@ -43,24 +43,24 @@
   </script>
 </head>
 <body class="landing">
-  <a class="skip-link" href="#mainContent">Saltar al contenido</a>
+  <a class="skip-link" href="#mainContent" data-i18n="skipToContent">Saltar al contenido</a>
   <div class="landing__background-illustration" aria-hidden="true"></div>
   <header class="landing__header" role="banner">
     <div class="landing__brand">
       <img src="https://twilight-glade-ca07.distraction.workers.dev/img/cup-of-coffee" alt="Taza de café" loading="lazy" width="64" height="64">
       <div>
-        <p class="landing__brand-name">Marxia</p>
-        <p class="landing__brand-tag">Café y Bocaditos</p>
+        <p class="landing__brand-name" data-i18n="brandName">Marxia</p>
+        <p class="landing__brand-tag" data-i18n="brandTagline">Café y Bocaditos</p>
       </div>
     </div>
     <div class="landing__actions">
       <nav aria-label="Principal" class="landing__nav">
-        <a class="landing__link" href="order.html">Ordena</a>
-        <a class="landing__link" href="#galeria">Galería</a>
-        <a class="landing__link" href="#contacto">Contacto</a>
+        <a class="landing__link" href="order.html" data-i18n="navOrder">Ordena</a>
+        <a class="landing__link" href="#galeria" data-i18n="navGallery">Galería</a>
+        <a class="landing__link" href="#contacto" data-i18n="navContact">Contacto</a>
       </nav>
-      <nav aria-label="Preferencias rápidas" class="landing__toggles">
-        <div class="toggle-group" role="group" aria-label="Language selection">
+      <nav aria-label="Preferencias rápidas" class="landing__toggles" data-i18n="quickPreferences" data-i18n-attr="aria-label" data-i18n-skip-text="true">
+        <div class="toggle-group" role="group" aria-label="Language selection" data-i18n="languageSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
           <button
             class="toggle-button toggle-button--language"
             id="languageToggle"
@@ -71,15 +71,15 @@
             data-current-language="es"
           >ES</button>
         </div>
-      
-        <div class="toggle-group" role="group" aria-label="Theme selection">
+
+        <div class="toggle-group" role="group" aria-label="Theme selection" data-i18n="themeSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
           <button
             class="toggle-button toggle-button--theme"
             id="themeToggle"
             type="button"
             aria-pressed="false"
-            aria-label="Switch to dark theme"
-          >Dark</button>
+            aria-label="Cambiar a tema oscuro"
+          >Oscuro</button>
         </div>
       </nav>
     </div>
@@ -98,7 +98,7 @@
     <section id="galeria" class="landing__gallery" aria-labelledby="gallery-title">
       
       <div class="section-header">
-        <h1 id="gallery-title">Our Menu</h1>
+        <h1 id="gallery-title" data-i18n="galleryTitle">Our Menu</h1>
       </div>
       <div class="landing__gallery-track" role="region" aria-labelledby="gallery-title">
         <figure class="landing__gallery-item">
@@ -163,25 +163,28 @@
         </figure>
       </div>
       <div class="landing__gallery-actions">
-        <a id="orderButton" class="cta cta--large" href="order.html">Ordena ahora</a>
+        <a id="orderButton" class="cta cta--large" href="order.html" data-i18n="orderNow">Ordena ahora</a>
       </div>
     </section>
     <section id="contacto" class="landing__about" aria-labelledby="about-title">
-      <h1 id="about-title" class="landing__brand-heading">Marxia Café y Bocaditos</h1>
-      <h2 class="landing__brand-subheading">Desayunos Bocaditos</h2>
-      <h2 class="landing__support">Entregamos en el Norte de Guayaquil: Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río</h2>
-      <h3 class="landing__whatsapp">WhatsApp: <a href="https://wa.me/593958741463" target="_blank" rel="noopener noreferrer">+593 958 741 463</a></h3>
-      <a class="cta cta--large landing__cta-secondary" href="order.html">Ordena ahora</a>
+      <h1 id="about-title" class="landing__brand-heading" data-i18n="brandTitle">Marxia Café y Bocaditos</h1>
+      <h2 class="landing__brand-subheading" data-i18n="brandSubheading">Desayunos Bocaditos</h2>
+      <h2 class="landing__support" data-i18n="deliveryCoverage">Entregamos en el Norte de Guayaquil: Saucés · Alborada · Guayacanes · Tarazana · Brisas del Río</h2>
+      <h3 class="landing__whatsapp">
+        <span data-i18n="contactWhatsAppLabel">WhatsApp:</span>
+        <a href="https://wa.me/593958741463" target="_blank" rel="noopener noreferrer">+593 958 741 463</a>
+      </h3>
+      <a class="cta cta--large landing__cta-secondary" href="order.html" data-i18n="orderNow">Ordena ahora</a>
     </section>
   </main>
 
   <footer class="landing__footer">
-    <p>&copy; <span id="copyrightYear"></span> Marxia Café y Bocaditos. Seguridad reforzada con buenas prácticas PCI DSS, NIST CSF y CISA.</p>
-    <nav aria-label="Información legal" class="landing__legal-links">
+    <p>&copy; <span id="copyrightYear"></span> <span data-i18n="landingFooterSecurity">Marxia Café y Bocaditos. Seguridad reforzada con buenas prácticas PCI DSS, NIST CSF y CISA.</span></p>
+    <nav aria-label="Información legal" class="landing__legal-links" data-i18n="legalInfo" data-i18n-attr="aria-label" data-i18n-skip-text="true">
       <ul>
-        <li><a href="consent.html">Gestión de consentimiento</a></li>
-        <li><a href="terms.html">Términos y Condiciones</a></li>
-        <li><a href="mailto:legal@marxia.ec">Contacto legal</a></li>
+        <li><a href="consent.html" data-i18n="footerConsentLink">Gestión de consentimiento</a></li>
+        <li><a href="terms.html" data-i18n="footerTermsLink">Términos y Condiciones</a></li>
+        <li><a href="mailto:legal@marxia.ec" data-i18n="footerLegalContact">Contacto legal</a></li>
       </ul>
     </nav>
   </footer>
