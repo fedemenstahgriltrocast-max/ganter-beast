@@ -18,9 +18,6 @@ import { formatCurrency } from './utils/currency.js';
   const drawers = Array.from(document.querySelectorAll('.drawer'));
   const payDrawer = document.querySelector('#payDrawer');
   const languageToggle = document.querySelector('#languageToggle');
-  const languageToggleOptions = languageToggle
-    ? Array.from(languageToggle.querySelectorAll('[data-language-option]'))
-    : [];
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const carousel = document.querySelector('[data-carousel]');
@@ -634,18 +631,8 @@ import { formatCurrency } from './utils/currency.js';
         'aria-label',
         isSpanish ? 'Switch to English' : 'Cambiar a Español'
       );
+      languageToggle.textContent = nextLang.toUpperCase();
     }
-
-    languageToggleOptions.forEach((option) => {
-      if (!(option instanceof HTMLElement)) {
-        return;
-      }
-      const targetLang = option.dataset.languageOption;
-      if (!targetLang) {
-        return;
-      }
-      option.classList.toggle('is-active', targetLang === nextLang);
-    });
 
     const dict = i18n.getDictionary(nextLang);
     document.querySelectorAll('[data-i18n]').forEach((node) => {
@@ -1007,9 +994,8 @@ import { formatCurrency } from './utils/currency.js';
 
     const quickLanguageToggle = target.closest('#languageToggle');
     if (quickLanguageToggle instanceof HTMLElement) {
-      const optionTarget = target.closest('[data-language-option]');
-      const langChoice = optionTarget?.getAttribute('data-language-option');
-      const nextLanguage = langChoice || (currentLanguage === 'es' ? 'en' : 'es');
+      const requestedLanguage = quickLanguageToggle.getAttribute('data-current-language');
+      const nextLanguage = requestedLanguage === 'en' ? 'es' : 'en';
       applyLanguage(nextLanguage);
       closeMenus();
       return;
