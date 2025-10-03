@@ -60,20 +60,20 @@
       <nav aria-label="Preferencias rápidas" class="landing__toggles">
         <div class="toggle-group" role="group" aria-label="Language selection">
           <button
-            class="toggle-button"
+            class="toggle-button toggle-button--language"
+            id="languageToggle"
             type="button"
-            data-language-option="es"
-            aria-pressed="true"
-            aria-label="Idioma actual: Español"
-          >ES</button>
-          <button
-            class="toggle-button"
-            type="button"
-            data-language-option="en"
-            aria-pressed="false"
+            role="switch"
+            aria-checked="false"
             aria-label="Switch to English"
-          >EN</button>
+            data-current-language="es"
+          >
+            <span class="toggle-button__option is-active" data-language-option="es">ES</span>
+            <span class="toggle-button__divider" aria-hidden="true">/</span>
+            <span class="toggle-button__option" data-language-option="en">EN</span>
+          </button>
         </div>
+      
         <div class="toggle-group" role="group" aria-label="Theme selection">
           <button
             class="toggle-button toggle-button--theme"

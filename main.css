@@ -508,6 +508,40 @@ body::after {
   margin-left: 0.5rem;
 }
 
+.toggle-button--language {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 1.1rem;
+  padding-left: 1.1rem;
+}
+
+.toggle-button__divider {
+  opacity: 0.65;
+}
+
+.toggle-button__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  transition: background var(--transition), color var(--transition),
+    box-shadow var(--transition);
+}
+
+.toggle-button__option.is-active {
+  background: var(--accent-strong);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(255, 127, 80, 0.26);
+}
+
+[data-theme="dark"] .toggle-button__option.is-active {
+  color: #0a141f;
+  box-shadow: 0 8px 18px rgba(126, 243, 179, 0.2);
+}
+
 .page {
   width: min(95vw, 100%);
   margin: 0 auto;

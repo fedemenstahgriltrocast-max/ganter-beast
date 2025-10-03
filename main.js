@@ -13,7 +13,10 @@
   const fabThemeMenu = document.querySelector('#fabThemeMenu');
   const drawers = Array.from(document.querySelectorAll('.drawer'));
   const payDrawer = document.querySelector('#payDrawer');
-  const languageToggleButtons = Array.from(document.querySelectorAll('[data-language-option]'));
+  const languageToggle = document.querySelector('#languageToggle');
+  const languageToggleOptions = languageToggle
+    ? Array.from(languageToggle.querySelectorAll('[data-language-option]'))
+    : [];
   const themeToggle = document.querySelector('#themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const carousel = document.querySelector('[data-carousel]');
@@ -785,27 +788,25 @@
     html.lang = nextLang;
     localStorage.setItem('marxia-lang', nextLang);
     updateFabMenuSelection();
-    languageToggleButtons.forEach((button) => {
-      if (!(button instanceof HTMLElement)) {
+    if (languageToggle instanceof HTMLElement) {
+      const isSpanish = nextLang === 'es';
+      languageToggle.setAttribute('data-current-language', nextLang);
+      languageToggle.setAttribute('aria-checked', String(!isSpanish));
+      languageToggle.setAttribute(
+        'aria-label',
+        isSpanish ? 'Switch to English' : 'Cambiar a Español'
+      );
+    }
+
+    languageToggleOptions.forEach((option) => {
+      if (!(option instanceof HTMLElement)) {
         return;
       }
-      const targetLang = button.dataset.languageOption;
+      const targetLang = option.dataset.languageOption;
       if (!targetLang) {
-        button.setAttribute('aria-pressed', 'false');
         return;
       }
-      const isActive = targetLang === nextLang;
-      button.textContent = targetLang.toUpperCase();
-      button.setAttribute('aria-pressed', String(isActive));
-      const label =
-        targetLang === 'es'
-          ? isActive
-            ? 'Idioma actual: Español'
-            : 'Cambiar a Español'
-          : isActive
-          ? 'Current language: English'
-          : 'Switch to English';
-      button.setAttribute('aria-label', label);
+      option.classList.toggle('is-active', targetLang === nextLang);
     });
 
     const dict = translations[nextLang];
@@ -1171,12 +1172,12 @@
       return;
     }
 
-    const languageButton = target.closest('[data-language-option]');
-    if (languageButton instanceof HTMLElement) {
-      const langChoice = languageButton.getAttribute('data-language-option');
-      if (langChoice) {
-        applyLanguage(langChoice);
-      }
+    const quickLanguageToggle = target.closest('#languageToggle');
+    if (quickLanguageToggle instanceof HTMLElement) {
+      const optionTarget = target.closest('[data-language-option]');
+      const langChoice = optionTarget?.getAttribute('data-language-option');
+      const nextLanguage = langChoice || (currentLanguage === 'es' ? 'en' : 'es');
+      applyLanguage(nextLanguage);
       closeMenus();
       return;
     }
