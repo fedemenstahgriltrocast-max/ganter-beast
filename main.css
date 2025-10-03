@@ -840,7 +840,7 @@ body::after {
 }
 
 #gallery-title {
-  font-size: 2rem;
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
 }
 
 .section-header p {
