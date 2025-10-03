@@ -31,10 +31,36 @@ const currencyDefaults = Object.freeze({
 
 const translations = Object.freeze({
   en: {
+    // Global navigation & layout
+    skipToContent: 'Skip to content',
+    brandName: 'Marxia',
+    brandTagline: 'Coffee & Bites',
+    brandTitle: 'Marxia Café y Bocaditos',
+    brandSubtitle: 'Breakfasts, pastries & catering in Guayaquil',
+    brandSubheading: 'Breakfast bites',
+    navHome: 'Home',
+    navHomeAria: 'Return to the home page',
+    navOrder: 'Order',
+    navGallery: 'Gallery',
+    navContact: 'Contact',
+    navConsent: 'Consent management',
+    navTerms: 'Terms & Conditions',
+    quickPreferences: 'Quick preferences',
+    languageSelection: 'Language selection',
+    languageToggleToEnglish: 'Switch to English',
+    languageToggleToSpanish: 'Switch to Spanish',
+    themeSelection: 'Theme selection',
+    themeToggleDark: 'Dark',
+    themeToggleLight: 'Light',
+    themeToggleAriaDark: 'Switch to dark theme',
+    themeToggleAriaLight: 'Switch to light theme',
+    legalInfo: 'Legal information',
+    landingFooterSecurity: 'Marxia Café y Bocaditos. Security reinforced with PCI DSS, NIST CSF, and CISA best practices.',
+
+    // Landing & ordering
     heroEyebrow: 'Guayaquil · Ecuador',
-    heroHeadline: 'Signature mornings',
-    heroSubheadline: 'Choose what energizes your day.',
-    heroPromise: 'Fresh flavors every day.',
+    heroTitle: 'Signature mornings',
+    heroSubtitle: 'Choose what energizes your day.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Breakfasts, pastries, and deliveries in North Guayaquil.',
     promise: 'Fresh flavors every day.',
@@ -49,6 +75,8 @@ const translations = Object.freeze({
     galleryImage5Alt: 'Bottled Pepsi chilled with ice',
     galleryImage6Alt: 'Seven Up bottle on crushed ice',
     orderNow: 'Order now',
+    openCalculatorLabel: 'Open calculator',
+    openCalculatorAria: 'Open order calculator in a new tab',
     orderTitle: 'Our menu',
     orderSubtitle: 'Tap to explore our handcrafted favorites.',
     insightsTitle: 'Experience dashboard',
@@ -258,10 +286,37 @@ const translations = Object.freeze({
     fabPayLabel: 'Payment summary',
   },
   es: {
+    // Navegación y diseño global
+    skipToContent: 'Saltar al contenido',
+    brandName: 'Marxia',
+    brandTagline: 'Café y Bocaditos',
+    brandTitle: 'Marxia Café y Bocaditos',
+    brandSubtitle: 'Desayunos, bocaditos y catering en Guayaquil',
+    brandSubheading: 'Desayunos artesanales',
+    navHome: 'Inicio',
+    navHomeAria: 'Volver a la página principal',
+    navOrder: 'Ordenar',
+    navGallery: 'Galería',
+    navContact: 'Contacto',
+    navConsent: 'Gestión de consentimiento',
+    navTerms: 'Términos y Condiciones',
+    quickPreferences: 'Preferencias rápidas',
+    languageSelection: 'Selección de idioma',
+    languageToggleToEnglish: 'Cambiar a inglés',
+    languageToggleToSpanish: 'Cambiar a español',
+    themeSelection: 'Selección de tema',
+    themeToggleDark: 'Oscuro',
+    themeToggleLight: 'Claro',
+    themeToggleAriaDark: 'Cambiar a tema oscuro',
+    themeToggleAriaLight: 'Cambiar a tema claro',
+    legalInfo: 'Información legal',
+    landingFooterSecurity:
+      'Marxia Café y Bocaditos. Seguridad reforzada con buenas prácticas PCI DSS, NIST CSF y CISA.',
+
+    // Landing y pedidos
     heroEyebrow: 'Guayaquil · Ecuador',
-    heroHeadline: 'Mañanas emblemáticas',
-    heroSubheadline: 'Elige lo que energiza su día.',
-    heroPromise: 'Sabores frescos todos los días.',
+    heroTitle: 'Mañanas emblemáticas',
+    heroSubtitle: 'Elige lo que energiza tu día.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Desayunos, bocaditos y entregas en el Norte de Guayaquil.',
     promise: 'Sabores frescos todos los días.',
@@ -277,6 +332,8 @@ const translations = Object.freeze({
     galleryImage5Alt: 'Botella de Pepsi fría con hielo',
     galleryImage6Alt: 'Botella de Seven Up sobre hielo',
     orderNow: 'Ordenar ahora',
+    openCalculatorLabel: 'Abrir calculadora',
+    openCalculatorAria: 'Abrir la calculadora de pedidos en una nueva pestaña',
     orderTitle: 'Nuestro menú',
     orderSubtitle: 'Toca para descubrir nuestros favoritos artesanales.',
     insightsTitle: 'Tablero de experiencia',
@@ -1852,6 +1909,23 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
         }
       }
     });
+  }
+
+  const calculatorButton = document.querySelector('#openCalc');
+  if (calculatorButton) {
+    const workerBase = (calculatorButton.getAttribute('data-worker-base') || '').trim().replace(/\/+$/, '');
+    const targetUrl = workerBase ? `${workerBase}/calc` : '';
+    if (!targetUrl) {
+      calculatorButton.setAttribute('disabled', 'true');
+      calculatorButton.setAttribute('aria-disabled', 'true');
+    } else {
+      calculatorButton.addEventListener('click', () => {
+        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!popup || popup.closed) {
+          window.location.href = targetUrl;
+        }
+      });
+    }
   }
 
   if (orderButton && orderSection) {
