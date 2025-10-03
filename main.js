@@ -31,6 +31,10 @@ const currencyDefaults = Object.freeze({
 
 const translations = Object.freeze({
   en: {
+    heroEyebrow: 'Guayaquil · Ecuador',
+    heroHeadline: 'Signature mornings',
+    heroSubheadline: 'Choose what energizes your day.',
+    heroPromise: 'Fresh flavors every day.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Breakfasts, pastries, and deliveries in North Guayaquil.',
     promise: 'Fresh flavors every day.',
@@ -104,6 +108,10 @@ const translations = Object.freeze({
     fabPayLabel: 'Payment summary',
   },
   es: {
+    heroEyebrow: 'Guayaquil · Ecuador',
+    heroHeadline: 'Mañanas emblemáticas',
+    heroSubheadline: 'Elige lo que energiza su día.',
+    heroPromise: 'Sabores frescos todos los días.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Desayunos, bocaditos y entregas en el Norte de Guayaquil.',
     promise: 'Sabores frescos todos los días.',
