@@ -495,9 +495,15 @@ base URL from `data-worker-base`.
   document.getElementById('openCalc').addEventListener('click', () => {
     const url = WORKER_BASE + "/calc";
     const w = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!w || w.closed) {
+    if (!w) {
       // Popup blocked? Navigate current tab.
       window.location.href = url;
+      return;
+    }
+    try {
+      w.opener = null;
+    } catch (err) {
+      // Ignore when the browser disallows adjusting the opener.
     }
   });
 </script>

@@ -1921,9 +1921,13 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
     } else {
       calculatorButton.addEventListener('click', () => {
         const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!popup || popup.closed) {
+        if (!popup) {
           window.location.href = targetUrl;
+          return;
         }
+        try {
+          popup.opener = null;
+        } catch (err) {}
       });
     }
   }

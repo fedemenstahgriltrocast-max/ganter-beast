@@ -1211,8 +1211,14 @@ import { formatCurrency } from './utils/currency.js';
     } else {
       calculatorButton.addEventListener('click', () => {
         const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!popup || popup.closed) {
+        if (!popup) {
           window.location.href = targetUrl;
+          return;
+        }
+        try {
+          popup.opener = null;
+        } catch (err) {
+          // Ignore if the browser prevents adjusting the opener reference.
         }
       });
     }
