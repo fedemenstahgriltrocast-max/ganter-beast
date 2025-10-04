@@ -111,8 +111,9 @@ const translations = Object.freeze({
     carouselNext: 'Next favorites',
     carouselPagination: 'Menu highlights',
     carouselSlideLabel: 'View slide {index}',
-    addToOrder: '+ Add',
-    removeFromOrder: '- Remove',
+    addToOrder: 'Add to order',
+    removeFromOrder: 'Remove from order',
+    productActionsAria: 'Quantity controls',
     summaryIncrease: 'Add one {item}',
     summaryDecrease: 'Remove one {item}',
     inCart: 'In cart: {count}',
@@ -371,8 +372,9 @@ const translations = Object.freeze({
     carouselNext: 'Siguientes favoritos',
     carouselPagination: 'Destacados del menú',
     carouselSlideLabel: 'Ver diapositiva {index}',
-    addToOrder: '+ Agregar',
-    removeFromOrder: '- Quitar',
+    addToOrder: 'Agregar al pedido',
+    removeFromOrder: 'Quitar del pedido',
+    productActionsAria: 'Controles de cantidad',
     summaryIncrease: 'Agregar un {item}',
     summaryDecrease: 'Quitar un {item}',
     inCart: 'En la canasta: {count}',
@@ -1926,14 +1928,20 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
       calculatorButton.setAttribute('aria-disabled', 'true');
     } else {
       calculatorButton.addEventListener('click', () => {
-        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!popup) {
-          window.location.href = targetUrl;
-          return;
-        }
-        try {
-          popup.opener = null;
-        } catch (err) {}
+        const anchor = document.createElement('a');
+        anchor.href = targetUrl;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.style.position = 'absolute';
+        anchor.style.opacity = '0';
+        anchor.style.pointerEvents = 'none';
+        anchor.style.width = '1px';
+        anchor.style.height = '1px';
+        document.body.appendChild(anchor);
+        anchor.click();
+        window.requestAnimationFrame(() => {
+          anchor.remove();
+        });
       });
     }
   }

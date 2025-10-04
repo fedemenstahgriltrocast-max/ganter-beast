@@ -1210,16 +1210,20 @@ import { formatCurrency } from './utils/currency.js';
       calculatorButton.setAttribute('aria-disabled', 'true');
     } else {
       calculatorButton.addEventListener('click', () => {
-        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!popup) {
-          window.location.href = targetUrl;
-          return;
-        }
-        try {
-          popup.opener = null;
-        } catch (err) {
-          // Ignore if the browser prevents adjusting the opener reference.
-        }
+        const anchor = document.createElement('a');
+        anchor.href = targetUrl;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.style.position = 'absolute';
+        anchor.style.opacity = '0';
+        anchor.style.pointerEvents = 'none';
+        anchor.style.width = '1px';
+        anchor.style.height = '1px';
+        document.body.appendChild(anchor);
+        anchor.click();
+        window.requestAnimationFrame(() => {
+          anchor.remove();
+        });
       });
     }
   }
