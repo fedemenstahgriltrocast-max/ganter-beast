@@ -179,14 +179,20 @@
   </main>
 
   <footer class="landing__footer">
-    <p>&copy; <span id="copyrightYear"></span> <span data-i18n="landingFooterSecurity">Marxia Café y Bocaditos. Seguridad reforzada con buenas prácticas PCI DSS, NIST CSF y CISA.</span></p>
-    <nav aria-label="Información legal" class="landing__legal-links" data-i18n="legalInfo" data-i18n-attr="aria-label" data-i18n-skip-text="true">
-      <ul>
-        <li><a href="consent.html" data-i18n="footerConsentLink">Gestión de consentimiento</a></li>
-        <li><a href="terms.html" data-i18n="footerTermsLink">Términos y Condiciones</a></li>
-        <li><a href="mailto:legal@marxia.ec" data-i18n="footerLegalContact">Contacto legal</a></li>
-      </ul>
-    </nav>
+    <div class="footer__layout">
+      <nav aria-label="Información legal" class="landing__legal-links" data-i18n="legalInfo" data-i18n-attr="aria-label" data-i18n-skip-text="true">
+        <ul>
+          <li><a href="consent.html" data-i18n="footerConsentLink">Gestión de consentimiento</a></li>
+          <li><a href="terms.html" data-i18n="footerTermsLink">Términos y Condiciones</a></li>
+          <li><a href="mailto:legal@marxia.ec" data-i18n="footerLegalContact">Contacto legal</a></li>
+        </ul>
+      </nav>
+      <p class="footer__copy">
+        &copy; <span id="copyrightYear"></span>
+        <span class="footer__brand">Marxia Café y Bocaditos™.</span>
+        <span data-i18n="rights">Todos los derechos reservados.</span>
+      </p>
+    </div>
   </footer>
 
   <script src="main.js" defer></script>
