@@ -78,6 +78,8 @@ const translations = Object.freeze({
     galleryImage5Alt: 'Bottled Pepsi chilled with ice',
     galleryImage6Alt: 'Seven Up bottle on crushed ice',
     orderNow: 'Order now',
+    openCalculatorLabel: 'Open calculator',
+    openCalculatorAria: 'Open order calculator in a new tab',
     orderTitle: 'Our menu',
     orderSubtitle: 'Tap to explore our handcrafted favorites.',
     insightsTitle: 'Experience dashboard',
@@ -336,6 +338,8 @@ const translations = Object.freeze({
     galleryImage5Alt: 'Botella de Pepsi fría con hielo',
     galleryImage6Alt: 'Botella de Seven Up sobre hielo',
     orderNow: 'Ordenar ahora',
+    openCalculatorLabel: 'Abrir calculadora',
+    openCalculatorAria: 'Abrir la calculadora de pedidos en una nueva pestaña',
     orderTitle: 'Nuestro menú',
     orderSubtitle: 'Toca para descubrir nuestros favoritos artesanales.',
     insightsTitle: 'Tablero de experiencia',
@@ -1911,6 +1915,27 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
         }
       }
     });
+  }
+
+  const calculatorButton = document.querySelector('#openCalc');
+  if (calculatorButton) {
+    const workerBase = (calculatorButton.getAttribute('data-worker-base') || '').trim().replace(/\/+$/, '');
+    const targetUrl = workerBase ? `${workerBase}/calc` : '';
+    if (!targetUrl) {
+      calculatorButton.setAttribute('disabled', 'true');
+      calculatorButton.setAttribute('aria-disabled', 'true');
+    } else {
+      calculatorButton.addEventListener('click', () => {
+        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!popup) {
+          window.location.href = targetUrl;
+          return;
+        }
+        try {
+          popup.opener = null;
+        } catch (err) {}
+      });
+    }
   }
 
   if (orderButton && orderSection) {
