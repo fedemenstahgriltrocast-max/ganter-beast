@@ -1899,17 +1899,19 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
       return;
     }
 
-    if (target === fabLanguage) {
+    const fabTarget = target.closest('.fab');
+
+    if (fabTarget === fabLanguage) {
       showFabLabel(fabLanguage);
       toggleMenu(document.querySelector('#fabLanguageMenu'), fabLanguage);
-    } else if (target === fabTheme) {
+    } else if (fabTarget === fabTheme) {
       showFabLabel(fabTheme);
       toggleMenu(document.querySelector('#fabThemeMenu'), fabTheme);
-    } else if (target === fabChat) {
+    } else if (fabTarget === fabChat) {
       toggleFabDrawer(fabChat, 'chatDrawer');
-    } else if (target === fabPay) {
+    } else if (fabTarget === fabPay) {
       toggleFabDrawer(fabPay, 'payDrawer');
-    } else if (!target.closest('.fab-menu') && !target.closest('.fab')) {
+    } else if (!target.closest('.fab-menu') && !fabTarget) {
       closeMenus();
     }
   });
