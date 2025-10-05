@@ -43,44 +43,6 @@
 </head>
 <body data-calculator-base="https://cthrough-woodypecker-265a.meeka-monsta-dooku.workers.dev">
   <a class="skip-link" href="#mainContent" data-i18n="skipToContent">Saltar al contenido</a>
-  <header class="topbar" role="banner">
-    <div class="topbar__brand">
-      <a href="index.html" class="topbar__home" aria-label="Volver a la página principal" data-i18n="navHomeAria" data-i18n-attr="aria-label" data-i18n-skip-text="true">
-        <span aria-hidden="true" class="logo">☕</span>
-        <span class="topbar__home-text" data-i18n="navHome">Inicio</span>
-      </a>
-      <p>
-        <strong id="brandTitle" data-i18n="brandTitle">Marxia Café y Bocaditos</strong>
-        <span id="brandSubtitle" data-i18n="brandSubtitle">Breakfasts, pastries &amp; catering in Guayaquil</span>
-        <span data-i18n="contactWhatsAppLabel">WhatsApp:</span><a href="https://wa.me/593958741463"
-        target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +593 958 741 463">+593 958 741 463</a>
-      </p>
-    </div>
- <nav aria-label="Preferencias rápidas" class="landing__toggles" data-i18n="quickPreferences" data-i18n-attr="aria-label" data-i18n-skip-text="true">
-        <div class="toggle-group" role="group" aria-label="Language selection" data-i18n="languageSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
-          <button
-            class="toggle-button toggle-button--language"
-            id="languageToggle"
-            type="button"
-            role="switch"
-            aria-checked="false"
-            aria-label="Switch to English"
-            data-current-language="es"
-          >ES</button>
-        </div>
-
-        <div class="toggle-group" role="group" aria-label="Theme selection" data-i18n="themeSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
-          <button
-            class="toggle-button toggle-button--theme"
-            id="themeToggle"
-            type="button"
-            aria-pressed="false"
-            aria-label="Cambiar a tema oscuro"
-          >Oscuro</button>
-        </div>
-      </nav>
-  </header>
-
   <main class="page" id="mainContent">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__content">
@@ -88,19 +50,32 @@
         <h2 class="tagline" data-i18n="tagline">Desayunos, bocaditos y entregas en el Norte de Guayaquil.</h2>
         <h2 class="hero__promise" data-i18n="promise">Sabores frescos todos los días.</h2>
         <div class="hero__cta">
-          <button id="orderButton" class="cta" type="button" data-i18n="orderNow">Order now</button>
-          <button
-            id="openCalc"
-            class="button button--ghost"
-            type="button"
-            data-worker-base="https://cthrough-woodypecker-265a.meeka-monsta-dooku.workers.dev"
-            aria-label="Abrir calculadora de pedidos"
-            data-i18n="openCalculatorAria"
-            data-i18n-attr="aria-label"
-            data-i18n-skip-text="true"
-          >
-            <span data-i18n="openCalculatorLabel">Abrir calculadora</span>
-          </button>
+          <div class="hero__actions">
+            <button id="orderButton" class="cta" type="button" data-i18n="orderNow">Ordenar ahora</button>
+            <nav aria-label="Preferencias rápidas" class="landing__toggles hero__toggles" data-i18n="quickPreferences" data-i18n-attr="aria-label" data-i18n-skip-text="true">
+              <div class="toggle-group" role="group" aria-label="Language selection" data-i18n="languageSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
+                <button
+                  class="toggle-button toggle-button--language"
+                  id="languageToggle"
+                  type="button"
+                  role="switch"
+                  aria-checked="false"
+                  aria-label="Switch to English"
+                  data-current-language="es"
+                >ES</button>
+              </div>
+
+              <div class="toggle-group" role="group" aria-label="Theme selection" data-i18n="themeSelection" data-i18n-attr="aria-label" data-i18n-skip-text="true">
+                <button
+                  class="toggle-button toggle-button--theme"
+                  id="themeToggle"
+                  type="button"
+                  aria-pressed="false"
+                  aria-label="Cambiar a tema oscuro"
+                >Oscuro</button>
+              </div>
+            </nav>
+          </div>
         </div>
       </div>
     </section>
