@@ -388,14 +388,17 @@ body::after {
 .landing__hero {
   padding: clamp(3.5rem, 8vw, 7rem) clamp(1.5rem, 6vw, 5.5rem);
   display: grid;
-  justify-items: start;
-  align-items: center;
+  justify-items: center;
+  align-items: start;
 }
 
 .landing__hero-content {
   max-width: 720px;
+  width: 100%;
   display: grid;
   gap: 0.75rem;
+  justify-items: center;
+  text-align: center;
 }
 .landing__eyebrow {
   margin: 0;
@@ -406,8 +409,8 @@ body::after {
 
 .landing__headline {
   margin: 0;
-  font-size: clamp(2.25rem, 6.4vw, 3.5rem);
-  line-height: 1.05;
+  font-size: 2.2rem;
+  line-height: 1.1;
 }
 
 .landing__subheadline {
@@ -589,22 +592,26 @@ body::after {
   gap: clamp(2.5rem, 4vw, 3.5rem);
 }
 
+
 .hero {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-layered);
   padding: clamp(2rem, 5vw, 3rem);
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   justify-content: center;
+  align-items: center;
   --shape-font-boost: 0px;
   transition: box-shadow var(--transition), filter var(--transition), transform var(--transition);
 }
 
 .hero__content {
   max-width: 640px;
-  text-align: center;
+  text-align: left;
   display: grid;
   gap: 1.25rem;
+  justify-items: center;
+  align-items: center;
 }
 
 .hero h1 {
@@ -615,10 +622,38 @@ body::after {
   transition: font-size var(--transition), letter-spacing var(--transition);
 }
 
+
 .hero__cta {
   display: grid;
   gap: 0.75rem;
-  justify-items: center;
+  justify-items: start;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero__toggles {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.hero__toggles {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .hero__promise {
