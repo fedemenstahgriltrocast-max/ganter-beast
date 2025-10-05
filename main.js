@@ -58,11 +58,11 @@ const translations = Object.freeze({
     landingFooterSecurity: 'Marxia Café y Bocaditos. Security reinforced with PCI DSS, NIST CSF, and CISA best practices.',
 
     // Landing & ordering
-    heroEyebrow: 'Guayaquil · Ecuador',
-    heroTitle: 'Signature mornings',
-    heroSubtitle: 'Choose what energizes your day.',
-    heroHeadline: 'Signature mornings',
-    heroSubheadline: 'Choose what energizes your day.',
+    heroEyebrow: 'Marxia Café y Bocaditos',
+    heroTitle: 'Marxia Café y Bocaditos',
+    heroSubtitle: 'Breakfasts, bites, and deliveries across North Guayaquil.',
+    heroHeadline: 'Marxia Café y Bocaditos',
+    heroSubheadline: 'Breakfasts, bites, and deliveries across North Guayaquil.',
     heroPromise: 'Fresh flavors every day.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Breakfasts, pastries, and deliveries in North Guayaquil.',
@@ -318,11 +318,11 @@ const translations = Object.freeze({
       'Marxia Café y Bocaditos. Seguridad reforzada con buenas prácticas PCI DSS, NIST CSF y CISA.',
 
     // Landing y pedidos
-    heroEyebrow: 'Guayaquil · Ecuador',
-    heroTitle: 'Mañanas emblemáticas',
-    heroSubtitle: 'Elige lo que energiza tu día.',
-    heroHeadline: 'Mañanas emblemáticas',
-    heroSubheadline: 'Elige lo que energiza tu día.',
+    heroEyebrow: 'Marxia Café y Bocaditos',
+    heroTitle: 'Marxia Café y Bocaditos',
+    heroSubtitle: 'Desayunos, bocaditos y entregas en el Norte de Guayaquil.',
+    heroHeadline: 'Marxia Café y Bocaditos',
+    heroSubheadline: 'Desayunos, bocaditos y entregas en el Norte de Guayaquil.',
     heroPromise: 'Sabores frescos todos los días.',
     headline: 'Marxia Café y Bocaditos',
     tagline: 'Desayunos, bocaditos y entregas en el Norte de Guayaquil.',
