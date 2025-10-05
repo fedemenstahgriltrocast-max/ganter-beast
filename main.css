@@ -987,10 +987,11 @@ body::after {
 }
 
 .order {
-  background: var(--surface);
+  background: none;
+  background-color: transparent;
   border-radius: var(--radius-lg);
   padding: clamp(2rem, 4vw, 3rem);
-  box-shadow: var(--shadow-layered);
+  box-shadow: none;
   display: grid;
   gap: clamp(1.5rem, 4vw, 2.5rem);
   justify-items: center;
@@ -1083,6 +1084,7 @@ body::after {
   width: min(95vw, 100%);
   max-width: min(95vw, 100%);
   margin-inline: auto;
+  background-color: transparent;
 }
 
 .product-carousel__viewport {
@@ -1152,7 +1154,7 @@ body::after {
 }
 
 .product-carousel__control span {
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 1;
 }
 
@@ -1217,6 +1219,7 @@ body::after {
 
 .product-card {
   background: none;
+  background-color: transparent;
   border-radius: 0;
   padding: 0;
   display: flex;
@@ -2181,7 +2184,6 @@ body::after {
   }
 
   .hero:hover,
-  .order:hover,
   .panel:hover,
   .contact:hover,
   .drawer__content:hover {
@@ -2189,6 +2191,12 @@ body::after {
     box-shadow: var(--shadow-layered-strong);
     filter: brightness(var(--hover-darken));
     transform: translateY(-6px);
+  }
+
+  .order:hover {
+    box-shadow: none;
+    filter: none;
+    transform: none;
   }
 
   .payment-list li:hover {
