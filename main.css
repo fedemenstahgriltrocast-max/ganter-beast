@@ -2,6 +2,7 @@
   color-scheme: light;
   font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
     "Helvetica Neue", sans-serif;
+  font-size: 62.5%;
   line-height: 1.6;
   scroll-behavior: smooth;
   --transition: 0.25s ease;
@@ -60,6 +61,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  font-size: 1.5rem;
   background: linear-gradient(
     135deg,
     #a47551 0%,
