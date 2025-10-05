@@ -1798,6 +1798,19 @@ body::after {
   margin-inline: 0.25rem;
 }
 
+.footer__calculator-link {
+  margin-left: 0.75rem;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.footer__calculator-link:hover,
+.footer__calculator-link:focus-visible {
+  text-decoration-thickness: 0.2rem;
+}
+
 .fab-group {
   position: fixed;
   right: 1.5rem;

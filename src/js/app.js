@@ -1201,7 +1201,6 @@ import { formatCurrency } from './utils/currency.js';
     });
   }
 
-
   if (orderButton && orderSection) {
     orderButton.addEventListener('click', (event) => {
       event.preventDefault();
