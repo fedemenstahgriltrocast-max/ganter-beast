@@ -1117,6 +1117,37 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
     return labels.en || labels.es || entry.card?.dataset?.labelEn || entry.card?.dataset?.name || '';
   };
 
+  const normalizeProductText = (value = '', locale = currentLanguage) =>
+    value
+      .toLocaleLowerCase(locale)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const shouldHideProductMeta = (nameText, metaText, locale = currentLanguage) => {
+    const normalizedName = normalizeProductText(nameText, locale);
+    const normalizedMeta = normalizeProductText(metaText, locale);
+
+    if (!normalizedMeta) {
+      return true;
+    }
+
+    if (normalizedMeta === normalizedName) {
+      return true;
+    }
+
+    const isMetaContained = normalizedName.includes(normalizedMeta);
+    const isNameContained = normalizedMeta.includes(normalizedName);
+
+    if ((isMetaContained || isNameContained) && Math.min(normalizedMeta.length, normalizedName.length) <= 12) {
+      return true;
+    }
+
+    return false;
+  };
+
   const updateProductContent = (lang = currentLanguage) => {
     productCards.forEach((card) => {
       const nameKey = lang === 'es' ? 'labelEs' : 'labelEn';
@@ -1135,8 +1166,19 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
       }
 
       const metaNode = card.querySelector('.product-card__meta');
-      if (metaNode && meta !== undefined) {
-        metaNode.textContent = meta;
+      if (metaNode) {
+        let metaText = meta;
+        if (meta !== undefined) {
+          metaNode.textContent = meta;
+        } else {
+          metaText = metaNode.textContent || '';
+        }
+
+        const shouldHide = shouldHideProductMeta(name, metaText || '', lang);
+        metaNode.hidden = shouldHide;
+        if (!shouldHide && meta === undefined) {
+          metaNode.textContent = metaText;
+        }
       }
     });
   };
