@@ -1919,33 +1919,6 @@ function createCartStore({ taxRate = 0, deliveryFee = 0 } = {}) {
     });
   }
 
-  const calculatorButton = document.querySelector('#openCalc');
-  if (calculatorButton) {
-    const localPath = (calculatorButton.getAttribute('data-calc-path') || '').trim();
-    const workerBase = (calculatorButton.getAttribute('data-worker-base') || '').trim().replace(/\/+$/, '');
-    const targetUrl = localPath || (workerBase ? `${workerBase}/calc` : '');
-    if (!targetUrl) {
-      calculatorButton.setAttribute('disabled', 'true');
-      calculatorButton.setAttribute('aria-disabled', 'true');
-    } else {
-      calculatorButton.addEventListener('click', () => {
-        const anchor = document.createElement('a');
-        anchor.href = targetUrl.startsWith('http') ? targetUrl : new URL(targetUrl, window.location.href).toString();
-        anchor.target = '_blank';
-        anchor.rel = 'noopener noreferrer';
-        anchor.style.position = 'absolute';
-        anchor.style.opacity = '0';
-        anchor.style.pointerEvents = 'none';
-        anchor.style.width = '1px';
-        anchor.style.height = '1px';
-        document.body.appendChild(anchor);
-        anchor.click();
-        window.requestAnimationFrame(() => {
-          anchor.remove();
-        });
-      });
-    }
-  }
 
   if (orderButton && orderSection) {
     orderButton.addEventListener('click', (event) => {
