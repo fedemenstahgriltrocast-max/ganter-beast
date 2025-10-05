@@ -8,6 +8,7 @@ const modules = [
   'src/js/i18n/dictionary.js',
   'src/js/i18n/index.js',
   'src/js/cart/cart-store.js',
+  'src/js/calculator.js',
   'src/js/app.js',
 ];
 

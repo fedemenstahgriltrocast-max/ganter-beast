@@ -92,6 +92,7 @@ export const translations = Object.freeze({
     footerConsentLink: 'Consent management',
     footerTermsLink: 'Terms & Conditions',
     footerLegalContact: 'Legal contact',
+    footerCalculatorLink: 'Order calculator',
     rights: 'All rights reserved.',
     edgeSecurity: 'Edge protected via Cloudflare Zero Trust',
 
@@ -353,6 +354,7 @@ export const translations = Object.freeze({
     footerConsentLink: 'Gestión de consentimiento',
     footerTermsLink: 'Términos y Condiciones',
     footerLegalContact: 'Contacto legal',
+    footerCalculatorLink: 'Calculadora de pedidos',
     rights: 'Todos los derechos reservados.',
     edgeSecurity: 'Protegido en el borde con Cloudflare Zero Trust',
 
