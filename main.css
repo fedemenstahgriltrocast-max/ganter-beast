@@ -628,7 +628,7 @@ body::after {
 .hero__cta {
   display: grid;
   gap: 0.75rem;
-  justify-items: start;
+  justify-items: center;
 }
 
 .hero__actions {
@@ -642,6 +642,10 @@ body::after {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.hero__actions .hero__toggles {
+  order: -1;
 }
 
 .hero__actions {
