@@ -30,6 +30,21 @@ export async function mountSolariaFabChatbot(config = {}) {
   return root;
 }
 
+/**
+ * Returns a lightweight Solaria brain for custom UIs.
+ * The caller receives the normalized state plus a reply helper that mirrors
+ * the floating FAB behaviour without injecting any DOM nodes.
+ */
+export function createSolariaBrain(config = {}) {
+  const state = normalizeConfig(config);
+  return {
+    state,
+    async reply(text) {
+      return resolveReply(text, state);
+    }
+  };
+}
+
 /* -------------------- Config -------------------- */
 function normalizeConfig(cfg){
   const defaults = {

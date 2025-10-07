@@ -36,3 +36,9 @@ The Solaria chatbot is a self-contained floating action button (FAB) assistant d
 ```
 
 You can omit the `resolver` field to keep the assistant fully offline. The module never issues write operations, preserving a client-only, read-only posture.
+
+## OPS AI full-screen sample
+
+For a panel-style chatbot powered by the same Solaria brain, open [`ops-ai-chatbot.html`](./ops-ai-chatbot.html). The page imports
+`createSolariaBrain` and wires the responses into a bespoke UX with bilingual toggles, quick chips, and a human-verification
+checkbox. This demonstrates how to reuse Solaria logic without the floating action button shell.
