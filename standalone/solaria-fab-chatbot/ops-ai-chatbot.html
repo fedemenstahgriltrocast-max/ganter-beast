@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OPS AI Chatbot · Powered by Solaria</title>
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  integrity="sha512-RXf+QSDCUqpphKAa+WAc3XQ8fE5H1aO/8e2wY+8Q1n8yVwDh1RZTf1TDN8E+u1n7eU5KyY7X2Qo+hqeZZn+UAQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+:root{
+  --clr-primary:#00c4ff;
+  --clr-accent :#ff3bdb;
+  --clr-accent-dark:#e000be;
+  --clr-bg  :#ffffff;
+  --clr-bg-dark:#121212;
+  --clr-tx  :#333333;
+  --clr-tx-dark:#f0f0f0;
+}
+body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;
+      font-family:'Segoe UI',Arial,sans-serif;background:var(--clr-bg);color:var(--clr-tx);
+      transition:background .3s,color .3s}
+body.dark{--clr-bg:var(--clr-bg-dark);--clr-tx:var(--clr-tx-dark)}
+
+#chatbot-container{width:320px;height:560px;background:#251541;border:2px solid var(--clr-accent);
+  border-radius:18px;box-shadow:0 12px 36px #0008;display:flex;flex-direction:column;overflow:hidden}
+#chatbot-header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--clr-primary) 0%,var(--clr-accent) 100%);
+  color:#fff;font-weight:600;font-size:1.1rem;padding:.75rem 1rem}
+#chatbot-header .ctrl{cursor:pointer;font-size:.75rem;font-weight:500;user-select:none;opacity:.85}
+#chatbot-header .ctrl:hover{opacity:1}
+#chat-log{flex:1;overflow-y:auto;padding:1rem;background:#1b0e2d;color:#eee;font-size:.94rem;
+  display:flex;flex-direction:column}
+.chat-msg{margin:.35rem 0;max-width:90%;line-height:1.38}
+.user{margin-left:auto;background:var(--clr-primary);color:#000;padding:.55rem .7rem;border-radius:14px 14px 0 14px}
+.bot {margin-right:auto;background:#321b53;color:#fff;padding:.55rem .7rem;border-radius:14px 14px 14px 0}
+.bot.chips-container{background:transparent;padding:0}
+.bot.chips-container .chips{margin:0}
+.bot.disclaimer{font-size:.8rem;opacity:.75;background:transparent;border:1px dashed rgba(255,255,255,.25);
+  padding:.45rem .6rem;color:#ddd}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 0}
+.chips button{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:.35rem .7rem;
+  border-radius:999px;font-size:.75rem;cursor:pointer;transition:background .2s,color .2s}
+.chips button:hover{background:rgba(255,255,255,.15)}
+#chatbot-form-container{background:#220f3a;border-top:1px solid var(--clr-accent);padding:.55rem .7rem}
+#chatbot-input-row{display:flex;gap:.6rem}
+#chatbot-input{flex:1;background:transparent;border:none;color:#fff;font-size:.95rem;padding:.55rem .6rem}
+#chatbot-send{display:flex;align-items:center;gap:6px;background:var(--clr-accent);border:none;color:#fff;
+  font-weight:600;padding:.5rem .9rem;border-radius:8px;cursor:pointer;transition:.3s}
+#chatbot-send i{transition:transform .3s}
+#chatbot-send:hover i{transform:rotate(-45deg)}
+#chatbot-send:disabled{background:#555;cursor:not-allowed}
+.human-check{color:#ddd;font-size:.85rem;display:flex;align-items:center;margin-top:.3rem}
+.human-check input{margin-right:.4rem}
+@media(max-width:480px){#chatbot-container{height:75vh;width:90%}}
+</style>
+</head>
+<body>
+<div id="chatbot-container" role="dialog" aria-modal="true">
+  <div id="chatbot-header">
+    <span id="title" data-en="OPS AI Chatbot" data-es="Chatbot OPS AI">OPS AI Chatbot</span>
+    <div>
+      <span id="langCtrl" class="ctrl">ES</span>
+      &nbsp;|&nbsp;
+      <span id="themeCtrl" class="ctrl">Dark</span>
+    </div>
+  </div>
+  <div id="chat-log" aria-live="polite"></div>
+  <div id="chatbot-form-container">
+    <form id="chatbot-input-row" autocomplete="off">
+      <input id="chatbot-input" type="text" placeholder="Type your message..." required maxlength="256"
+             data-en-ph="Type your message..." data-es-ph="Escriba su mensaje...">
+      <button id="chatbot-send" type="submit" disabled aria-label="Send">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </form>
+    <label class="human-check">
+      <input type="checkbox" id="human-check">
+      <span id="human-label" data-en="I am human" data-es="Soy humano">I am human</span>
+    </label>
+  </div>
+</div>
+<script type="module">
+import { createSolariaBrain } from './solaria-fab-chatbot.js';
+
+const qs = s => document.querySelector(s);
+const qsa = s => [...document.querySelectorAll(s)];
+
+const langCtrl   = qs('#langCtrl');
+const transNodes = qsa('[data-en]');
+const phNodes    = qsa('[data-en-ph]');
+const humanLab   = qs('#human-label');
+
+langCtrl.onclick = () => {
+  const toES = langCtrl.textContent === 'ES';
+  document.documentElement.lang = toES ? 'es' : 'en';
+  langCtrl.textContent = toES ? 'EN' : 'ES';
+  transNodes.forEach(node => node.textContent = toES ? node.dataset.es : node.dataset.en);
+  phNodes.forEach(node => node.placeholder  = toES ? node.dataset.esPh : node.dataset.enPh);
+  humanLab.textContent = toES ? humanLab.dataset.es : humanLab.dataset.en;
+};
+
+const themeCtrl = qs('#themeCtrl');
+themeCtrl.onclick = () => {
+  const dark = themeCtrl.textContent === 'Dark';
+  document.body.classList.toggle('dark', dark);
+  themeCtrl.textContent = dark ? 'Light' : 'Dark';
+};
+
+const log   = qs('#chat-log');
+const form  = qs('#chatbot-input-row');
+const input = qs('#chatbot-input');
+const send  = qs('#chatbot-send');
+const guard = qs('#human-check');
+
+guard.onchange = () => send.disabled = !guard.checked;
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function addMsg(text, cls = 'bot', { html = false, extraClass = '' } = {}){
+  const div = document.createElement('div');
+  div.className = `chat-msg ${cls}${extraClass ? ' ' + extraClass : ''}`;
+  if(html){
+    div.innerHTML = text;
+  } else {
+    div.textContent = text;
+  }
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+function renderChips(state){
+  if(!state.suggestions?.length) return;
+  const container = document.createElement('div');
+  container.className = 'chat-msg bot chips-container';
+  const wrap = document.createElement('div');
+  wrap.className = 'chips';
+  state.suggestions.forEach(item => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = item.label;
+    btn.addEventListener('click', () => {
+      if(!guard.checked){
+        guard.checked = true;
+        guard.dispatchEvent(new Event('change'));
+      }
+      input.value = item.value;
+      handleSubmit(item.value);
+    });
+    wrap.appendChild(btn);
+  });
+  container.appendChild(wrap);
+  log.appendChild(container);
+  log.scrollTop = log.scrollHeight;
+}
+
+const solaria = createSolariaBrain({
+  messages: {
+    welcome: '<strong>Hola, soy Solaria para OPS AI.</strong><br>Guío tus flujos DevSecOps, accesibilidad e IA.',
+    disclaimer: '⚠️ Respuestas informativas. No compartas datos sensibles. / Informational guidance only.',
+    fallback: 'Anoto tu solicitud y la revisaremos manualmente. ¿Deseas intentar con otra pregunta?'
+  },
+  suggestions: [
+    { label: 'Mejoras UX', value: 'Recomienda mejoras UX 2025' }
+  ],
+  qna: [
+    {
+      match: /(devsecops|cicd|pipeline)/i,
+      reply: '🔐 <strong>DevSecOps OPS Core:</strong> Integrar análisis SAST/DAST en cada commit, firmar artefactos, y ejecutar revisiones IaC automatizadas.'
+    },
+    {
+      match: /(pci|pago|tarjeta)/i,
+      reply: '💳 <strong>PCI DSS 4.0:</strong> Segmenta redes, aplica MFA para administradores, registra eventos en SIEM y mantén inventario cifrado AES-256.'
+    },
+    {
+      match: /(ux|experiencia|accesibilidad)/i,
+      reply: '🎨 <strong>UX 2025:</strong> Micro-interacciones calm tech, dark mode accesible, y métricas Core Web Vitals bajo 1.8s LCP.'
+    }
+  ],
+  resolver: async (text) => {
+    try {
+      const response = await fetch('https://your-cloudflare-worker.example.com/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      if(!response.ok) return null;
+      const data = await response.json();
+      return data.reply || null;
+    } catch (err) {
+      console.warn('Remote resolver unavailable', err);
+      return null;
+    }
+  }
+});
+
+addMsg(solaria.state.messages.disclaimer, 'bot', { html: false, extraClass: 'disclaimer' });
+addMsg(solaria.state.messages.welcome, 'bot', { html: true });
+renderChips(solaria.state);
+
+async function handleSubmit(preset){
+  const raw = preset ?? input.value.trim();
+  if(!raw) return;
+  addMsg(escapeHtml(raw), 'user', { html: true });
+  input.value='';
+  send.disabled = true;
+  const placeholder = addMsg('…', 'bot');
+  try {
+    const reply = await solaria.reply(raw);
+    placeholder.innerHTML = reply;
+  } catch (err){
+    console.error(err);
+    placeholder.textContent = 'Error: No se pudo obtener respuesta.';
+  }
+  send.disabled = !guard.checked;
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if(!guard.checked) return;
+  handleSubmit();
+});
+</script>
+</body>
+</html>
