@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node --test"
+    "lint": "node --test tests/quality/eslint-syntax.test.js",
+    "test": "node --test",
+    "test:manifest": "node --test tests/quality/manifest-structure.test.js"
   },
   "devDependencies": {}
 }

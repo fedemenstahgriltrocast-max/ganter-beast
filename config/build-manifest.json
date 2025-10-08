@@ -1,0 +1,12 @@
+{
+  "banner": "// Generated file. Do not edit directly. Use `npm run build` to regenerate.\n",
+  "output": "main.js",
+  "modules": [
+    "src/js/utils/currency.js",
+    "src/js/i18n/dictionary.js",
+    "src/js/i18n/index.js",
+    "src/js/cart/cart-store.js",
+    "src/js/calculator.js",
+    "src/js/app/index.js"
+  ]
+}

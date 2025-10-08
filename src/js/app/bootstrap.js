@@ -1,8 +1,8 @@
-import { createCartStore } from './cart/cart-store.js';
-import { createI18nManager } from './i18n/index.js';
-import { formatCurrency } from './utils/currency.js';
+import { createCartStore } from '../cart/cart-store.js';
+import { createI18nManager } from '../i18n/index.js';
+import { formatCurrency } from '../utils/currency.js';
 
-(function () {
+function bootstrap(window, document) {
   const html = document.documentElement;
   const copyright = document.querySelector('#copyrightYear');
   const orderSection = document.querySelector('.order');
@@ -1263,4 +1263,17 @@ import { formatCurrency } from './utils/currency.js';
   applyDrawerLayout();
   updateCarousel();
   setCopyright();
-})();
+}
+
+export function initializeApp(environment = {}) {
+  const runtimeWindow = environment.window || (typeof window !== 'undefined' ? window : undefined);
+  const runtimeDocument = environment.document || runtimeWindow?.document;
+
+  if (!runtimeWindow || !runtimeDocument) {
+    throw new Error('initializeApp requires a window and document instance.');
+  }
+
+  bootstrap(runtimeWindow, runtimeDocument);
+}
+
+export { bootstrap };
